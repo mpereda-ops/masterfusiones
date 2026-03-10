@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador PMI Internacional · doinGlobal / USAL</title>
+<style>
+:root{
+  --cream:#FAFAF7;--indigo:#1E3A5F;--gold:#B8923A;--terra:#C0604A;
+  --graphite:#2C2C2C;--lb:#EEF2F7;--plat:#D4D4D4;--white:#fff;
+  --indigo2:#2E5282;--gold2:#D4A955;--ok:#2D7A4F;--err:#B03A2E;
+  --shadow:0 4px 20px rgba(30,58,95,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--cream);color:var(--graphite);min-height:100vh}
+.screen{display:none;min-height:100vh}
+.screen.active{display:flex;flex-direction:column}
+
+/* ── HEADER ── */
+.hdr{background:var(--indigo);color:#fff;padding:18px 32px;display:flex;align-items:center;gap:16px}
+.hdr-logo{font-size:11px;opacity:.7;letter-spacing:.5px;text-transform:uppercase}
+.hdr-title{font-size:16px;font-weight:600;flex:1}
+.hdr-badge{background:var(--gold);color:#fff;font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;letter-spacing:.5px}
+
+/* ── WELCOME ── */
+#sc-welcome .hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;text-align:center;gap:24px}
+.hero-tag{background:var(--lb);color:var(--indigo);font-size:11px;font-weight:700;letter-spacing:1px;padding:6px 16px;border-radius:20px;text-transform:uppercase}
+.hero h1{font-size:clamp(28px,4vw,44px);font-weight:700;color:var(--indigo);line-height:1.2;max-width:680px}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero p{font-size:15px;color:#555;max-width:560px;line-height:1.7}
+.hero-pills{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:8px}
+.pill{background:var(--white);border:1px solid var(--plat);border-radius:24px;padding:7px 18px;font-size:12px;font-weight:600;color:var(--indigo)}
+.btn-primary{background:var(--indigo);color:#fff;border:none;border-radius:10px;padding:16px 40px;font-size:16px;font-weight:700;cursor:pointer;transition:.2s;letter-spacing:.3px}
+.btn-primary:hover{background:var(--indigo2);transform:translateY(-1px);box-shadow:0 6px 20px rgba(30,58,95,.3)}
+.btn-secondary{background:var(--white);color:var(--indigo);border:2px solid var(--indigo);border-radius:10px;padding:13px 32px;font-size:14px;font-weight:700;cursor:pointer;transition:.2s}
+.btn-secondary:hover{background:var(--lb)}
+.btn-gold{background:var(--gold);color:#fff;border:none;border-radius:8px;padding:11px 24px;font-size:13px;font-weight:700;cursor:pointer;transition:.2s}
+.btn-gold:hover{background:var(--gold2)}
+.btn-sm{background:var(--lb);color:var(--indigo);border:1px solid var(--plat);border-radius:6px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;transition:.2s}
+.btn-sm:hover{background:var(--plat)}
+
+/* ── CASE SELECT ── */
+#sc-cases .body{flex:1;padding:40px;max-width:1100px;margin:0 auto;width:100%}
+#sc-cases h2{font-size:26px;font-weight:700;color:var(--indigo);margin-bottom:8px}
+#sc-cases p.sub{color:#666;font-size:14px;margin-bottom:32px}
+.cases-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.case-card{background:var(--white);border-radius:16px;padding:28px;box-shadow:var(--shadow);cursor:pointer;border:2px solid transparent;transition:.2s;position:relative;overflow:hidden}
+.case-card:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 8px 30px rgba(30,58,95,.15)}
+.case-card .flag{font-size:28px;margin-bottom:12px}
+.case-card h3{font-size:17px;font-weight:700;color:var(--indigo);margin-bottom:4px}
+.case-card .sector{font-size:11px;font-weight:600;color:var(--gold);letter-spacing:.5px;text-transform:uppercase;margin-bottom:12px}
+.case-card .desc{font-size:13px;color:#555;line-height:1.6;margin-bottom:16px}
+.case-card .brechas{display:flex;flex-direction:column;gap:4px}
+.brecha-row{display:flex;align-items:center;gap:8px;font-size:12px}
+.brecha-label{color:#777;min-width:90px;font-size:11px}
+.brecha-bar{flex:1;height:5px;background:var(--lb);border-radius:3px;overflow:hidden}
+.brecha-fill{height:100%;border-radius:3px}
+.brecha-fill.low{background:var(--ok)}
+.brecha-fill.med{background:var(--gold)}
+.brecha-fill.high{background:var(--terra)}
+.brecha-delta{font-size:11px;font-weight:700;min-width:36px;text-align:right}
+.brecha-delta.high{color:var(--terra)}
+.brecha-delta.med{color:var(--gold)}
+.difficulty{position:absolute;top:16px;right:16px;font-size:10px;font-weight:700;padding:4px 10px;border-radius:12px;letter-spacing:.5px}
+.diff-alta{background:#fde8e4;color:var(--terra)}
+.diff-media{background:#fef3de;color:var(--gold)}
+
+/* ── CULTURAL PROFILE ── */
+#sc-profile .body{flex:1;padding:40px;max-width:900px;margin:0 auto;width:100%}
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px}
+.profile-card{background:var(--white);border-radius:14px;padding:24px;box-shadow:var(--shadow)}
+.profile-card h4{font-size:13px;font-weight:700;color:var(--gold);letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px}
+.profile-card .company{font-size:18px;font-weight:700;color:var(--indigo);margin-bottom:2px}
+.profile-card .location{font-size:12px;color:#777;margin-bottom:16px}
+.hofstede-table{width:100%;border-collapse:collapse}
+.hofstede-table th{font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px;padding:4px 6px;text-align:left}
+.hofstede-table td{font-size:12px;padding:6px 6px;border-bottom:1px solid var(--lb)}
+.hofstede-table td:last-child{text-align:right;font-weight:700}
+.profile-brechas{background:var(--white);border-radius:14px;padding:24px;box-shadow:var(--shadow);grid-column:1/-1}
+.profile-brechas h4{font-size:13px;font-weight:700;color:var(--indigo);margin-bottom:16px}
+.brecha-full{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.brecha-full .dim{font-size:12px;font-weight:600;color:var(--graphite);min-width:180px}
+.brecha-full .bar2{flex:1;height:8px;background:var(--lb);border-radius:4px;overflow:hidden}
+.brecha-full .fill2{height:100%;border-radius:4px}
+.warning-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;background:#fde8e4;color:var(--terra);margin-left:8px}
+.profile-actions{display:flex;gap:12px;justify-content:flex-end}
+
+/* ── SIMULATION ── */
+#sc-sim{display:none;flex-direction:column}
+#sc-sim.active{display:flex}
+.sim-top{background:var(--indigo);padding:16px 32px;display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.phase-indicator{display:flex;gap:8px}
+.phase-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.3)}
+.phase-dot.done{background:var(--gold)}
+.phase-dot.active{background:#fff}
+.phase-label{color:#fff;font-size:13px;font-weight:600;flex:1}
+.dec-counter{color:rgba(255,255,255,.7);font-size:12px}
+.metrics-bar{display:flex;gap:16px;padding:12px 32px;background:var(--white);border-bottom:1px solid var(--plat);flex-wrap:wrap}
+.metric{display:flex;flex-direction:column;gap:3px;min-width:120px}
+.metric-label{font-size:10px;font-weight:700;color:#888;letter-spacing:.5px;text-transform:uppercase}
+.metric-bar{height:6px;background:var(--lb);border-radius:3px;overflow:hidden;width:100%}
+.metric-fill{height:100%;border-radius:3px;transition:width .4s}
+.metric-fill.trust{background:#2D7A4F}
+.metric-fill.engagement{background:var(--gold)}
+.metric-fill.absorption{background:var(--indigo)}
+.metric-fill.integration{background:var(--terra)}
+.metric-val{font-size:11px;font-weight:700;color:var(--graphite)}
+.sim-body{flex:1;padding:32px;max-width:860px;margin:0 auto;width:100%}
+.phase-intro{background:var(--white);border-radius:14px;padding:28px;box-shadow:var(--shadow);margin-bottom:24px;border-left:4px solid var(--gold)}
+.phase-intro h3{font-size:15px;font-weight:700;color:var(--indigo);margin-bottom:8px}
+.phase-intro p{font-size:13px;color:#555;line-height:1.7}
+
+/* Decision card */
+.dec-card{background:var(--white);border-radius:14px;padding:28px;box-shadow:var(--shadow);margin-bottom:20px}
+.dec-frame{font-size:10px;font-weight:700;color:var(--gold);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+.dec-title{font-size:16px;font-weight:700;color:var(--indigo);margin-bottom:14px}
+.dec-scenario{font-size:13px;color:#444;line-height:1.75;background:var(--lb);border-radius:8px;padding:16px;margin-bottom:20px}
+.dec-options{display:flex;flex-direction:column;gap:10px}
+.opt-btn{display:flex;align-items:flex-start;gap:14px;background:var(--cream);border:2px solid var(--plat);border-radius:10px;padding:14px 18px;cursor:pointer;transition:.2s;text-align:left;width:100%}
+.opt-btn:hover{border-color:var(--gold);background:#fffdf5}
+.opt-btn.selected{border-color:var(--indigo);background:var(--lb)}
+.opt-btn.correct{border-color:var(--ok);background:#f0faf4}
+.opt-btn.wrong{border-color:var(--terra);background:#fff5f4}
+.opt-letter{font-size:13px;font-weight:800;color:var(--indigo);min-width:22px;margin-top:1px}
+.opt-text{font-size:13px;color:#444;line-height:1.55}
+.opt-fb{font-size:12px;margin-top:6px;font-style:italic;color:#666}
+.dec-action{margin-top:20px;display:flex;justify-content:flex-end;gap:12px}
+.dec-result{display:none;padding:12px 16px;border-radius:8px;font-size:13px;margin-top:16px;line-height:1.6}
+.dec-result.ok{background:#f0faf4;color:#1d5e35;border:1px solid #a8d8b8}
+.dec-result.ko{background:#fff5f4;color:#8b2a20;border:1px solid #f0b0a8}
+
+/* Open text */
+.open-card{background:var(--white);border-radius:14px;padding:28px;box-shadow:var(--shadow);margin-bottom:20px;border-top:3px solid var(--terra)}
+.open-card h3{font-size:15px;font-weight:700;color:var(--indigo);margin-bottom:6px}
+.open-card .oc-sub{font-size:11px;color:var(--gold);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:12px}
+.open-card p{font-size:13px;color:#444;line-height:1.7;margin-bottom:16px}
+.open-card textarea{width:100%;border:2px solid var(--plat);border-radius:8px;padding:14px;font-size:13px;font-family:inherit;resize:vertical;min-height:140px;color:var(--graphite);background:var(--cream);transition:.2s}
+.open-card textarea:focus{outline:none;border-color:var(--indigo)}
+.open-actions{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap}
+.char-count{font-size:11px;color:#888;margin-left:auto}
+.hints-box{margin-top:16px;background:var(--lb);border-radius:10px;padding:16px;display:none}
+.hints-box h5{font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px}
+.hint-item{display:flex;gap:8px;margin-bottom:8px;font-size:12px;color:#555;line-height:1.55}
+.hint-item::before{content:"→";color:var(--gold);font-weight:700;flex-shrink:0}
+.ai-feedback{margin-top:20px;background:linear-gradient(135deg,#f5f8ff 0%,#faf5ff 100%);border-radius:12px;padding:20px;border:1px solid #dde}
+.ai-feedback h5{font-size:12px;font-weight:700;color:var(--indigo);letter-spacing:.5px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.ai-scores{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.ai-score-item{text-align:center}
+.ai-score-num{font-size:22px;font-weight:800;color:var(--indigo)}
+.ai-score-lbl{font-size:10px;color:#888;font-weight:600;text-transform:uppercase;display:block}
+.ai-score-max{font-size:12px;color:#aaa}
+.ai-level{display:inline-block;font-size:11px;font-weight:700;padding:4px 12px;border-radius:12px;margin-bottom:12px}
+.level-Básico{background:#fde8e4;color:var(--terra)}
+.level-Intermedio{background:#fef3de;color:#8a6020}
+.level-Avanzado{background:#e8f5ee;color:var(--ok)}
+.ai-text-block{margin-bottom:10px}
+.ai-text-block .lbl{font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.ai-text-block p{font-size:13px;color:#444;line-height:1.6}
+.loading-dots{display:inline-flex;gap:4px}
+.loading-dots span{width:6px;height:6px;border-radius:50%;background:var(--indigo);animation:bounce .8s infinite}
+.loading-dots span:nth-child(2){animation-delay:.15s}
+.loading-dots span:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+
+/* Phase transition */
+.phase-transition{background:var(--indigo);color:#fff;border-radius:14px;padding:32px;margin-bottom:24px;position:relative;overflow:hidden}
+.phase-transition::before{content:'';position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;background:rgba(184,146,58,.15)}
+.phase-transition h3{font-size:20px;font-weight:700;margin-bottom:8px}
+.phase-transition .pt-sub{font-size:12px;opacity:.7;margin-bottom:16px;letter-spacing:.5px;text-transform:uppercase}
+.phase-transition p{font-size:13px;opacity:.85;line-height:1.7;max-width:600px}
+.consequence-tag{display:inline-block;font-size:11px;font-weight:700;padding:5px 14px;border-radius:20px;margin-top:16px}
+.con-collaborative{background:rgba(45,122,79,.3);color:#a8f0c0}
+.con-authoritative{background:rgba(192,96,74,.3);color:#ffd0c0}
+.con-mixed{background:rgba(184,146,58,.3);color:#ffe4a0}
+
+/* Results */
+#sc-results .body{flex:1;padding:40px;max-width:900px;margin:0 auto;width:100%}
+.results-header{text-align:center;margin-bottom:32px}
+.results-header h2{font-size:28px;font-weight:700;color:var(--indigo);margin-bottom:8px}
+.results-header p{color:#666;font-size:14px}
+.metrics-final{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
+.mf-card{background:var(--white);border-radius:12px;padding:20px;text-align:center;box-shadow:var(--shadow)}
+.mf-val{font-size:32px;font-weight:800;color:var(--indigo)}
+.mf-lbl{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+.mf-bar{height:6px;background:var(--lb);border-radius:3px;overflow:hidden;margin-top:8px}
+.mf-fill{height:100%;border-radius:3px}
+.score-summary{background:var(--white);border-radius:14px;padding:28px;box-shadow:var(--shadow);margin-bottom:24px}
+.score-summary h4{font-size:15px;font-weight:700;color:var(--indigo);margin-bottom:16px}
+.score-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--lb)}
+.score-row:last-child{border:none}
+.score-row .sr-label{font-size:13px;color:#444}
+.score-row .sr-pts{font-size:16px;font-weight:800;color:var(--indigo)}
+.diagnosis-box{background:var(--white);border-radius:14px;padding:28px;box-shadow:var(--shadow);margin-bottom:24px}
+.diagnosis-box h4{font-size:15px;font-weight:700;color:var(--indigo);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.diagnosis-box p{font-size:13px;color:#444;line-height:1.75}
+.diagnosis-loading{text-align:center;padding:32px;color:#888}
+.restart-area{display:flex;gap:12px;justify-content:center;padding-bottom:40px}
+</style>
+</head>
+<body>
+
+<!-- SCREEN: WELCOME -->
+<div id="sc-welcome" class="screen active">
+  <div class="hdr">
+    <span class="hdr-logo">doinGlobal · USAL</span>
+    <span class="hdr-title">Simulador PMI Internacional</span>
+    <span class="hdr-badge">v2.0</span>
+  </div>
+  <div class="hero">
+    <div class="hero-tag">Gestión del Cambio · Post-Acquisition Integration</div>
+    <h1>Toma decisiones reales.<br>Descubre qué <em>destruye</em> o crea valor.</h1>
+    <p>Tres casos de fusión internacional. Tres perfiles culturales distintos. Doce decisiones encadenadas por fase y tres preguntas de análisis evaluadas por IA. Cada elección condiciona el escenario siguiente.</p>
+    <div class="hero-pills">
+      <span class="pill">🌍 3 casos internacionales</span>
+      <span class="pill">🔗 Decisiones encadenadas</span>
+      <span class="pill">🤖 Evaluación IA en tiempo real</span>
+      <span class="pill">📐 6 marcos teóricos</span>
+      <span class="pill">📊 4 métricas de integración</span>
+    </div>
+    <button class="btn-primary" onclick="showCases()">Seleccionar caso →</button>
+  </div>
+</div>
+
+<!-- SCREEN: CASE SELECT -->
+<div id="sc-cases" class="screen">
+  <div class="hdr">
+    <span class="hdr-logo">doinGlobal · USAL</span>
+    <span class="hdr-title">Elige tu caso de fusión</span>
+  </div>
+  <div class="body">
+    <h2>Tres fusiones internacionales reales</h2>
+    <p class="sub">Cada caso presenta brechas culturales distintas y activará escenarios diferentes. Elige el que quieras analizar.</p>
+    <div class="cases-grid" id="cases-grid"></div>
+  </div>
+</div>
+
+<!-- SCREEN: CULTURAL PROFILE -->
+<div id="sc-profile" class="screen">
+  <div class="hdr">
+    <span class="hdr-logo">doinGlobal · USAL</span>
+    <span class="hdr-title" id="prof-title">Perfil cultural</span>
+  </div>
+  <div class="body">
+    <div class="profile-grid" id="profile-grid"></div>
+    <div class="profile-actions">
+      <button class="btn-secondary" onclick="showCases()">← Cambiar caso</button>
+      <button class="btn-primary" onclick="startSim()">Comenzar simulación →</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN: SIMULATION -->
+<div id="sc-sim" class="screen">
+  <div class="hdr">
+    <div class="phase-indicator" id="phase-dots"></div>
+    <span class="phase-label" id="phase-label">Fase I · Primeros contactos</span>
+    <span class="dec-counter" id="dec-counter"></span>
+  </div>
+  <div class="metrics-bar" id="metrics-bar"></div>
+  <div class="sim-body" id="sim-body"></div>
+</div>
+
+<!-- SCREEN: RESULTS -->
+<div id="sc-results" class="screen">
+  <div class="hdr">
+    <span class="hdr-logo">doinGlobal · USAL</span>
+    <span class="hdr-title">Diagnóstico final · PMI Internacional</span>
+  </div>
+  <div class="body">
+    <div class="results-header">
+      <h2 id="res-title">Resultados de integración</h2>
+      <p id="res-sub">Caso completado</p>
+    </div>
+    <div class="metrics-final" id="metrics-final"></div>
+    <div class="score-summary" id="score-summary"></div>
+    <div class="diagnosis-box" id="diagnosis-box">
+      <h4>🤖 Diagnóstico IA · Perfil integrador</h4>
+      <div class="diagnosis-loading"><div class="loading-dots"><span></span><span></span><span></span></div><p>Analizando tu perfil de decisiones...</p></div>
+    </div>
+    <div class="restart-area">
+      <button class="btn-secondary" onclick="showCases()">Intentar otro caso</button>
+      <button class="btn-primary" onclick="location.reload()">Reiniciar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+const ST = {
+  caseId: null,
+  phase: 1, phaseDecIdx: 0, // 0-3 within each phase
+  decisions: [],  // [{dNum,choice,correct,label,framework}]
+  openTexts: {p1:'',p2:'',p3:''},
+  openFeedback: {p1:null,p2:null,p3:null},
+  metrics: {trust:50, engagement:60, absorption:35, integration:30},
+  phaseStyle: 'mixed', // computed after phase I
+  phase2Style: 'mixed', // computed after phase II
+  decisionStep: 'mcq', // 'mcq' | 'opentext' | 'transition'
+  choiceSelected: null,
+  showingResult: false
+};
+
+// ═══════════════════════════════════════════════════════
+// CASES DATA
+// ═══════════════════════════════════════════════════════
+/*
+  Correct answer distribution (by decision number):
+  D01:C(2), D02:A(0), D03:B(1), D04:D(3),
+  D05:A(0), D06:C(2), D07:B(1), D08:D(3),
+  D09:A(0), D10:C(2), D11:B(1), D12:D(3)
+  → A:3 | B:3 | C:3 | D:3 — perfectly balanced
+*/
+const CASES = {
+
+// ──────────────────────────────────────────────────────
+// CASE 1: NEXUS-AURORA (Argentina → Finlandia)
+// ──────────────────────────────────────────────────────
+'nexus-aurora': {
+  id:'nexus-aurora',
+  flag:'🇦🇷→🇫🇮',
+  name:'NEXUS–AURORA',
+  sector:'Medios digitales · Contenido y distribución',
+  difficulty:'Alta',
+  acquirer:{name:'NEXUS CONTENIDOS',country:'Argentina',city:'Buenos Aires',size:'820 personas'},
+  target:{name:'AURORA DIGITAL',country:'Finlandia',city:'Helsinki',size:'52 personas'},
+  desc:'NEXUS, líder latinoamericano en distribución de contenido audiovisual, adquiere a AURORA, startup finlandesa con algoritmos propietarios de IA para recomendación de contenido. La brecha cultural es extrema.',
+  hofstede:{
+    acq:[49,86,46,56,20],
+    tgt:[33,59,63,26,38],
+    dims:['Distancia poder','Evit. incertidumbre','Individualismo','Masculinidad','Orient. LP']
+  },
+  hall:{acq:'Alto',tgt:'Muy bajo'},
+  brechas:[
+    {label:'Evit. incertidumbre',delta:27,severity:'high'},
+    {label:'Masculinidad',delta:30,severity:'high'},
+    {label:'Orient. LP',delta:18,severity:'med'},
+    {label:'Distancia poder',delta:16,severity:'med'},
+    {label:'Individualismo',delta:17,severity:'med'},
+    {label:'Contexto Hall',delta:null,text:'Crítica ⚠',severity:'high'},
+  ],
+  phaseLabels:['Meses 0–3: Primeros contactos','Meses 4–9: Desarrollo de sinergias','Meses 10–18: Consolidación'],
+  phaseIntros:{
+    p1:"NEXUS acaba de cerrar la adquisición de AURORA. El equipo directivo argentino aterriza en Helsinki para las primeras reuniones de coordinación. Las diferencias de estilo son inmediatas.",
+    collaborative:"Los primeros meses han construido una base de confianza incipiente. Los equipos mixtos comienzan a comunicarse con mayor fluidez. Sin embargo, algunos objetivos de sinergia muestran retrasos y el conocimiento técnico de AURORA aún no fluye hacia NEXUS.",
+    authoritative:"La aproximación directiva ha generado eficiencia en plazos pero el índice de confianza interno ha caído un 14%. El equipo de AURORA muestra señales de resistencia pasiva y retención de conocimiento.",
+    mixed:"Los primeros meses presentan un perfil inconsistente. Algunas áreas avanzan bien; otras generan incertidumbre. Los equipos expresan confusión sobre el modelo de integración real.",
+    p3coll:"Las fases anteriores han generado equipos mixtos con identidad propia emergente. La capacidad de absorción técnica ha mejorado. Ahora el reto es consolidar y escalar.",
+    p3auth:"La presión directiva ha conseguido resultados financieros a corto plazo pero ha deteriorado el capital de confianza. Varios ingenieros clave de AURORA han iniciado conversaciones con competidores.",
+    p3mixed:"La integración avanza de forma desigual. Hay bolsas de excelencia y zonas de resistencia latente. Es el momento de decisiones estructurales."
+  },
+  decisions:[
+    // ── PHASE I ──
+    {dNum:1,phase:1,framework:'Hall · Comunicación de bajo contexto',title:'Los silencios del equipo finlandés',
+     scenario:'Primera reunión de coordinación entre NEXUS y AURORA. El equipo finlandés responde con silencios prolongados y comunicaciones escritas muy escuetas. La directora general de NEXUS interpreta esto como falta de interés o compromiso con la integración. La tensión es visible.',
+     options:[
+       {l:'A',text:'Convocar una reunión de urgencia y exigir al equipo de AURORA mayor participación verbal y actitud proactiva en los proyectos conjuntos.',style:'authoritative',fb:'La imposición verbal penaliza una norma cultural finlandesa. Los silencios son reflexión, no desinterés. Esta acción erosiona gravemente la confianza.',dm:{trust:-15,engagement:-10}},
+       {l:'B',text:'Sustituir todas las reuniones conjuntas por informes escritos quincenales sin espacio de discusión grupal.',style:'avoidant',fb:'Eliminar el contacto humano en fase de integración impide construir confianza y ralentiza la absorción de conocimiento tácito.',dm:{integration:-10,engagement:-5}},
+       {l:'C',text:'Briefar a la dirección de NEXUS sobre los patrones de comunicación de bajo contexto finlandeses y rediseñar las reuniones con formatos más estructurados, agendas precisas y espacio para respuestas escritas.',style:'collaborative',fb:'Correcto. Adaptar el formato de interacción al estilo cultural del adquirido es el primer paso para construir confianza sin imponer.',dm:{trust:+15,absorption:+10}},
+       {l:'D',text:'Contratar un mediador cultural externo para asistir a las próximas tres reuniones.',style:'adaptive',fb:'Solución paliativa que no transfiere aprendizaje interno. Útil como complemento, insuficiente como estrategia.',dm:{trust:+5,integration:-5}}
+     ],correct:2},
+
+    {dNum:2,phase:1,framework:'Haspeslagh & Jemison · Modelo de integración',title:'¿Cómo integramos a AURORA?',
+     scenario:'El consejo de NEXUS debe elegir el modelo de integración posadquisición. AURORA aporta 12 ingenieros de IA con know-how altamente especializado e irremplazable en el mercado. Su ventaja competitiva reside precisamente en la cultura de autonomía y experimentación.',
+     options:[
+       {l:'A',text:'Simbiosis: gobernanza compartida con interdependencia gradual, preservando la autonomía técnica y cultural de AURORA como fuente de valor diferencial.',style:'collaborative',fb:'Correcto. Con alta necesidad de interdependencia estratégica y alta necesidad de preservar la autonomía del adquirido, la simbiosis es el modelo académicamente más sólido.',dm:{trust:+15,integration:+12}},
+       {l:'B',text:'Absorción total: AURORA adopta todos los procesos, sistemas y cultura de NEXUS en los primeros 90 días para maximizar eficiencia operativa.',style:'authoritative',fb:'La absorción destruye el know-how tácito que justificó la adquisición. Error clásico de "arrogancia del comprador".',dm:{trust:-20,absorption:-15}},
+       {l:'C',text:'Holding puro: AURORA opera completamente independiente sin ninguna sinergia definida ni transferencia de conocimiento.',style:'avoidant',fb:'El holding no genera valor y retrasa indefinidamente la interdependencia necesaria para rentabilizar la adquisición.',dm:{integration:-15,engagement:-8}},
+       {l:'D',text:'Preservación durante 12 meses, sin compromisos de integración hasta completar el diagnóstico cultural.',style:'adaptive',fb:'La preservación inicial es válida en contextos de alto riesgo cultural, pero sin un horizonte de integración definido puede convertirse en indefinición estratégica.',dm:{trust:+5,integration:+3}}
+     ],correct:0},
+
+    {dNum:3,phase:1,framework:'Schein · Tres niveles culturales',title:'El espacio de trabajo como cultura',
+     scenario:'NEXUS propone trasladar su modelo de open office jerárquico a Helsinki, donde AURORA trabaja con zonas de silencio, espacios individuales y una cultura de "puerta abierta" literalmente ausente —cada ingeniero tiene su propio espacio de concentración protegido.',
+     options:[
+       {l:'A',text:'Implementar el modelo de open office de NEXUS de inmediato para acelerar la construcción de una identidad corporativa unificada.',style:'authoritative',fb:'Cambiar los artefactos físicos sin entender los supuestos básicos que los sustentan genera resistencia inmediata y visible.',dm:{trust:-18,engagement:-12}},
+       {l:'B',text:'Realizar primero una auditoría cultural de los tres niveles de Schein (artefactos, valores declarados, supuestos básicos) antes de planificar cualquier cambio físico.',style:'collaborative',fb:'Correcto. No puedes rediseñar los artefactos sin entender qué valores y supuestos básicos los sostienen. Schein primero, diseño después.',dm:{trust:+15,absorption:+10}},
+       {l:'C',text:'Dejar que cada sede mantenga su configuración indefinidamente sin ningún plan de convergencia espacial.',style:'avoidant',fb:'La indefinición sobre los espacios envía un mensaje implícito de "somos dos empresas distintas", que sabotea la integración identitaria.',dm:{integration:-10,engagement:-5}},
+       {l:'D',text:'Encuestar a los empleados sobre sus preferencias y actuar según la mayoría resultante.',style:'adaptive',fb:'La encuesta da voz pero no garantiza coherencia estratégica. La mayoría puede votar contra opciones que son correctas para la integración.',dm:{trust:+5,integration:-5}}
+     ],correct:1},
+
+    {dNum:4,phase:1,framework:'Trompenaars · Universalismo vs. particularismo / Tiempo',title:'El contrato contra la calidad',
+     scenario:'El contrato marco fija fechas de entrega inamovibles, pero el equipo de AURORA advierte que la calidad del software requiere dos semanas adicionales. El equipo directivo de NEXUS, acostumbrado a la Termintreue germánica y la presión de plazos, insiste en cumplir el acuerdo al pie de la letra.',
+     options:[
+       {l:'A',text:'Aplicar una penalización contractual moderada por este sprint, anunciando que no habrá excepciones futuras.',style:'adaptive',fb:'La penalización envia un mensaje de rigidez que ignora la diferencia cultural de orientación temporal. No es ni colaborativo ni estratégico.',dm:{trust:-5,engagement:+3}},
+       {l:'B',text:'Exigir el cumplimiento inmediato del contrato y aplicar todas las penalizaciones estipuladas sin excepción.',style:'authoritative',fb:'En una fusión con conocimiento intensivo, la aplicación rígida de cláusulas penalizadoras destruye la confianza inicial de forma difícilmente recuperable.',dm:{trust:-20,engagement:-15}},
+       {l:'C',text:'Ceder completamente al criterio del equipo finlandés y eliminar todos los plazos contractuales.',style:'avoidant',fb:'La ausencia total de estructura temporal no es adaptación cultural; es vacío estratégico que desorienta a ambas partes.',dm:{integration:-15,engagement:-8}},
+       {l:'D',text:'Organizar una sesión de negociación donde ambos equipos definan conjuntamente criterios de calidad compartidos, hitos intermedios y plazos realistas para el proyecto.',style:'collaborative',fb:'Correcto. Renegociar conjuntamente respeta la tensión universalismo/particularismo de Trompenaars y construye gobernanza compartida desde el inicio.',dm:{trust:+15,engagement:+12}}
+     ],correct:3},
+
+    // ── PHASE II ──
+    {dNum:5,phase:2,framework:'Cohen & Levinthal · Capacidad de absorción',title:'El conocimiento que no se documenta',
+     scenario:'El equipo de ingeniería de AURORA ha desarrollado algoritmos de recomendación de contenido que son el activo principal de la adquisición. NEXUS quiere acceder a ese conocimiento, pero los ingenieros finlandeses muestran resistencia a documentarlo: es conocimiento tácito, relacional y profundamente no codificable.',
+     options:[
+       {l:'A',text:'Diseñar programas de trabajo conjunto (equipos mixtos de ingeniería) donde el conocimiento se transfiera en la práctica diaria sin exigir documentación previa.',style:'collaborative',fb:'Correcto. Cohen & Levinthal señala que la capacidad de absorción se construye mediante interacción directa, no extracción forzada. La asimilación requiere experiencia compartida.',dm:{absorption:+20,trust:+10}},
+       {l:'B',text:'Exigir documentación completa de todos los algoritmos en 30 días como condición formal de la integración técnica.',style:'authoritative',fb:'La exigencia de documentación forzada destruye el conocimiento tácito que no puede codificarse y genera resistencia activa en el equipo técnico.',dm:{absorption:-20,trust:-15}},
+       {l:'C',text:'Crear un repositorio compartido voluntario y esperar a que los ingenieros contribuyan por iniciativa propia cuando se sientan cómodos.',style:'avoidant',fb:'Sin estructura que facilite la transferencia, el conocimiento permanece encapsulado. La voluntariedad sin diseño no genera absorción.',dm:{absorption:-10,integration:-5}},
+       {l:'D',text:'Contratar consultores externos especializados en gestión del conocimiento para "extraer" el saber técnico mediante entrevistas estructuradas.',style:'adaptive',fb:'Los consultores externos difícilmente acceden al conocimiento tácito relacional. Además, puede interpretarse como desconfianza y vulnerar la seguridad psicológica.',dm:{absorption:-5,trust:-8}}
+     ],correct:0},
+
+    {dNum:6,phase:2,framework:'Edmondson · Seguridad psicológica',title:'Los errores que no se reportan',
+     scenario:'En la revisión trimestral se descubren retrasos de tres semanas causados por problemas técnicos que el equipo de AURORA no había comunicado. Al indagar, los ingenieros confiesan que temían la reacción emocional de los directivos de NEXUS ante los errores. El clima de silencio es sistémico.',
+     options:[
+       {l:'A',text:'Implementar reuniones de seguimiento diarias y un sistema de control más estricto para detectar problemas antes de que escalen.',style:'authoritative',fb:'La vigilancia intensiva confirma los miedos del equipo y refuerza el silencio. Es exactamente la respuesta que Edmondson identifica como destructora de seguridad psicológica.',dm:{trust:-15,engagement:-12}},
+       {l:'B',text:'Ignorar el incidente y confiar en que el equipo aprenderá progresivamente a comunicar los problemas sin intervención directiva.',style:'avoidant',fb:'Sin intervención estructural, los patrones de silencio se consolidan. La seguridad psicológica no emerge espontáneamente; requiere liderazgo explícito.',dm:{absorption:-10,integration:-8}},
+       {l:'C',text:'Lanzar un programa de seguridad psicológica: rituales de "retrospectiva sin culpa" donde los errores se analizan colectivamente como aprendizaje organizacional, sin penalización individual.',style:'collaborative',fb:'Correcto. Edmondson (2023) demuestra que la seguridad psicológica es condición previa para el flujo de conocimiento y la innovación. Los rituales explícitos son el mecanismo de cambio.',dm:{trust:+20,engagement:+15}},
+       {l:'D',text:'Crear un buzón anónimo de incidencias técnicas para que el equipo pueda reportar problemas sin exposición personal.',style:'adaptive',fb:'El anonimato palia el síntoma pero no aborda la causa: la cultura del miedo. Es una solución paliativa que puede coexistir con el programa de Edmondson pero no sustituirlo.',dm:{trust:+5,engagement:-5}}
+     ],correct:2},
+
+    {dNum:7,phase:2,framework:'Hofstede · Masculinidad vs. Feminidad (MAS)',title:'Los incentivos que dividen',
+     scenario:'La brecha de masculinidad (56 NEXUS vs 26 AURORA) genera conflicto abierto: NEXUS premia resultados individuales agresivos y competencia interna entre ingenieros; AURORA valora el bienestar colectivo, el consenso y la calidad de vida laboral. Los ingenieros finlandeses rechazan abiertamente los nuevos incentivos.',
+     options:[
+       {l:'A',text:'Mantener el sistema de incentivos de NEXUS: en un entorno competitivo global, quien no se adapta busca otra empresa.',style:'authoritative',fb:'Ignorar una brecha de 30 puntos en la dimensión de masculinidad es ignorar un predictor fundamental de conflicto. La retención del talento técnico se verá gravemente comprometida.',dm:{engagement:-18,trust:-12}},
+       {l:'B',text:'Rediseñar el sistema de incentivos para integrar tanto métricas individuales de rendimiento como indicadores de colaboración, bienestar de equipo y calidad del proceso.',style:'collaborative',fb:'Correcto. El diseño híbrido de incentivos que respeta ambas orientaciones culturales es la aplicación práctica del análisis de Hofstede. Requiere esfuerzo de diseño pero retiene talento.',dm:{engagement:+15,trust:+10}},
+       {l:'C',text:'Adoptar íntegramente el modelo finlandés y eliminar todos los incentivos individuales en toda la organización NEXUS.',style:'avoidant',fb:'La inversión total del sistema de incentivos de la empresa adquirente no es integración; es imposición en sentido contrario. Genera resistencia en el equipo argentino.',dm:{integration:-10,engagement:-8}},
+       {l:'D',text:'Crear dos sistemas de incentivos paralelos y diferenciados por sede, sin integración entre ellos.',style:'adaptive',fb:'Los sistemas duales evitan el conflicto a corto plazo pero consolidan la fragmentación cultural y dificultan la formación de equipos mixtos.',dm:{integration:-8,engagement:+3}}
+     ],correct:1},
+
+    {dNum:8,phase:2,framework:'GLOBE · Estilos de liderazgo cultural',title:'El programa de liderazgo que no encaja',
+     scenario:'NEXUS propone que todos los directivos de AURORA participen obligatoriamente en un programa de liderazgo diseñado en Buenos Aires: habilidades de presentación pública, autoafirmación directiva, networking relacional intensivo y gestión de conflictos por confrontación directa.',
+     options:[
+       {l:'A',text:'Participación obligatoria en el plazo de 60 días para garantizar la alineación cultural con los estándares directivos de NEXUS.',style:'authoritative',fb:'Imponer un programa de liderazgo diseñado exclusivamente desde la cultura del adquirente refuerza la percepción de conquista cultural y destruye la confianza directiva.',dm:{trust:-15,engagement:-18}},
+       {l:'B',text:'Cancelar el programa: las diferencias culturales hacen inviable cualquier formación directiva conjunta en este momento.',style:'avoidant',fb:'Cancelar el desarrollo directivo no es respuesta; es vacío. Las diferencias culturales son precisamente la razón para diseñar un programa intercultural, no para abandonarlo.',dm:{integration:-12,absorption:-5}},
+       {l:'C',text:'Ofrecer el programa online y de forma voluntaria, sin presión institucional ni seguimiento.',style:'adaptive',fb:'La optatividad sin arquitectura de participación genera muy baja adhesión. No resuelve la necesidad de desarrollo directivo conjunto.',dm:{integration:-8,trust:+3}},
+       {l:'D',text:'Co-diseñar con los directivos de AURORA un programa de liderazgo híbrido que integre el estilo relacional y expresivo de NEXUS con el estilo consultivo, igualitario y basado en el consenso de AURORA.',style:'collaborative',fb:'Correcto. El liderazgo intercultural requiere co-diseño. GLOBE demuestra que los estilos de liderazgo efectivos varían sistematicamente entre culturas; ignorarlo es un error estratégico.',dm:{engagement:+15,integration:+15}}
+     ],correct:3},
+
+    // ── PHASE III ──
+    {dNum:9,phase:3,framework:'Schein · Identidad y supuestos básicos',title:'"Ellos" y "nosotros", 12 meses después',
+     scenario:'A un año de la adquisición, los datos muestran que los empleados siguen identificándose con "AURORA" o "NEXUS", nunca con una entidad conjunta. Las reuniones aún tienen dinámicas de "equipo finlandés vs. equipo argentino". Los supuestos culturales básicos de ambas organizaciones permanecen inalterados.',
+     options:[
+       {l:'A',text:'Crear proyectos estratégicos de alto impacto donde equipos mixtos construyan logros comunes que generen una narrativa identitaria compartida desde la experiencia, no desde el rebranding.',style:'collaborative',fb:'Correcto. Schein enseña que los supuestos básicos solo cambian a través de experiencias compartidas significativas. Los logros conjuntos son el mecanismo más potente de construcción identitaria.',dm:{engagement:+20,integration:+15}},
+       {l:'B',text:'Lanzar una campaña de rebranding intensiva con nuevo nombre corporativo, logotipo e identidad visual unificada para ambas sedes.',style:'authoritative',fb:'Cambiar los artefactos visibles sin trabajar los supuestos básicos subyacentes es la definición de cambio superficial. El pronombre "nosotros" no cambia por decreto.',dm:{trust:-8,integration:-5}},
+       {l:'C',text:'Ignorar el problema: la identidad corporativa es secundaria a los resultados financieros en esta fase.',style:'avoidant',fb:'Los estudios de Bauer & Matzler (2024) demuestran que la fragmentación identitaria es el predictor más sólido de fuga de talento crítico en el año 2.',dm:{engagement:-15,integration:-12}},
+       {l:'D',text:'Organizar un townhall anual donde la dirección presente la visión compartida y los hitos de la integración.',style:'adaptive',fb:'El townhall comunica visión pero no construye identidad. Es necesario pero insuficiente como único mecanismo de convergencia cultural.',dm:{engagement:+5,integration:-3}}
+     ],correct:0},
+
+    {dNum:10,phase:3,framework:'Edmondson · Sostenibilidad de la seguridad psicológica',title:'Los directivos que ven el programa como debilidad',
+     scenario:'El programa de seguridad psicológica implementado en Fase II produce un efecto inesperado: los equipos reportan un 40% más errores que antes. Varios directivos del consejo de NEXUS interpretan esto como señal de deterioro de la calidad e instan a suspender el programa inmediatamente.',
+     options:[
+       {l:'A',text:'Suspender el programa ante la presión directiva para preservar la cohesión del equipo ejecutivo de NEXUS.',style:'avoidant',fb:'Suspender el programa en su momento de máximo efecto destructivo consolida la cultura del miedo y envía una señal devastadora al equipo técnico de AURORA.',dm:{trust:-20,absorption:-18}},
+       {l:'B',text:'Modificar el programa para que solo los mandos intermedios puedan reportar errores, eliminando el reporte directo del nivel técnico.',style:'authoritative',fb:'Filtrar el flujo de información reproduzca exactamente la dinámica de silencio que el programa estaba corrigiendo. Es un retroceso encubierto.',dm:{trust:-12,engagement:-10}},
+       {l:'C',text:'Presentar al consejo los datos que correlacionan el mayor reporte de errores con la reducción de incidentes graves; usar esos datos para educar a los directivos en la lógica del aprendizaje organizacional y reforzar el programa.',style:'collaborative',fb:'Correcto. Edmondson llama a esto "reencuadrar el error": transformar la narrativa de "más errores = peor calidad" en "más visibilidad = mejor gestión". Requiere coraje directivo.',dm:{trust:+18,absorption:+20}},
+       {l:'D',text:'Hacer el programa voluntario durante 6 meses adicionales mientras se decide sobre su continuidad.',style:'adaptive',fb:'La optatividad en este momento debilita el programa. La seguridad psicológica requiere un compromiso explícito de la organización, no una ambigüedad prolongada.',dm:{trust:+3,absorption:-5}}
+     ],correct:2},
+
+    {dNum:11,phase:3,framework:'Bauer & Matzler · Dynamic Integration Capabilities',title:'La segunda adquisición y el conocimiento acumulado',
+     scenario:'NEXUS está evaluando adquirir una empresa de tecnología de streaming en Polonia. Los equipos de integración preguntan qué pueden reutilizar del proceso con AURORA. El consejo debate entre empezar desde cero o formalizar las lecciones aprendidas como activo institucional.',
+     options:[
+       {l:'A',text:'Empezar desde cero: cada adquisición es culturalmente única e incomparable. Las lecciones de AURORA no son transferibles.',style:'avoidant',fb:'Esta posición niega la posibilidad de desarrollar integration capability como competencia organizacional. Es el error que mantiene a las empresas en nivel 1 o 2 del ICMM.',dm:{integration:-10,absorption:-5}},
+       {l:'B',text:'Documentar las lecciones de AURORA (coordinación intercultural, transferencia de conocimiento tácito, construcción de seguridad psicológica) en un manual de integración adaptable que constituya la base de una integration capability institucional.',style:'collaborative',fb:'Correcto. Bauer & Matzler identifican la capacidad de aprendizaje y reconfiguración como la habilidad que distingue a los integradores expertos. El conocimiento acumulado es el activo más valioso.',dm:{integration:+20,absorption:+15}},
+       {l:'C',text:'Aplicar exactamente el mismo playbook de AURORA sin ninguna adaptación al nuevo contexto cultural polaco.',style:'authoritative',fb:'La replicación ciega ignora la capacidad de reconfiguración que Bauer & Matzler consideran esencial. Los contextos culturales diferentes requieren adaptación del marco, no copia.',dm:{integration:-12,trust:-8}},
+       {l:'D',text:'Contratar la misma consultora externa que asesoró en AURORA para que gestione la nueva integración.',style:'adaptive',fb:'Externalizar la gestión del conocimiento de integración no construye capacidad interna. La organización queda dependiente de terceros para una competencia estratégica central.',dm:{integration:+3,absorption:-8}}
+     ],correct:1},
+
+    {dNum:12,phase:3,framework:'Bauer & Matzler · ICMM y madurez de integración',title:'Del nivel 3 al nivel 4 del ICMM',
+     scenario:'Una evaluación externa sitúa a NEXUS-AURORA en el nivel 3 del ICMM (procesos definidos, manuales existentes, cierta sistematización). El comité ejecutivo quiere alcanzar el nivel 4 (procesos gestionados con KPIs, revisión periódica y mejora continua) en los próximos 12 meses.',
+     options:[
+       {l:'A',text:'Contratar una consultora de referencia para diseñar e implantar un sistema de KPIs de integración estándar del sector.',style:'authoritative',fb:'Los KPIs diseñados externamente sin participación interna tienen baja apropiación y elevado riesgo de inadecuación al contexto específico de la integración.',dm:{integration:+3,trust:-5}},
+       {l:'B',text:'Consolidar el nivel 3 durante 24 meses más antes de plantearse el salto al nivel 4.',style:'avoidant',fb:'Diferir el desarrollo de capacidad de integración cuando la organización está lista para el siguiente nivel es una decisión de coste de oportunidad elevado.',dm:{integration:-8,absorption:-5}},
+       {l:'C',text:'Adoptar el sistema de KPIs de referencia de McKinsey sin adaptación al contexto específico de la integración NEXUS-AURORA.',style:'adaptive',fb:'Los KPIs genéricos no capturan las dimensiones específicas de integración intercultural que son críticas en este caso. La falta de adaptación reduce su valor diagnóstico.',dm:{integration:-8,trust:-3}},
+       {l:'D',text:'Crear un grupo de trabajo mixto NEXUS-AURORA para co-diseñar los indicadores de integración intercultural, el sistema de revisión periódica y el plan de mejora continua hacia el nivel 4.',style:'collaborative',fb:'Correcto. El co-diseño de KPIs es en sí mismo un ejercicio de integration capability: coordinación, aprendizaje compartido y capacidad relacional en acción.',dm:{integration:+18,engagement:+12}}
+     ],correct:3}
+  ],
+  openQuestions:[
+    {phase:1,title:'Análisis cultural inicial',question:'Analiza las principales brechas culturales de este caso (NEXUS–AURORA) aplicando al menos dos marcos teóricos del Manual PMI. ¿Cuál es el riesgo más crítico para los primeros 90 días y por qué? Sé específico con los datos de Hofstede y Hall.',
+     hints:['Hofstede: ¿qué dimensiones presentan mayor Δ en este caso? Una diferencia de más de 25 puntos en Evitación de incertidumbre o Masculinidad tiene implicaciones directas en cómo los equipos gestionan el conflicto, el error y la autoridad.','Hall: la comunicación de bajo contexto finlandesa (información explícita, directa, documentada) choca con la de alto contexto argentina (información implícita, relacional, contextual). ¿Qué malentendidos concretos puede generar esto en los primeros 30 días?','Haspeslagh & Jemison: antes de elegir el modelo de integración, ¿cuál es la necesidad real de interdependencia estratégica vs. la necesidad de preservar la autonomía del adquirido? ¿Qué pasa si absorbemos a una empresa cuyo valor reside en su cultura de autonomía?']},
+    {phase:2,title:'Capacidad de absorción y conocimiento',question:'Basándote en las decisiones que has tomado en esta fase, ¿cómo desarrollarías la capacidad de absorción de conocimiento (Cohen & Levinthal) en este contexto específico NEXUS–AURORA? ¿Qué condiciones culturales bloquean o facilitan cada etapa del proceso (reconocimiento, asimilación, transformación, explotación)?',
+     hints:['Cohen & Levinthal distingue cuatro etapas: reconocimiento del valor del conocimiento externo, asimilación, transformación y explotación. En un contexto de conocimiento tácito finlandés, ¿en qué etapa se atasca más y por qué?','Edmondson: la seguridad psicológica es condición previa para que el conocimiento tácito fluya hacia la organización adquirente. Si el equipo teme compartir lo que sabe, la absorptive capacity se paraliza. ¿Existe esa seguridad en AURORA ahora mismo?','Revisa tus decisiones de Fase I: si adoptaste una aproximación más directiva, ¿qué señales de resistencia pasiva o retención deliberada de conocimiento podrías estar observando ya en Fase II?']},
+    {phase:3,title:'Liderazgo integrador y capacidades dinámicas',question:'Diseña una propuesta de liderazgo integrador para los próximos 6 meses en NEXUS–AURORA. ¿Qué capacidades dinámicas de integración (Bauer & Matzler) priorizarías y por qué? Incluye al menos dos indicadores SMART que permitan medir el éxito de la integración intercultural.',
+     hints:['Bauer & Matzler identifican cuatro capacidades dinámicas: coordinación, aprendizaje, reconfiguración y capacidad relacional. ¿Cuál ha sido la más débil en NEXUS–AURORA a lo largo de las tres fases? ¿Cuál es la más urgente ahora?','Schein: para saber si la integración cultural ha progresado realmente, no basta con cambiar artefactos visibles. ¿Qué evidencias de cambio en los supuestos básicos buscarías en el año 2?','Un KPI SMART de integración NO es "mejorar la comunicación". Sí es: "Alcanzar un índice de confianza interna ≥ 7/10 en la encuesta trimestral del equipo técnico de AURORA antes del mes 24". ¿Puedes formular dos propios para este caso?']}
+  ]
+},
+
+// ──────────────────────────────────────────────────────
+// CASE 2: ATLAS-FJORD (España → Noruega)
+// ──────────────────────────────────────────────────────
+'atlas-fjord': {
+  id:'atlas-fjord',
+  flag:'🇪🇸→🇳🇴',
+  name:'ATLAS–FJORD',
+  sector:'Energía renovable · Tecnología marítima',
+  difficulty:'Media',
+  acquirer:{name:'ATLAS ENERGÍA',country:'España',city:'Sevilla',size:'1.200 personas'},
+  target:{name:'FJORD MARITIME TECH',country:'Noruega',city:'Bergen',size:'180 personas'},
+  desc:'ATLAS, líder ibérico en energías renovables, adquiere a FJORD, empresa noruega con tecnología pionera en sensores para plataformas offshore. La tensión principal es la brecha extrema en masculinidad y la diferencia jerárquica.',
+  hofstede:{
+    acq:[57,86,51,42,48],
+    tgt:[31,50,69,8,35],
+    dims:['Distancia poder','Evit. incertidumbre','Individualismo','Masculinidad','Orient. LP']
+  },
+  hall:{acq:'Alto',tgt:'Bajo'},
+  brechas:[
+    {label:'Masculinidad',delta:34,severity:'high'},
+    {label:'Evit. incertidumbre',delta:36,severity:'high'},
+    {label:'Distancia poder',delta:26,severity:'med'},
+    {label:'Individualismo',delta:18,severity:'med'},
+    {label:'Orient. LP',delta:13,severity:'low'},
+    {label:'Contexto Hall',delta:null,text:'Alta ↔ Baja',severity:'med'},
+  ],
+  phaseLabels:['Meses 0–3: Primer contacto directivo','Meses 4–9: Integración operativa','Meses 10–18: Madurez e institucionalización'],
+  phaseIntros:{
+    p1:"ATLAS acaba de completar la adquisición. El equipo directivo sevillano viaja a Bergen para las primeras reuniones de integración. La diferencia de ritmo, jerarquía y estilo es inmediata.",
+    collaborative:"Los primeros meses han generado respeto mutuo y canales de comunicación funcionales. Sin embargo, el equipo de FJORD aún no entiende plenamente la ambición estratégica de ATLAS. Las sinergias técnicas son prometedoras pero lentas.",
+    authoritative:"La aproximación directiva ha marcado el ritmo pero ha generado malestar silencioso en Bergen. FJORD es una organización muy horizontal; la imposición jerárquica crea 'compliance sin compromiso'. La retención del talento técnico está en riesgo.",
+    mixed:"Los primeros meses presentan señales contradictorias. La colaboración técnica avanza, pero las dinámicas de liderazgo generan confusión en el equipo de FJORD sobre quién tiene autoridad real y cómo tomarse las decisiones.",
+    p3coll:"La base de colaboración construida en fases anteriores permite ahora institucionalizar los procesos. El equipo FJORD muestra iniciativa y propone mejoras. La integración técnica es sólida.",
+    p3auth:"Las métricas financieras son correctas pero la presión acumulada ha generado fricciones. Dos ingenieros senior de FJORD han solicitado reuniones con RRHH. La retención del talento es la prioridad crítica.",
+    p3mixed:"La integración avanza de forma desigual. Hay departamentos que funcionan como una sola organización y otros que operan en paralelo sin contacto real. Es necesaria una decisión estratégica clara."
+  },
+  decisions:[
+    {dNum:1,phase:1,framework:'Hall · Comunicación y mensajes implícitos',title:'Las instrucciones que FJORD no entendió',
+     scenario:'El director de operaciones de ATLAS envía un correo a Bergen asumiendo que el equipo de FJORD entiende el contexto implícito: "Esto es urgente, necesitamos el informe técnico." El equipo noruego, acostumbrado a instrucciones explícitas y directas, elabora un informe genérico. No había ninguna "urgencia" en el mensaje que ellos pudieran detectar.',
+     options:[
+       {l:'A',text:'Reprender al equipo de FJORD por falta de iniciativa y establecer un protocolo de escalada ante cualquier duda.',style:'authoritative',fb:'Penalizar una diferencia cultural (bajo contexto noruego vs. alto contexto español) es atribuir mala voluntad a lo que es simplemente diferencia comunicativa.',dm:{trust:-15,engagement:-10}},
+       {l:'B',text:'Diseñar un manual de comunicación interna bilingüe con instrucciones siempre explícitas, plazos concretos y contexto suficiente, y capacitar a los directivos de ATLAS en comunicación de bajo contexto.',style:'collaborative',fb:'Correcto. Adaptar el estilo comunicativo al receptor de bajo contexto elimina la fuente de ambigüedad. Hall nos enseña que ni uno es mejor: son sistemas diferentes que necesitan protocolo.',dm:{trust:+15,absorption:+10}},
+       {l:'C',text:'Dejar que los equipos se ajusten solos con el tiempo: la práctica genera adaptación espontánea.',style:'avoidant',fb:'Sin intervención, los malentendidos se acumulan y se interpretan como incompetencia o falta de compromiso. La adaptación espontánea es lenta y costosa.',dm:{integration:-10,engagement:-5}},
+       {l:'D',text:'Asignar un "traductor cultural" interno en FJORD para filtrar todas las comunicaciones de ATLAS antes de distribuirlas.',style:'adaptive',fb:'El filtro individual reduce el problema a corto plazo pero no desarrolla competencia intercultural sistémica en ninguno de los dos equipos.',dm:{trust:+5,integration:-5}}
+     ],correct:1},
+
+    {dNum:2,phase:1,framework:'Haspeslagh & Jemison · Autonomía vs. interdependencia',title:'¿Cuánto control ejerce ATLAS sobre FJORD?',
+     scenario:'ATLAS quiere acceder rápidamente a la tecnología de sensores offshore de FJORD integrando los equipos de I+D. FJORD, sin embargo, ha construido su ventaja competitiva precisamente en una cultura de autonomía científica radical: sin jerarquía externa, sin plazos impuestos, con equipos que se autoorganizán.',
+     options:[
+       {l:'A',text:'Preservación: mantener a FJORD operando con máxima autonomía durante al menos 12 meses mientras ATLAS define la estrategia de integración técnica.',style:'collaborative',fb:'Correcto. Con alta necesidad de preservar el conocimiento científico del adquirido y riesgo elevado de fuga de talento, la preservación inicial es el modelo que protege el valor de la adquisición.',dm:{trust:+15,integration:+12}},
+       {l:'B',text:'Absorción completa: FJORD adopta todos los procesos, sistemas de gestión y estructura jerárquica de ATLAS en 90 días.',style:'authoritative',fb:'Destruir la cultura de autonomía científica de FJORD destruye exactamente el activo que justificó la adquisición. Error irreversible en organizaciones de conocimiento intensivo.',dm:{trust:-20,absorption:-15}},
+       {l:'C',text:'Holding puro: sin integración ni sinergias definidas. FJORD opera como subsidiaria completamente independiente.',style:'avoidant',fb:'Sin ninguna estructura de interdependencia, el valor estratégico de la adquisición no se materializa. El holding indefinido no es estrategia.',dm:{integration:-15,engagement:-8}},
+       {l:'D',text:'Simbiosis desde el primer día: equipos conjuntos, proyectos compartidos y gobernanza co-diseñada desde la semana 1.',style:'adaptive',fb:'La simbiosis prematura sin haber construido confianza puede generar rechazo inmediato en FJORD. La secuenciación importa: primero preservación, luego gradual simbiosis.',dm:{trust:+5,integration:+3}}
+     ],correct:0},
+
+    {dNum:3,phase:1,framework:'Schein · Valores declarados y supuestos básicos',title:'La jerarquía invisible que choca',
+     scenario:'En las primeras reuniones conjuntas, los ingenieros de FJORD se dirigen directamente al CEO de ATLAS para proponer cambios en el plan de integración, saltándose por completo la jerarquía directiva española. Los directivos intermedios de ATLAS lo interpretan como insubordinación. El CEO de ATLAS está confuso.',
+     options:[
+       {l:'A',text:'Emitir un comunicado estableciendo los canales jerárquicos formales y exigiendo su respeto en todas las interacciones futuras.',style:'authoritative',fb:'Imponer jerarquía formal española en una organización noruega con cultura de igualdad radical genera resistencia inmediata. La distancia al poder de Noruega es 31 vs 57 de España.',dm:{trust:-18,engagement:-12}},
+       {l:'B',text:'Facilitar un taller de diagnóstico cultural Schein donde ambos equipos mapeen sus valores declarados y supuestos básicos sobre autoridad, jerarquía y toma de decisiones.',style:'collaborative',fb:'Correcto. Hacer explícitos los supuestos básicos sobre jerarquía que cada cultura da por obvios permite diseñar una gobernanza híbrida consciente en lugar de imponer una sobre la otra.',dm:{trust:+15,absorption:+10}},
+       {l:'C',text:'No hacer nada: la fricción jerárquica se resolverá cuando FJORD comprenda que ahora forma parte de una estructura corporativa mayor.',style:'avoidant',fb:'Los supuestos básicos culturales no cambian por exposición pasiva. Sin intervención, el conflicto se enquista.',dm:{integration:-10,engagement:-5}},
+       {l:'D',text:'Organizar cenas de team-building informales para que los directivos se conozcan y reduzcan la tensión.',style:'adaptive',fb:'El team-building social no trabaja sobre los supuestos básicos culturales; los deja intactos. Puede complementar pero no sustituir el diagnóstico cultural.',dm:{trust:+5,integration:-5}}
+     ],correct:1},
+
+    {dNum:4,phase:1,framework:'Trompenaars · Orientación al logro vs. orientación al status',title:'Los lunes de 8:00 que nadie quiere',
+     scenario:'ATLAS implementa sus reuniones directivas de lunes a las 8:00 AM para "arrancar la semana con energía". El equipo de FJORD, con una cultura de equilibrio vida-trabajo donde las reuniones antes de las 9:00 son inusuales y donde el consenso requiere tiempo, muestra una resistencia pasiva generalizada: baja puntualidad y desenganche visible.',
+     options:[
+       {l:'A',text:'Mantener el horario de ATLAS: la puntualidad y el ritmo directivo son no negociables en la cultura corporativa del grupo.',style:'adaptive',fb:'No es exactamente "authoritative" pero sí ciega al contexto. Imponer ritmos culturalmente inadecuados sin negociación genera resistencia silenciosa.',dm:{trust:-5,engagement:+3}},
+       {l:'B',text:'Exigir puntualidad estricta y documentar las ausencias y retrasos como indicadores de rendimiento directivo en FJORD.',style:'authoritative',fb:'Penalizar una norma cultural diferente (orientación al equilibrio vida-trabajo noruego) como si fuera falta de compromiso es el error más clásico de la distancia cultural en fusiones.',dm:{trust:-20,engagement:-15}},
+       {l:'C',text:'Eliminar todas las reuniones semanales conjuntas hasta que los equipos se conozcan mejor.',style:'avoidant',fb:'Eliminar los espacios de coordinación en fase de integración ralentiza el proceso y genera desconexión estratégica.',dm:{integration:-15,engagement:-8}},
+       {l:'D',text:'Negociar conjuntamente el formato, horario y duración de las reuniones de coordinación, incorporando las preferencias de ambas culturas en un protocolo compartido.',style:'collaborative',fb:'Correcto. La negociación del protocolo de interacción es en sí misma un ejercicio de integración cultural. El consenso sobre el formato genera adhesión al contenido.',dm:{trust:+15,engagement:+12}}
+     ],correct:3},
+
+    {dNum:5,phase:2,framework:'Cohen & Levinthal · Reconocimiento y asimilación',title:'El know-how que vive en los cuadernos de laboratorio',
+     scenario:'Los ingenieros de FJORD tienen un conocimiento profundo de las condiciones del Mar del Norte —temperatura, presión, salinidad— que está parcialmente documentado en cuadernos personales y en gran medida en la memoria y las rutinas del equipo. ATLAS quiere "transferir" ese conocimiento a sus ingenieros de Sevilla.',
+     options:[
+       {l:'A',text:'Crear programas de rotación donde ingenieros de ATLAS trabajen en Bergen durante 3-6 meses, aprendiendo directamente en el contexto del problema que el conocimiento resuelve.',style:'collaborative',fb:'Correcto. Cohen & Levinthal demuestran que el conocimiento tácito se transfiere mediante co-experiencia, no extracción. La rotación geográfica es el mecanismo más eficaz para construir absorptive capacity en contextos científicos.',dm:{absorption:+20,trust:+10}},
+       {l:'B',text:'Exigir a los ingenieros de FJORD que documenten su conocimiento en un formato estandarizado de ATLAS en 60 días.',style:'authoritative',fb:'El conocimiento tácito no se codifica por mandato. Además, la imposición del formato corporativo destruye la motivación y la confianza.',dm:{absorption:-20,trust:-15}},
+       {l:'C',text:'Contratar una consultora especializada en gestión del conocimiento para catalogar y sistematizar el know-how de FJORD.',style:'avoidant',fb:'El conocimiento contextual y tácito de condiciones físicas específicas no es accesible para consultores externos sin el contexto cultural de FJORD.',dm:{absorption:-10,integration:-5}},
+       {l:'D',text:'Crear un repositorio digital compartido y esperar a que el equipo de FJORD lo complete voluntariamente.',style:'adaptive',fb:'El voluntarismo sin estructura y sin interacción directa genera repositorios vacíos o superficiales.',dm:{absorption:-5,trust:-8}}
+     ],correct:0},
+
+    {dNum:6,phase:2,framework:'Edmondson · Voz y disenso constructivo',title:'Los ingenieros que cuestionan al director en público',
+     scenario:'En una reunión de proyecto con directivos de ATLAS presentes, tres ingenieros de FJORD critican abierta y directamente la viabilidad técnica de la propuesta del director de I+D de ATLAS. Lo hacen con argumentos sólidos pero sin los protocolos jerárquicos que ATLAS espera. El director se siente humillado. El equipo de FJORD no entiende su reacción.',
+     options:[
+       {l:'A',text:'Establecer protocolos de comunicación que requieran que cualquier crítica a las propuestas directivas se canalice por escrito antes de la reunión, nunca en público.',style:'authoritative',fb:'Silenciar el disenso técnico informado es exactamente lo que Edmondson identifica como destructor de la seguridad psicológica. En organizaciones de I+D, el disenso técnico es valor, no insubordinación.',dm:{trust:-15,engagement:-12}},
+       {l:'B',text:'No intervenir: el director de I+D debe aprender a gestionar el estilo directo noruego como parte de su desarrollo directivo internacional.',style:'avoidant',fb:'Ignorar el conflicto sin facilitar el aprendizaje mutuo deja la tensión sin resolver y puede escalar.',dm:{absorption:-10,integration:-8}},
+       {l:'C',text:'Facilitar un taller de "feedback intercultural" donde ambos equipos aprendan los protocolos de disenso del otro y co-diseñen normas de interacción técnica que respeten ambas culturas.',style:'collaborative',fb:'Correcto. El disenso técnico noruego es seguridad psicológica en acción. El reto es crear un protocolo que preserve esa cultura sin generar humillación jerárquica española. El taller co-diseñado es el mecanismo.',dm:{trust:+20,engagement:+15}},
+       {l:'D',text:'Trasladar al director de I+D de ATLAS a otra función para reducir las tensiones personales.',style:'adaptive',fb:'Resolver el conflicto intercultural cambiando a la persona ignora el problema estructural y envía una señal equivocada a ambos equipos.',dm:{trust:+5,engagement:-5}}
+     ],correct:2},
+
+    {dNum:7,phase:2,framework:'Hofstede · Masculinidad (MAS=8 Noruega)',title:'Los ingenieros que no quieren ser "los mejores"',
+     scenario:'ATLAS lanza su programa de reconocimiento anual: "Empleado del año" con premio económico individual y ceremonia pública. El equipo de FJORD reacciona con incomodidad visible: la distinción individual pública contradice profundamente la cultura igualitaria y de colaboración colectiva noruega (MAS=8, el valor más bajo del mundo).',
+     options:[
+       {l:'A',text:'Cancelar el programa en FJORD: si genera rechazo, no aporta valor motivacional en este contexto.',style:'avoidant',fb:'Cancelar sin ofrecer una alternativa de reconocimiento deja un vacío. El problema no es el reconocimiento sino su formato individual y público.',dm:{engagement:-8,trust:-5}},
+       {l:'B',text:'Transformar el programa en un "Proyecto del año" que reconoce el logro colectivo de equipos, con ceremonia donde todos los miembros del equipo ganador reciben el reconocimiento.',style:'collaborative',fb:'Correcto. Hofstede predice con precisión este choque: la orientación feminina noruega (cooperación, calidad de vida, solidaridad) rechaza la distinción individual competitiva. El reconocimiento colectivo es la respuesta culturalmente apropiada.',dm:{engagement:+15,trust:+10}},
+       {l:'C',text:'Mantener el programa tal como está en toda la organización: la coherencia corporativa global es más importante que las preferencias locales.',style:'authoritative',fb:'Un MAS de 8 (Noruega) vs 42 (España) implica que el programa generará exactamente el efecto contrario al buscado en Bergen.',dm:{engagement:-18,trust:-12}},
+       {l:'D',text:'Crear dos programas paralelos: el individual de ATLAS y uno colectivo para FJORD.',style:'adaptive',fb:'Los sistemas paralelos evitan el conflicto inmediato pero profundizan la fragmentación cultural. A largo plazo, esto refuerza el "ellos vs. nosotros".',dm:{integration:-8,engagement:+3}}
+     ],correct:1},
+
+    {dNum:8,phase:2,framework:'GLOBE · Liderazgo consultivo y orientado al equipo',title:'El nuevo director general de FJORD que ATLAS ha nombrado',
+     scenario:'ATLAS nombra como director general de FJORD a un ejecutivo español con excelente historial directivo, acostumbrado al liderazgo carismático y a la toma de decisiones rápida y personalista. Los empleados de FJORD esperan un liderazgo consultivo, basado en el consenso y donde el director sea "uno más del equipo".',
+     options:[
+       {l:'A',text:'Mantener al director español: su historial directivo avala su eficacia y sabrá adaptar su estilo con el tiempo.',style:'authoritative',fb:'GLOBE demuestra que los estilos de liderazgo que generan desempeño son culturalmente específicos. Un liderazgo carismático y personalista en Noruega genera resistencia sistemática.',dm:{trust:-15,engagement:-18}},
+       {l:'B',text:'Retirar al director español y nombrar a un directivo noruego de FJORD para el cargo.',style:'avoidant',fb:'La remoción inmediata puede percibirse como admisión de error y genera inestabilidad. Además, puede interpretarse negativamente en ATLAS como incapacidad de gestión intercultural.',dm:{integration:-12,absorption:-5}},
+       {l:'C',text:'Mantenerle en el cargo pero asignarle un coach de liderazgo intercultural y un co-director de FJORD que actúe como contrapeso consultivo.',style:'adaptive',fb:'El coaching ayuda pero la estructura dual puede generar confusión de autoridad. Funciona mejor como medida transitoria con horizonte definido.',dm:{integration:-8,trust:+3}},
+       {l:'D',text:'Diseñar con el director español y el equipo de FJORD un "contrato de liderazgo" que explicite las expectativas culturales mutuas: cómo se tomarán las decisiones, qué rol tiene la consulta y cuándo la dirección actúa de forma autónoma.',style:'collaborative',fb:'Correcto. GLOBE enseña que el liderazgo efectivo intercultural no es imitar al local sino negociar explícitamente las reglas de juego. El contrato de liderazgo hace visible lo que normalmente es implícito.',dm:{engagement:+15,integration:+15}}
+     ],correct:3},
+
+    {dNum:9,phase:3,framework:'Schein · Convergencia cultural en el nivel de supuestos',title:'El "compliance" sin compromiso de Bergen',
+     scenario:'A 12 meses, los KPIs financieros de FJORD cumplen los objetivos. Pero una encuesta interna revela que el 68% del equipo de FJORD siente que "trabaja para ATLAS, no con ATLAS". Los procesos se cumplen pero no hay iniciativa, propuestas de mejora ni identificación con la organización conjunta.',
+     options:[
+       {l:'A',text:'Crear un fondo de innovación FJORD-ATLAS donde equipos mixtos presenten proyectos que serán evaluados y financiados por ambas organizaciones, generando logros conjuntos y narrativa compartida.',style:'collaborative',fb:'Correcto. La identidad compartida no se declara; se construye mediante logros conjuntos. Schein señala que los supuestos básicos cambian a través de experiencias de éxito compartido, no de comunicaciones corporativas.',dm:{engagement:+20,integration:+15}},
+       {l:'B',text:'Lanzar una campaña interna de comunicación sobre los valores del grupo ATLAS e integrar el branding de FJORD en la identidad corporativa de ATLAS.',style:'authoritative',fb:'El rebranding unilateral confirma exactamente lo que el equipo de FJORD ya siente: que trabajan para ATLAS, no con ATLAS.',dm:{trust:-8,integration:-5}},
+       {l:'C',text:'Interpretar los resultados financieros positivos como el indicador definitivo del éxito de la integración.',style:'avoidant',fb:'Los resultados financieros son el indicador retrasado. El compliance sin compromiso es el predictor adelantado de fuga de talento en el año 2.',dm:{engagement:-15,integration:-12}},
+       {l:'D',text:'Organizar una conferencia anual de grupo donde ambos equipos presenten sus logros al consejo.',style:'adaptive',fb:'La visibilidad es positiva pero insuficiente para trabajar los supuestos básicos de identidad. La conferencia comunica; no construye.',dm:{engagement:+5,integration:-3}}
+     ],correct:0},
+
+    {dNum:10,phase:3,framework:'Edmondson · Aprendizaje organizacional e innovación',title:'La propuesta de ahorro que nadie escuchó',
+     scenario:'Un ingeniero senior de FJORD identificó hace tres meses una optimización en el diseño de sensores que podría reducir costes un 18%. La presentó a su director inmediato de ATLAS, quien la derivó "a estudio". No ha habido respuesta. El ingeniero ahora está siendo contactado por un competidor noruego.',
+     options:[
+       {l:'A',text:'Implementar un sistema formal de gestión de ideas con plazos de respuesta máximos de 15 días y feedback obligatorio a cada propuesta, independientemente de su viabilidad.',style:'collaborative',fb:'Correcto. Edmondson identifica que la percepción de que las ideas son escuchadas y valoradas es un predictor más fuerte de retención que el salario en organizaciones de conocimiento intensivo.',dm:{trust:+18,absorption:+20}},
+       {l:'B',text:'Hablar personalmente con el ingeniero y asegurarle que la propuesta está siendo evaluada.',style:'avoidant',fb:'La conversación puntual no resuelve el problema sistémico. Sin un proceso formal, el siguiente ingeniero con una buena idea tendrá la misma experiencia.',dm:{absorption:-10,integration:-8}},
+       {l:'C',text:'Acelerar la evaluación de la propuesta específica del ingeniero y comunicarle una decisión en 48 horas.',style:'adaptive',fb:'Resolver el caso individual sin cambiar el sistema genera una excepción, no una cultura. El siguiente ingeniero seguirá encontrando el mismo silencio.',dm:{trust:+3,absorption:-5}},
+       {l:'D',text:'Reasignar al ingeniero a un proyecto estratégico de mayor visibilidad para retenerlo.',style:'authoritative',fb:'El movimiento sin abordar la cultura de gestión de ideas no resuelve el problema; lo desplaza. Además, puede percibirse como un soborno implícito.',dm:{trust:-12,engagement:-10}}
+     ],correct:0},
+
+    {dNum:11,phase:3,framework:'Bauer & Matzler · Capacidad relacional',title:'ATLAS evalúa comprar en Dinamarca',
+     scenario:'ATLAS evalúa una adquisición en Dinamarca. El equipo directivo debate si las lecciones aprendidas con FJORD son transferibles al nuevo contexto nórdico o si Dinamarca es suficientemente diferente como para requerir un enfoque completamente nuevo.',
+     options:[
+       {l:'A',text:'Empezar desde cero: Dinamarca y Noruega tienen diferencias suficientes para que el playbook de FJORD sea inaplicable.',style:'avoidant',fb:'Aunque hay diferencias (cultura danesa, Jante-loven, etc.), los marcos de gestión intercultural desarrollados con FJORD son metodológicamente transferibles aunque el contenido cultural cambie.',dm:{integration:-10,absorption:-5}},
+       {l:'B',text:'Crear un "Atlas de Integración ATLAS" que documente los marcos de trabajo intercultural, los errores cometidos y las herramientas desarrolladas con FJORD como base adaptable para futuras adquisiciones nórdicas.',style:'collaborative',fb:'Correcto. Bauer & Matzler llaman a esto "capacidad relacional" y "aprendizaje": la habilidad de construir conocimiento institucional sobre cómo integrarse que se acumula y mejora con cada proceso.',dm:{integration:+20,absorption:+15}},
+       {l:'C',text:'Aplicar exactamente el mismo protocolo de FJORD sin adaptación: Escandinavia es suficientemente homogénea.',style:'authoritative',fb:'Dinamarca y Noruega tienen diferencias culturales significativas (Hofstede difiere en varias dimensiones). La copia sin adaptación puede reproducir errores en un contexto diferente.',dm:{integration:-12,trust:-8}},
+       {l:'D',text:'Contratar a los mismos asesores interculturales que ayudaron con FJORD para que gestionen la nueva integración.',style:'adaptive',fb:'Los asesores externos no construyen capacidad institucional interna. ATLAS seguirá siendo dependiente de terceros para una competencia estratégica clave.',dm:{integration:+3,absorption:-8}}
+     ],correct:1},
+
+    {dNum:12,phase:3,framework:'Bauer & Matzler · ICMM nivel 3→4',title:'Medir lo que importa en la integración intercultural',
+     scenario:'La evaluación ICMM sitúa a ATLAS-FJORD en nivel 3. El consejo quiere avanzar al nivel 4 implementando un sistema de KPIs de integración. El debate es entre adoptar los indicadores estándar del sector o co-diseñarlos con los equipos de Bergen.',
+     options:[
+       {l:'A',text:'Adoptar los KPIs de integración del informe McKinsey 2024: son los mejores del mercado y han sido validados en más de 200 procesos de fusión.',style:'authoritative',fb:'Los KPIs genéricos no capturan las tensiones específicas de una integración España-Noruega: confianza, seguridad psicológica, flujo de conocimiento técnico. La adopción sin adaptación reduce su valor diagnóstico.',dm:{integration:+3,trust:-5}},
+       {l:'B',text:'Mantener el nivel 3 y consolidar antes de añadir la complejidad de un sistema de KPIs formal.',style:'avoidant',fb:'Diferir el desarrollo de métricas cuando la organización está lista implica gestionar sin datos, que es exactamente lo que separa el nivel 3 del nivel 4.',dm:{integration:-8,absorption:-5}},
+       {l:'C',text:'Encargar al equipo de RRHH de ATLAS el diseño del sistema de KPIs basándose en el modelo del grupo.',style:'adaptive',fb:'El diseño interno sin participación de FJORD reproduce la asimetría de poder que ha generado resistencia durante todo el proceso.',dm:{integration:-8,trust:-3}},
+       {l:'D',text:'Crear un grupo de trabajo mixto ATLAS-FJORD para co-diseñar los indicadores de integración intercultural, incluyendo métricas de confianza, seguridad psicológica, flujo de conocimiento y construcción de identidad compartida.',style:'collaborative',fb:'Correcto. Los KPIs co-diseñados tienen mayor validez cultural, mayor apropiación y en sí mismos constituyen un ejercicio de integration capability (coordinación + aprendizaje + capacidad relacional).',dm:{integration:+18,engagement:+12}}
+     ],correct:3}
+  ],
+  openQuestions:[
+    {phase:1,title:'Análisis del choque España-Noruega',question:'Analiza las principales brechas culturales entre ATLAS (España) y FJORD (Noruega) usando al menos dos marcos teóricos del Manual PMI. ¿Qué hace especialmente compleja la brecha de masculinidad (MAS=42 vs 8) en el contexto de una integración posadquisición? ¿Cuál es el riesgo más crítico para los primeros 90 días?',
+     hints:['Hofstede: Noruega tiene el índice de masculinidad más bajo del mundo (MAS=8). Esto implica que el éxito, el liderazgo heroico individual y la competencia son valores que generan rechazo activo, no admiración, en la cultura noruega. ¿Cómo afecta esto a los sistemas de incentivos y al estilo directivo de ATLAS?','Hall: España es alta contexto (el significado está en la relación, el tono, el contexto implícito) mientras Noruega es baja contexto (todo debe ser explícito, directo y escrito). ¿Qué tipos de malentendidos concretos genera esta diferencia en una reunión de integración?','Haspeslagh & Jemison: FJORD es una empresa de conocimiento intensivo con ventaja competitiva basada en su cultura de autonomía científica. Si ATLAS la absorbe, ¿qué pasa con el activo que compró?']},
+    {phase:2,title:'Conocimiento técnico y seguridad para hablar',question:'En el contexto específico ATLAS-FJORD, ¿cómo bloquea o facilita la brecha de seguridad psicológica (Edmondson) la capacidad de absorción del conocimiento técnico marino (Cohen & Levinthal)? ¿Qué acciones concretas han tomado los directivos de ATLAS que podrían haber deteriorado o mejorado esa seguridad psicológica?',
+     hints:['Edmondson: ¿puede un ingeniero de FJORD decirle "esto no va a funcionar" a un director de ATLAS sin miedo a consecuencias? ¿Qué ha pasado en las decisiones de Fase II que ha afectado a esa posibilidad?','Cohen & Levinthal: el conocimiento técnico del Mar del Norte es en gran medida tácito y contextual. ¿Qué condiciones (de confianza, de tiempo, de interacción) son necesarias para que ese conocimiento fluya hacia ATLAS?','Piensa en la tensión masculinidad/feminidad: en una cultura de alta feminidad como la noruega, ¿cómo se gestiona el error? ¿Cómo afecta eso a la disposición a compartir conocimiento sin garantías de que será bien utilizado?']},
+    {phase:3,title:'Liderazgo integrador y métricas SMART',question:'Diseña un plan de liderazgo integrador para los próximos 6 meses en ATLAS-FJORD. ¿Qué capacidades dinámicas de Bauer & Matzler son más críticas en este momento? Define dos indicadores SMART específicos para medir la integración cultural (no financiera) entre ambas organizaciones.',
+     hints:['Bauer & Matzler: en este momento (mes 12-18), ¿cuál de las cuatro capacidades (coordinación, aprendizaje, reconfiguración, relacional) es la más débil? ¿Qué evidencia tienes de tus decisiones anteriores?','Schein: el "compliance sin compromiso" que muestra FJORD es señal de que los supuestos básicos no han cambiado. ¿Qué tipo de intervención trabaja sobre los supuestos básicos, no solo sobre los artefactos?','KPI SMART ejemplo: "Alcanzar un 75% de propuestas de innovación técnica provenientes de FJORD que reciben respuesta documentada en menos de 15 días, medido mensualmente por el sistema de gestión de ideas, antes del mes 18." ¿Puedes diseñar dos propios?']}
+  ]
+},
+
+// ──────────────────────────────────────────────────────
+// CASE 3: DRAGÓN-IBÉRICA (España → China)
+// ──────────────────────────────────────────────────────
+'dragon-iberica': {
+  id:'dragon-iberica',
+  flag:'🇪🇸→🇨🇳',
+  name:'DRAGÓN–IBÉRICA',
+  sector:'Farmacéutica · Biotecnología',
+  difficulty:'Alta',
+  acquirer:{name:'IBÉRICA PHARMA',country:'España',city:'Barcelona',size:'650 personas'},
+  target:{name:'DRAGÓN BIOTECH',country:'China',city:'Shanghái',size:'320 personas'},
+  desc:'IBÉRICA PHARMA, laboratorio catalán especializado en oncología, adquiere DRAGÓN BIOTECH, empresa shanghainesa con patentes en medicina de precisión basada en fitoterapia china. La brecha en orientación al tiempo y evitación de incertidumbre es la más extrema de los tres casos.',
+  hofstede:{
+    acq:[57,86,51,42,48],
+    tgt:[80,30,20,66,87],
+    dims:['Distancia poder','Evit. incertidumbre','Individualismo','Masculinidad','Orient. LP']
+  },
+  hall:{acq:'Alto',tgt:'Muy alto (relacional)'},
+  brechas:[
+    {label:'Evit. incertidumbre',delta:56,severity:'high'},
+    {label:'Individualismo',delta:31,severity:'high'},
+    {label:'Orient. LP',delta:39,severity:'high'},
+    {label:'Distancia poder',delta:23,severity:'med'},
+    {label:'Masculinidad',delta:24,severity:'med'},
+    {label:'Contexto Hall',delta:null,text:'Ambos altos, ≠ tipo',severity:'med'},
+  ],
+  phaseLabels:['Meses 0–3: Establecimiento de la relación','Meses 4–9: Transferencia y sinergias','Meses 10–18: Institucionalización'],
+  phaseIntros:{
+    p1:"IBÉRICA PHARMA acaba de firmar la adquisición. El equipo directivo catalán viaja a Shanghái para las primeras reuniones. Todo es diferente: el ritmo, los silencios, las decisiones que parecen llegar sin que nadie las haya tomado.",
+    collaborative:"Las primeras fases han construido una relación de respeto mutuo. El guanxi está comenzando a operar: los investigadores de DRAGÓN comparten algunos hallazgos con mayor apertura. Sin embargo, la transferencia de conocimiento científico sigue siendo lenta y selectiva.",
+    authoritative:"La presión directiva española ha generado tensión visible en Shanghái. El equipo de DRAGÓN muestra 'acuerdo de cara' pero resistencia real. Ningún investigador ha presentado una propuesta de innovación nueva desde el mes 3.",
+    mixed:"Los resultados son contradictorios. Algunos investigadores colaboran activamente; otros permanecen en silencio. La dirección de DRAGÓN cumple los objetivos formales pero no hay iniciativa espontánea.",
+    p3coll:"La confianza construida empieza a generar dividendos: algunos investigadores de DRAGÓN proponen proyectos conjuntos por iniciativa propia. El guanxi funciona. Ahora toca institucionalizar sin destruir lo construido.",
+    p3auth:"Los indicadores financieros se mantienen pero el capital relacional está erosionado. Tres investigadores senior han pedido reuniones con recursos humanos en los últimos dos meses.",
+    p3mixed:"La integración es funcional pero superficial. Los equipos coexisten sin fusión real de conocimiento científico. La innovación conjunta, que era el objetivo de la adquisición, no ha ocurrido."
+  },
+  decisions:[
+    {dNum:1,phase:1,framework:'Hall · Comunicación de alto contexto relacional',title:'Lo que el silencio significa en Shanghái',
+     scenario:'En la primera reunión con los directivos de DRAGÓN, el director científico de IBÉRICA presenta un plan de integración detallado y pregunta directamente: "¿Hay algún problema con este cronograma?" Los directivos chinos sonríen, dicen "muy bien" y no hacen ninguna pregunta. Tres semanas después, ningún paso del plan ha comenzado.',
+     options:[
+       {l:'A',text:'Convocar una reunión de seguimiento y exigir explicaciones sobre la falta de avance del plan acordado.',style:'authoritative',fb:'El "muy bien" en la cultura china de alto contexto puede significar "lo hemos escuchado", no "estamos de acuerdo". Interpretar el silencio como aprobación y luego exigir rendición de cuentas destruye la confianza y el mianzi (cara) de los directivos chinos.',dm:{trust:-15,engagement:-10}},
+       {l:'B',text:'Formarse en comunicación china de alto contexto relacional y practicar el nemawashi: reuniones bilaterales previas con cada directivo para construir acuerdo informal antes de cualquier reunión formal.',style:'collaborative',fb:'Correcto. El nemawashi —construcción de consenso informal antes de la reunión formal— es el protocolo que hace funcionar las decisiones en el contexto chino. Sin él, la reunión formal es teatro, no decisión.',dm:{trust:+15,absorption:+10}},
+       {l:'C',text:'Simplificar el plan y presentar únicamente los tres primeros pasos para reducir la complejidad.',style:'avoidant',fb:'La simplificación no resuelve el problema de fondo: el protocolo de decisión no es un problema de complejidad sino de proceso cultural.',dm:{integration:-10,engagement:-5}},
+       {l:'D',text:'Contratar a un intérprete cultural chino-español para que esté presente en todas las reuniones estratégicas.',style:'adaptive',fb:'El intérprete cultural ayuda pero no desarrolla competencia intercultural interna. Además, la presencia de un intermediario puede percibirse como desconfianza.',dm:{trust:+5,integration:-5}}
+     ],correct:1},
+
+    {dNum:2,phase:1,framework:'Haspeslagh & Jemison · Conocimiento basado en relaciones',title:'¿Qué modelo preserva el guanxi?',
+     scenario:'El consejo de IBÉRICA debe decidir el modelo de integración. DRAGÓN BIOTECH tiene 12 patentes activas y 45 investigadores cuyo conocimiento científico está profundamente embebido en redes relacionales (guanxi) y no documentado. Sin las relaciones, el conocimiento desaparece.',
+     options:[
+       {l:'A',text:'Preservación con autonomía máxima: DRAGÓN opera bajo su propia dirección, con su propio sistema de gestión y sin ningún requisito de integración en los primeros 18 meses.',style:'collaborative',fb:'Correcto. En un contexto de conocimiento profundamente relacional como el chino, la preservación protege el activo principal: las redes de guanxi de los investigadores. Cualquier perturbación de esas redes destruye el know-how que se compró.',dm:{trust:+15,integration:+12}},
+       {l:'B',text:'Absorción progresiva: integrar primero los sistemas de gestión y administración mientras se mantiene la autonomía científica.',style:'authoritative',fb:'La integración de sistemas de gestión sin construir confianza previa se interpreta como control y supervisión. En el contexto chino, esto perturba el guanxi y activa la resistencia.',dm:{trust:-20,absorption:-15}},
+       {l:'C',text:'Simbiosis desde el inicio: co-dirección española-china y proyectos conjuntos de investigación en los primeros 90 días.',style:'avoidant',fb:'La simbiosis prematura sin guanxi establecido no funciona en el contexto chino. La velocidad española choca con la orientación de largo plazo china (LTO=87).',dm:{integration:-15,engagement:-8}},
+       {l:'D',text:'Holding puro con revisión a 24 meses sin ningún tipo de integración ni contacto directivo.',style:'adaptive',fb:'El holding sin relación impide el desarrollo del guanxi necesario para una futura integración. En el contexto chino, la relación debe construirse activamente, no esperarse.',dm:{trust:+5,integration:+3}}
+     ],correct:0},
+
+    {dNum:3,phase:1,framework:'Schein · Supuestos sobre autoridad y jerarquía',title:'La jerarquía que es diferente en Shanghái',
+     scenario:'IBÉRICA funciona con una estructura matricial donde los investigadores proponen proyectos directamente a la dirección. DRAGÓN tiene una jerarquía clara: los investigadores no hablan directamente con la alta dirección sin pasar por sus supervisores. El director científico de IBÉRICA comienza a enviar correos directamente a los investigadores de DRAGÓN para acelerar la comunicación.',
+     options:[
+       {l:'A',text:'Continuar comunicando directamente con los investigadores: la eficiencia es más importante que los protocolos jerárquicos locales.',style:'authoritative',fb:'Saltarse la jerarquía china (PDI=80) sin permiso del supervisor vulnera el mianzi (cara) de los directivos intermedios y activa la resistencia pasiva del sistema.',dm:{trust:-18,engagement:-12}},
+       {l:'B',text:'Realizar un diagnóstico cultural Schein de los tres niveles con los directivos de DRAGÓN para entender los supuestos básicos sobre autoridad y rediseñar la estructura de comunicación de forma colaborativa.',style:'collaborative',fb:'Correcto. Antes de cambiar los canales de comunicación, es necesario entender los supuestos básicos sobre autoridad. En China, la jerarquía no es un artefacto; es un supuesto básico profundamente arraigado.',dm:{trust:+15,absorption:+10}},
+       {l:'C',text:'Adoptar íntegramente el protocolo jerárquico de DRAGÓN en todas las comunicaciones del grupo.',style:'avoidant',fb:'La adopción total sin análisis puede generar lentitud excesiva e inadaptación de la estructura matricial de IBÉRICA. La adaptación debe ser consciente y bilateral.',dm:{integration:-10,engagement:-5}},
+       {l:'D',text:'Crear un diagrama de comunicación formal consensuado que especifique los canales para cada tipo de decisión.',style:'adaptive',fb:'El diagrama formal ayuda pero no sustituye el diagnóstico cultural. Sin entender los supuestos básicos, el diagrama puede no respetarse o no funcionar en la práctica.',dm:{trust:+5,integration:-5}}
+     ],correct:1},
+
+    {dNum:4,phase:1,framework:'Trompenaars · Tiempo y orientación de largo plazo',title:'Q3 vs. el plan de 5 años de DRAGÓN',
+     scenario:'IBÉRICA necesita mostrar resultados concretos de la adquisición en el informe trimestral Q3. El equipo de DRAGÓN, con una orientación temporal de largo plazo (LTO=87), trabaja en un plan de investigación a 5 años para desarrollar las patentes. Los plazos trimestrales de IBÉRICA les parecen arbitrarios e incompatibles con la ciencia de calidad.',
+     options:[
+       {l:'A',text:'Exigir al equipo de DRAGÓN que adapte su metodología para generar entregables trimestrales medibles aunque sean hitos parciales.',style:'adaptive',fb:'La exigencia de entregables trimestrales en investigación farmacológica china orientada al largo plazo genera exactamente el tipo de presión que destruye la confianza y ralentiza el descubrimiento científico.',dm:{trust:-5,engagement:+3}},
+       {l:'B',text:'Presionar al equipo de DRAGÓN para acelerar el cronograma de investigación y comprometerse con resultados en 18 meses en lugar de 5 años.',style:'authoritative',fb:'La presión sobre el tiempo en un contexto de LTO=87 se interpreta como incomprensión del proceso científico y genera la respuesta china clásica: acuerdo de cara, resistencia real.',dm:{trust:-20,engagement:-15}},
+       {l:'C',text:'Informar al consejo de IBÉRICA de que los resultados de DRAGÓN no podrán medirse trimestralmente y proponer indicadores de proceso (publicaciones, patentes en desarrollo, colaboraciones) en lugar de indicadores de resultado.',style:'avoidant',fb:'Aunque la comunicación interna es necesaria, resignarse sin buscar un marco temporal híbrido no es gestión intercultural; es rendición.',dm:{integration:-15,engagement:-8}},
+       {l:'D',text:'Co-diseñar con DRAGÓN un mapa de hitos de investigación que tenga hitos de proceso medibles trimestralmente y hitos de resultado a 24-36 meses, creando un lenguaje temporal compartido que respete la ciencia y los requisitos corporativos.',style:'collaborative',fb:'Correcto. Trompenaars identifica la tensión universalismo/particularismo temporal como fuente de conflicto en fusiones internacionales. El marco temporal híbrido es la solución que respeta ambas orientaciones.',dm:{trust:+15,engagement:+12}}
+     ],correct:3},
+
+    {dNum:5,phase:2,framework:'Cohen & Levinthal · Conocimiento embebido en relaciones',title:'Las patentes que no se pueden documentar',
+     scenario:'IBÉRICA quiere acceder al conocimiento científico de DRAGÓN para acelerar su pipeline de I+D en Europa. Pero los investigadores de DRAGÓN tienen un conocimiento profundamente tácito, embebido en relaciones personales con proveedores de fitoterapia china, que no está documentado y que no puede codificarse sin destruirlo.',
+     options:[
+       {l:'A',text:'Diseñar programas de investigación conjunta donde los equipos de IBÉRICA y DRAGÓN trabajen juntos en laboratorio durante 6-12 meses, con los investigadores españoles aprendiendo en contexto.',style:'collaborative',fb:'Correcto. El conocimiento embebido en relaciones (guanxi) solo puede absorberse mediante co-experiencia. Cohen & Levinthal llama esto "construir capacidad de absorción a través de la interacción directa". No hay atajo.',dm:{absorption:+20,trust:+10}},
+       {l:'B',text:'Exigir que todos los investigadores de DRAGÓN documenten sus metodologías y redes de proveedores en el sistema de gestión del conocimiento de IBÉRICA.',style:'authoritative',fb:'La codificación forzada de conocimiento relacional produce documentos incompletos y puede romper las redes de guanxi que son el verdadero activo. Además, genera resistencia activa.',dm:{absorption:-20,trust:-15}},
+       {l:'C',text:'Contratar a los investigadores de DRAGÓN como consultores individuales para que trasladen su conocimiento a IBÉRICA en proyectos específicos.',style:'avoidant',fb:'La consultoría puntual no construye capacidad de absorción institucional. El conocimiento permanece en los individuos sin ser asimilado por la organización.',dm:{absorption:-10,integration:-5}},
+       {l:'D',text:'Crear un portal de conocimiento compartido donde DRAGÓN puede publicar sus aprendizajes científicos de forma voluntaria.',style:'adaptive',fb:'El portal voluntario sin estructura de interacción genera muy baja participación, especialmente en un contexto donde el conocimiento es relacional y no se comparte con extraños.',dm:{absorption:-5,trust:-8}}
+     ],correct:0},
+
+    {dNum:6,phase:2,framework:'Edmondson · Cara (Mianzi) y seguridad psicológica',title:'El "sí" que significa "no"',
+     scenario:'Después de cada reunión de avance, los directivos de DRAGÓN confirman que "todo va bien" y "estamos de acuerdo". Sin embargo, los proyectos no avanzan según lo previsto. Al investigar, se descubre que los investigadores tienen serias dudas técnicas sobre la viabilidad de algunos proyectos pero nunca las expresan porque contradecir públicamente a la dirección de IBÉRICA haría perder "cara" (mianzi) a todos.',
+     options:[
+       {l:'A',text:'Implementar reuniones de seguimiento más frecuentes con datos precisos para detectar los problemas antes.',style:'authoritative',fb:'Las reuniones más frecuentes sin cambiar el protocolo de interacción producirán más "todo va bien" falsos. La frecuencia no resuelve el problema de fondo: la seguridad psicológica ligada al mianzi.',dm:{trust:-15,engagement:-12}},
+       {l:'B',text:'Crear canales de comunicación anónimos y encuestas periódicas donde los investigadores puedan expresar dudas sin exposición personal.',style:'avoidant',fb:'El anonimato palia el síntoma. En el contexto chino, el problema del mianzi opera también en el silencio grupal, no solo en el individual. La encuesta anónima puede ser útil pero insuficiente.',dm:{absorption:-10,integration:-8}},
+       {l:'C',text:'Introducir sesiones de trabajo bilaterales informales (tipo nemawashi) donde el director científico de IBÉRICA escuche las dudas técnicas de cada investigador individualmente, fuera del contexto de reunión formal y sin registro.',style:'collaborative',fb:'Correcto. La seguridad psicológica en el contexto chino se construye en el espacio relacional privado, no en la reunión formal. El nemawashi informativo —escuchar antes de la reunión— permite que las dudas emerjan sin comprometer el mianzi de nadie.',dm:{trust:+20,engagement:+15}},
+       {l:'D',text:'Nombrar a un directivo de DRAGÓN como "enlace" que filtre los problemas antes de que lleguen a las reuniones formales.',style:'adaptive',fb:'El enlace puede capturar algunos problemas pero también puede convertirse en un filtro que protege el statu quo. Sin cambio cultural de fondo, el mianzi seguirá bloqueando la información crítica.',dm:{trust:+5,engagement:-5}}
+     ],correct:2},
+
+    {dNum:7,phase:2,framework:'Hofstede · Colectivismo y reconocimiento',title:'El investigador al que IBÉRICA puso en portada',
+     scenario:'IBÉRICA incluye en su newsletter global una entrevista con la investigadora principal de DRAGÓN, Wei Zhang, destacando sus logros individuales y su "brillante trayectoria". La investigadora no aparece en la siguiente reunión. Más tarde se descubre que la publicación la avergonzó profundamente: destacar a un individuo sobre el grupo es una humillación en la cultura colectivista china (IDV=20).',
+     options:[
+       {l:'A',text:'Pedir disculpas a Wei Zhang en privado y publicar una corrección en la newsletter destacando al equipo completo de DRAGÓN.',style:'avoidant',fb:'La disculpa es necesaria pero insuficiente. Sin aprender el protocolo correcto de reconocimiento para contextos colectivistas, el error se repetirá.',dm:{engagement:-8,trust:-5}},
+       {l:'B',text:'Rediseñar toda la estrategia de comunicación corporativa para incluir reconocimiento colectivo de equipos en lugar de protagonismo individual, especialmente en contextos colectivistas.',style:'collaborative',fb:'Correcto. Hofstede predice con precisión este choque (IDV=51 España vs 20 China). El reconocimiento en culturas colectivistas debe ser grupal, contextual y basado en la relación con el grupo, no en la distinción individual.',dm:{engagement:+15,trust:+10}},
+       {l:'C',text:'Mantener la política de comunicación de IBÉRICA: el reconocimiento individual es una práctica global del grupo.',style:'authoritative',fb:'Imponer prácticas de reconocimiento individual en una cultura de IDV=20 genera exactamente el efecto contrario: vergüenza, no motivación.',dm:{engagement:-18,trust:-12}},
+       {l:'D',text:'Eliminar todas las menciones individuales de investigadores de DRAGÓN en las comunicaciones de IBÉRICA para evitar futuros incidentes.',style:'adaptive',fb:'La invisibilidad total tampoco es la solución. El reconocimiento apropiado en culturas colectivistas existe: es grupal, relacional y discreto.',dm:{integration:-8,engagement:+3}}
+     ],correct:1},
+
+    {dNum:8,phase:2,framework:'GLOBE · Liderazgo orientado a la protección del grupo',title:'El director de DRAGÓN que no debería haber perdido "cara"',
+     scenario:'En una reunión con el consejo de IBÉRICA, el CEO de IBÉRICA critica públicamente los retrasos en el proyecto de síntesis de DRAGÓN, señalando al director de investigación de DRAGÓN como responsable por nombre. El director chino baja los ojos. Al día siguiente, no aparece en la oficina. Tras semanas de silencio, presenta su renuncia.',
+     options:[
+       {l:'A',text:'Aceptar la renuncia: la responsabilidad directiva requiere asumir las consecuencias de los retrasos.',style:'authoritative',fb:'Perder al director de investigación de DRAGÓN equivale a perder el guanxi central de la organización, las relaciones con proveedores y parte del conocimiento tácito. El coste de esta renuncia es incalculable.',dm:{trust:-15,engagement:-18}},
+       {l:'B',text:'Reunirse urgentemente con el director, pedir disculpas en privado y ofrecer una narrativa pública de "logros compartidos" que restaure su mianzi frente al equipo de DRAGÓN.',style:'avoidant',fb:'La restauración del mianzi es necesaria pero insuficiente sin cambiar el protocolo de feedback directivo. Sin aprendizaje institucional, el CEO repetirá el error.',dm:{integration:-12,absorption:-5}},
+       {l:'C',text:'Organizar un taller urgente de "liderazgo intercultural" para el CEO y el consejo de IBÉRICA sobre el concepto de mianzi y los protocolos de feedback en culturas colectivistas de alta distancia al poder.',style:'adaptive',fb:'El taller es necesario pero el timing (después de la crisis) puede percibirse como respuesta reactiva. Útil como parte de una estrategia mayor de desarrollo directivo.',dm:{integration:-8,trust:+3}},
+       {l:'D',text:'Restaurar el mianzi del director de investigación de DRAGÓN mediante un reconocimiento público de su contribución en la siguiente reunión de consejo, con el CEO de IBÉRICA como portavoz, y cambiar el protocolo de feedback directivo a sesiones privadas bilaterales sin presencia de terceros.',style:'collaborative',fb:'Correcto. GLOBE identifica el liderazgo orientado a proteger la cara del grupo como crítico en culturas de alta distancia al poder y colectivismo. El reconocimiento público por el CEO restaura el mianzi y la señal de que IBÉRICA ha aprendido.',dm:{engagement:+15,integration:+15}}
+     ],correct:3},
+
+    {dNum:9,phase:3,framework:'Schein · Identidad colectiva en culturas de alto contexto',title:'Los investigadores que siguen siendo de DRAGÓN',
+     scenario:'A 14 meses de la adquisición, los investigadores de DRAGÓN se refieren siempre a la empresa como "DRAGÓN" en las conversaciones con clientes y proveedores externos. Nunca mencionan a IBÉRICA. Internamente, usan el nombre "DRAGÓN-IBÉRICA" solo en documentos formales. La identidad colectiva no ha convergido.',
+     options:[
+       {l:'A',text:'Diseñar proyectos de investigación estratégicos donde equipos mixtos IBÉRICA-DRAGÓN compartan autoría de publicaciones científicas y construyan reputación académica conjunta.',style:'collaborative',fb:'Correcto. En el contexto científico chino, la reputación académica colectiva (guanxi académico) es la forma más poderosa de identidad compartida. Las publicaciones conjuntas son el artefacto cultural de más alto valor en este mundo.',dm:{engagement:+20,integration:+15}},
+       {l:'B',text:'Exigir que todos los materiales externos e internos usen exclusivamente el nombre IBÉRICA desde el mes 15.',style:'authoritative',fb:'El cambio de nombre forzado sin convergencia de supuestos básicos genera resistencia pasiva. En el contexto chino, los investigadores encontrarán formas sutiles de preservar su identidad de DRAGÓN.',dm:{trust:-8,integration:-5}},
+       {l:'C',text:'Ignorar el problema de identidad: lo importante es que los KPIs científicos se cumplan.',style:'avoidant',fb:'La identidad fragmentada predice fuga de talento. En culturas de alto colectivismo, el sentido de pertenencia grupal es un motivador más fuerte que el salario individual.',dm:{engagement:-15,integration:-12}},
+       {l:'D',text:'Organizar un retiro anual de equipo donde los valores del grupo IBÉRICA se presenten y los investigadores de DRAGÓN los adopten formalmente.',style:'adaptive',fb:'Los retiros de valores presentados unilateralmente son exactamente el tipo de evento que los investigadores chinos asistirán con cortesía y olvidarán en el taxi de regreso.',dm:{engagement:+5,integration:-3}}
+     ],correct:0},
+
+    {dNum:10,phase:3,framework:'Edmondson · Sistemas de aprendizaje a largo plazo',title:'Los investigadores que se van a Huawei',
+     scenario:'Una investigadora senior de DRAGÓN, Mei Lin, la más citada del equipo, anuncia su salida a Huawei Research. En la entrevista de salida comenta que "en DRAGÓN sentía que hacíamos ciencia; en IBÉRICA siento que producimos informes". El equipo directivo de IBÉRICA está en shock.',
+     options:[
+       {l:'A',text:'Aumentar los salarios del equipo de investigación de DRAGÓN un 20% inmediatamente para frenar la fuga de talento.',style:'avoidant',fb:'En culturas de alto colectivismo y orientación al largo plazo, el dinero solo no retiene. El comentario de Mei Lin indica pérdida de propósito y seguridad psicológica, no insatisfacción salarial.',dm:{absorption:-10,integration:-8}},
+       {l:'B',text:'Realizar una entrevista en profundidad con Mei Lin y los investigadores restantes para entender qué hace que la ciencia en DRAGÓN se sienta diferente, y rediseñar el entorno de investigación basándose en esos datos.',style:'authoritative',fb:'Es un diagnóstico necesario pero la calificación "authoritative" es incorrecta. La pregunta correcta es qué haces con los datos. La opción C responde esto mejor.',dm:{trust:-12,engagement:-10}},
+       {l:'C',text:'Diseñar con el equipo de DRAGÓN un "ecosistema de investigación" que proteja los tiempos de exploración libre, el guanxi con proveedores externos y los rituales científicos propios de DRAGÓN, documentando explícitamente qué se preserva en el nuevo contexto.',style:'collaborative',fb:'Correcto. Edmondson y Schein coinciden: el aprendizaje organizacional requiere entornos donde la exploración sin resultado inmediato sea segura. Proteger los rituales científicos de DRAGÓN es proteger la identidad que atrae y retiene al talento investigador.',dm:{trust:+18,absorption:+20}},
+       {l:'D',text:'Contratar a tres nuevos investigadores internacionales para compensar la pérdida de Mei Lin.',style:'adaptive',fb:'Compensar la pérdida con contrataciones externas ignora el problema sistémico. Además, los nuevos investigadores sin el guanxi de DRAGÓN no tienen acceso al conocimiento relacional que es el activo central.',dm:{trust:+3,absorption:-5}}
+     ],correct:2},
+
+    {dNum:11,phase:3,framework:'Bauer & Matzler · Capacidad de reconfiguración',title:'IBÉRICA mira hacia Corea del Sur',
+     scenario:'IBÉRICA evalúa adquirir una empresa de diagnóstico molecular en Seúl. El equipo directivo debate qué lecciones de DRAGÓN son transferibles a Korea. La discusión se centra en si el guanxi chino y el jeong coreano son suficientemente similares como para reutilizar el framework de integración.',
+     options:[
+       {l:'A',text:'Usar exactamente el mismo protocolo de integración que con DRAGÓN: ambas son culturas del Asia oriental con similitudes suficientes.',style:'authoritative',fb:'El guanxi chino y el jeong coreano son conceptos relacionales con diferencias significativas. Además, los perfiles Hofstede de China y Corea del Sur difieren en dimensiones clave. La replicación sin adaptación reproduce errores.',dm:{integration:-12,trust:-8}},
+       {l:'B',text:'Crear un equipo mixto IBÉRICA-DRAGÓN para co-diseñar el enfoque de integración coreano: los investigadores de DRAGÓN tienen conocimiento contextual del Asia oriental que puede ser valioso.',style:'collaborative',fb:'Correcto. Bauer & Matzler identifican la "capacidad relacional" como la habilidad de construir redes de conocimiento que trascienden las fronteras de la organización. Involucrar a DRAGÓN en la próxima integración es en sí mismo un acto de construction de integration capability.',dm:{integration:+20,absorption:+15}},
+       {l:'C',text:'Empezar desde cero con asesores locales coreanos especializados en integración corporativa.',style:'avoidant',fb:'Los asesores locales son valiosos pero no acumulan el conocimiento institucional de IBÉRICA sobre gestión intercultural. No se construye integration capability externalizando el aprendizaje.',dm:{integration:-10,absorption:-5}},
+       {l:'D',text:'Documentar las lecciones de DRAGÓN en un informe ejecutivo y distribuirlo al equipo que gestionará la integración coreana.',style:'adaptive',fb:'El informe distribuye información pero no construye competencia. La integration capability se desarrolla en la práctica, no leyendo informes.',dm:{integration:+3,absorption:-8}}
+     ],correct:1},
+
+    {dNum:12,phase:3,framework:'Bauer & Matzler · ICMM y métricas culturales',title:'Medir la integración con China en el consejo de Barcelona',
+     scenario:'El consejo de IBÉRICA pide al equipo de integración un sistema de KPIs que permita medir el avance de la integración DRAGÓN. Los directivos quieren indicadores "objetivos y cuantificables". El equipo de integración sabe que los indicadores más importantes (guanxi, mianzi, orientación al largo plazo) son difícilmente cuantificables con las herramientas estándar.',
+     options:[
+       {l:'A',text:'Adoptar los KPIs de integración estándar del sector farmacéutico: patentes, publicaciones, pipeline de productos, y tiempos de desarrollo.',style:'authoritative',fb:'Los KPIs financieros y técnicos miden la integración operativa pero son ciegos a los indicadores de integración cultural que predicen la fuga de talento y el deterioro del guanxi.',dm:{integration:+3,trust:-5}},
+       {l:'B',text:'Informar al consejo de que la integración con China no puede medirse con KPIs estándar y que hay que confiar en el juicio cualitativo del equipo en terreno.',style:'avoidant',fb:'La ausencia de métricas reduce la visibilidad directiva y la posibilidad de intervenir antes de que los problemas sean críticos. El reto es diseñar indicadores culturalmente apropiados, no abandonar la medición.',dm:{integration:-8,absorption:-5}},
+       {l:'C',text:'Contratar a una firma de consultoría con experiencia en métricas de integración en Asia para diseñar el sistema de KPIs.',style:'adaptive',fb:'Los consultores externos pueden ayudar pero sin participación interna, los KPIs no tienen apropiación ni validez cultural local. El riesgo de métricas inadecuadas persiste.',dm:{integration:-8,trust:-3}},
+       {l:'D',text:'Co-diseñar con el equipo directivo de DRAGÓN un sistema de indicadores mixto: métricas técnicas estándar + indicadores cualitativos de integración cultural (índice de iniciativa espontánea, ratio de publicaciones conjuntas, frecuencia de propuestas de colaboración interna) revisados trimestralmente en sesiones bilaterales.',style:'collaborative',fb:'Correcto. Los KPIs co-diseñados tienen validez cultural y apropiación local. Los indicadores cualitativos de integración cultural son los adelantados de los resultados financieros futuros.',dm:{integration:+18,engagement:+12}}
+     ],correct:3}
+  ],
+  openQuestions:[
+    {phase:1,title:'Análisis del choque España-China',question:'Analiza las brechas culturales más críticas entre IBÉRICA (España) y DRAGÓN (China) usando al menos dos marcos teóricos del Manual PMI. ¿Por qué la brecha en Evitación de incertidumbre (86 España vs 30 China) es especialmente paradójica en el contexto de una integración posadquisición? ¿Qué riesgo concreto genera esto en los primeros 90 días?',
+     hints:['Hofstede: España tiene EVA=86 (muy alta evitación de incertidumbre: necesidad de reglas, estructuras y certezas) mientras China tiene EVA=30 (alta tolerancia a la ambigüedad, flexibilidad, adaptabilidad). ¿Cómo choca esto cuando IBÉRICA quiere contratos precisos y cronogramas fijos y DRAGÓN opera con ambigüedad calculada?','Hall: ambas culturas son de alto contexto, pero de formas muy diferentes. El alto contexto español es relacional y expresivo; el alto contexto chino es relacional y minimalista en lo verbal (mucho peso en el silencio, la indirecta y el ritual). ¿Qué malentendidos genera esta diferencia?','Haspeslagh & Jemison: el conocimiento científico de DRAGÓN está embebido en redes de guanxi (relaciones personales de confianza) que no existen en ningún documento. ¿Qué modelo de integración protege ese activo y cuál lo destruye?']},
+    {phase:2,title:'Guanxi, mianzi y conocimiento tácito',question:'En el contexto específico DRAGÓN-IBÉRICA, ¿cómo afecta el concepto de mianzi (cara) a la seguridad psicológica (Edmondson) y qué consecuencias tiene esto para la capacidad de absorción del conocimiento científico (Cohen & Levinthal)? ¿Qué tipo de intervenciones son culturalmente apropiadas para este contexto?',
+     hints:['Edmondson: la seguridad psicológica requiere que las personas puedan expresar dudas, errores y disensos sin miedo. En una cultura de alta distancia al poder (PDI=80) y alto colectivismo (IDV=20), ¿en qué contextos es posible ese tipo de expresión y en cuáles no?','Cohen & Levinthal: el conocimiento científico de DRAGÓN es tácito y relacional (guanxi). ¿En qué condición de confianza compartida y tiempo se puede transferir ese tipo de conocimiento? ¿Cuánto tarda?','Revisa tus decisiones en las fases I y II: ¿has construido condiciones de guanxi con el equipo de DRAGÓN? ¿Qué señales (positivas o negativas) ha enviado IBÉRICA sobre cómo trata el mianzi de los directivos y científicos de DRAGÓN?']},
+    {phase:3,title:'Liderazgo integrador en el contexto chino',question:'Diseña un plan de liderazgo integrador específico para el contexto IBÉRICA-DRAGÓN para los próximos 6 meses. ¿Qué capacidades dinámicas de Bauer & Matzler son más urgentes? Define dos indicadores SMART de integración cultural que sean culturalmente apropiados para el contexto chino (es decir, que midan lo que realmente importa, no solo lo que es fácil de cuantificar).',
+     hints:['Bauer & Matzler: la "capacidad relacional" es especialmente crítica en el contexto chino, donde las relaciones son el activo principal. ¿Cómo se construye y mide la capacidad relacional de IBÉRICA con DRAGÓN?','Schein: ¿han cambiado los supuestos básicos del equipo de DRAGÓN sobre "quiénes somos ahora"? ¿Cómo saberlo? ¿Qué artefactos o rituales indican convergencia de supuestos básicos en el contexto científico chino?','KPI SMART en contexto chino: "Ratio de propuestas de colaboración espontánea de investigadores de DRAGÓN hacia equipos de IBÉRICA: alcanzar ≥3 propuestas/mes antes del mes 18, medido mensualmente por el director de I+D conjunto." ¿Puedes diseñar dos propios que midan lo que realmente importa en este caso?']}
+  ]
+}
+};
+
+// ═══════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════
+function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
+function applyDelta(dm){
+  const m=ST.metrics;
+  if(dm.trust)m.trust=clamp(m.trust+dm.trust,5,100);
+  if(dm.engagement)m.engagement=clamp(m.engagement+dm.engagement,5,100);
+  if(dm.absorption)m.absorption=clamp(m.absorption+dm.absorption,5,100);
+  if(dm.integration)m.integration=clamp(m.integration+dm.integration,5,100);
+}
+function metricColor(key){
+  return{trust:'#2D7A4F',engagement:'#B8923A',absorption:'#1E3A5F',integration:'#C0604A'}[key];
+}
+function computePhaseStyle(phase){
+  const decisions=ST.decisions.filter(d=>d.phase===phase);
+  let auth=0,collab=0;
+  decisions.forEach(d=>{
+    if(d.style==='authoritative')auth+=2;
+    else if(d.style==='collaborative')collab+=2;
+    else if(d.style==='adaptive')collab+=1;
+  });
+  if(auth>=5)return'authoritative';
+  if(collab>=5)return'collaborative';
+  return'mixed';
+}
+
+// ═══════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active')});
+  document.getElementById(id).classList.add('active');
+}
+function showCases(){
+  ST.caseId=null;
+  renderCaseGrid();
+  show('sc-cases');
+}
+function selectCase(id){
+  ST.caseId=id;
+  renderProfile();
+  show('sc-profile');
+}
+function startSim(){
+  // reset state
+  Object.assign(ST,{phase:1,phaseDecIdx:0,decisions:[],openTexts:{p1:'',p2:'',p3:''},
+    openFeedback:{p1:null,p2:null,p3:null},
+    metrics:{trust:50,engagement:60,absorption:35,integration:30},
+    phaseStyle:'mixed',phase2Style:'mixed',decisionStep:'intro',choiceSelected:null,showingResult:false});
+  show('sc-sim');
+  renderSimPhaseIntro();
+}
+
+// ═══════════════════════════════════════════════════════
+// CASE GRID
+// ═══════════════════════════════════════════════════════
+function renderCaseGrid(){
+  const g=document.getElementById('cases-grid');
+  g.innerHTML=Object.values(CASES).map(c=>{
+    const brows=c.brechas.map(b=>{
+      const w=b.delta?Math.min(100,b.delta*2):60;
+      const delta=b.delta?`Δ${b.delta}`:b.text;
+      const cls=b.severity;
+      return`<div class="brecha-row"><span class="brecha-label">${b.label}</span><div class="brecha-bar"><div class="brecha-fill ${cls}" style="width:${w}%"></div></div><span class="brecha-delta ${cls}">${delta}</span></div>`;
+    }).join('');
+    const dcls=c.difficulty==='Alta'?'diff-alta':'diff-media';
+    return`<div class="case-card" onclick="selectCase('${c.id}')">
+      <span class="difficulty ${dcls}">${c.difficulty}</span>
+      <div class="flag">${c.flag}</div>
+      <h3>${c.name}</h3>
+      <div class="sector">${c.sector}</div>
+      <p class="desc">${c.desc}</p>
+      <div class="brechas">${brows}</div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// PROFILE
+// ═══════════════════════════════════════════════════════
+function renderProfile(){
+  const c=CASES[ST.caseId];
+  document.getElementById('prof-title').textContent=`Perfil cultural · ${c.name}`;
+  const dims=c.hofstede.dims;
+  function makeHof(data,label){
+    const rows=dims.map((d,i)=>`<tr><td>${d}</td><td>${data[i]}</td></tr>`).join('');
+    return`<div class="profile-card"><h4>${label}</h4><div class="company">${label==='Adquirente'?c.acquirer.name:c.target.name}</div>
+      <div class="location">${label==='Adquirente'?c.acquirer.city+' · '+c.acquirer.country:c.target.city+' · '+c.target.country}</div>
+      <table class="hofstede-table"><tr><th>Dimensión</th><th>Valor</th></tr>${rows}</table>
+      <div style="margin-top:12px;font-size:12px;color:#888">Contexto Hall: <strong style="color:var(--graphite)">${label==='Adquirente'?c.hall.acq:c.hall.tgt}</strong></div>
+    </div>`;
+  }
+  const brows=c.brechas.map(b=>{
+    const w=b.delta?Math.min(100,b.delta*2.5):70;
+    const fillcls=b.severity;
+    const tag=b.severity==='high'?'<span class="warning-badge">⚠ Crítica</span>':'';
+    return`<div class="brecha-full"><span class="dim">${b.label}</span><div class="bar2"><div class="fill2 brecha-fill ${fillcls}" style="width:${w}%"></div></div><span style="font-size:12px;font-weight:700;min-width:40px;text-align:right">${b.delta?'Δ'+b.delta:b.text}</span>${tag}</div>`;
+  }).join('');
+  document.getElementById('profile-grid').innerHTML=
+    makeHof(c.hofstede.acq,'Adquirente')+makeHof(c.hofstede.tgt,'Adquirido')+
+    `<div class="profile-brechas"><h4>📊 Mapa de brechas culturales (Hofstede + Hall)</h4>${brows}</div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// SIMULATION ENGINE
+// ═══════════════════════════════════════════════════════
+function renderMetrics(){
+  const m=ST.metrics;
+  const labels={trust:'Confianza y seguridad',engagement:'Compromiso equipo',absorption:'Absorción conocimiento',integration:'Capacidad integración'};
+  document.getElementById('metrics-bar').innerHTML=Object.entries(m).map(([k,v])=>
+    `<div class="metric"><span class="metric-label">${labels[k]}</span>
+    <div class="metric-bar"><div class="metric-fill ${k}" style="width:${v}%;background:${metricColor(k)}"></div></div>
+    <span class="metric-val">${Math.round(v)}/100</span></div>`
+  ).join('');
+}
+function renderPhaseDots(){
+  document.getElementById('phase-dots').innerHTML=[1,2,3].map(p=>`<div class="phase-dot ${p<ST.phase?'done':p===ST.phase?'active':''}"></div>`).join('');
+}
+
+function renderSimPhaseIntro(){
+  const c=CASES[ST.caseId];
+  renderMetrics();
+  renderPhaseDots();
+  const pl=c.phaseLabels[ST.phase-1];
+  document.getElementById('phase-label').textContent=pl;
+  document.getElementById('dec-counter').textContent='';
+
+  let text='';
+  if(ST.phase===1) text=c.phaseIntros.p1;
+  else if(ST.phase===2) text=c.phaseIntros[ST.phaseStyle]||c.phaseIntros.mixed;
+  else{
+    const key='p3'+(ST.phaseStyle==='collaborative'?'coll':ST.phaseStyle==='authoritative'?'auth':'mixed');
+    text=c.phaseIntros[key]||c.phaseIntros.p3coll;
+  }
+
+  const styleLabel={collaborative:'Perfil colaborativo ✓',authoritative:'Perfil directivo ⚠',mixed:'Perfil mixto'}[ST.phaseStyle]||'';
+  const conStyle=ST.phase>1?`<span class="consequence-tag con-${ST.phaseStyle}">${styleLabel}</span>`:'';
+
+  document.getElementById('sim-body').innerHTML=`
+    <div class="phase-transition">
+      <div class="pt-sub">Fase ${ST.phase} de 3 · ${pl}</div>
+      <h3>${['Primeros contactos y diagnóstico','Transferencia de conocimiento y sinergias','Consolidación e institucionalización'][ST.phase-1]}</h3>
+      <p>${text}</p>
+      ${conStyle}
+    </div>
+    <div style="display:flex;justify-content:flex-end"><button class="btn-primary" onclick="renderNextDecision()">Comenzar decisiones →</button></div>
+  `;
+}
+
+function getCurrentDecisions(){
+  const c=CASES[ST.caseId];
+  return c.decisions.filter(d=>d.phase===ST.phase);
+}
+function getDecision(){
+  return getCurrentDecisions()[ST.phaseDecIdx];
+}
+
+function renderNextDecision(){
+  const dec=getDecision();
+  if(!dec) return; // safety
+  ST.choiceSelected=null; ST.showingResult=false;
+  renderMetrics();
+  const c=CASES[ST.caseId];
+  document.getElementById('dec-counter').textContent=`Decisión ${ST.phaseDecIdx+1}/4 · Fase ${ST.phase}`;
+  const letters=['A','B','C','D'];
+  const opts=dec.options.map((o,i)=>`
+    <button class="opt-btn" id="opt${i}" onclick="selectOpt(${i})">
+      <span class="opt-letter">${letters[i]}</span>
+      <span class="opt-text">${o.text}</span>
+    </button>`).join('');
+  document.getElementById('sim-body').innerHTML=`
+    <div class="dec-card">
+      <div class="dec-frame">Marco: ${dec.framework}</div>
+      <div class="dec-title">${dec.title}</div>
+      <div class="dec-scenario">${dec.scenario}</div>
+      <div class="dec-options" id="dec-opts">${opts}</div>
+      <div class="dec-result" id="dec-result"></div>
+      <div class="dec-action">
+        <button class="btn-gold" id="btn-confirm" style="display:none" onclick="confirmChoice()">Confirmar decisión →</button>
+      </div>
+    </div>`;
+}
+
+function selectOpt(i){
+  if(ST.showingResult) return;
+  ST.choiceSelected=i;
+  document.querySelectorAll('.opt-btn').forEach((b,j)=>{
+    b.classList.toggle('selected',j===i);
+  });
+  document.getElementById('btn-confirm').style.display='block';
+}
+
+function confirmChoice(){
+  if(ST.choiceSelected===null||ST.showingResult) return;
+  ST.showingResult=true;
+  const dec=getDecision();
+  const i=ST.choiceSelected;
+  const opt=dec.options[i];
+  const correct=dec.correct;
+  const isCorrect=i===correct;
+
+  // Apply delta
+  applyDelta(opt.dm);
+  renderMetrics();
+
+  // Visual feedback
+  document.querySelectorAll('.opt-btn').forEach((b,j)=>{
+    b.classList.remove('selected');
+    if(j===correct) b.classList.add('correct');
+    if(j===i && i!==correct) b.classList.add('wrong');
+    b.querySelector('.opt-text').insertAdjacentHTML('afterend',`<div class="opt-fb">${dec.options[j].fb}</div>`);
+  });
+
+  // Result box
+  const res=document.getElementById('dec-result');
+  res.style.display='block';
+  res.className='dec-result '+(isCorrect?'ok':'ko');
+  const letters=['A','B','C','D'];
+  res.innerHTML=isCorrect
+    ?`✅ <strong>Decisión correcta.</strong> ${opt.fb}`
+    :`❌ <strong>Decisión incorrecta.</strong> La opción óptima era <strong>${letters[correct]}</strong>. ${dec.options[correct].fb}`;
+
+  // Record
+  ST.decisions.push({dNum:dec.dNum,phase:dec.phase,choice:letters[i],correct:isCorrect,style:opt.style,framework:dec.framework,title:dec.title,optionText:opt.text,correctLetter:letters[correct]});
+
+  document.getElementById('btn-confirm').textContent='Continuar →';
+  document.getElementById('btn-confirm').onclick=advanceDecision;
+}
+
+function advanceDecision(){
+  ST.phaseDecIdx++;
+  const phaseDecs=getCurrentDecisions();
+  if(ST.phaseDecIdx>=phaseDecs.length){
+    // End of phase decisions → open text
+    ST.phaseDecIdx=0;
+    renderOpenText();
+  } else {
+    renderNextDecision();
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// OPEN TEXT
+// ═══════════════════════════════════════════════════════
+function renderOpenText(){
+  const c=CASES[ST.caseId];
+  const oq=c.openQuestions[ST.phase-1];
+  const key='p'+ST.phase;
+  renderMetrics();
+  document.getElementById('dec-counter').textContent=`Pregunta abierta · Fase ${ST.phase}`;
+
+  const hints=oq.hints.map(h=>`<div class="hint-item">${h}</div>`).join('');
+
+  document.getElementById('sim-body').innerHTML=`
+    <div class="open-card">
+      <div class="oc-sub">Análisis reflexivo · Fase ${ST.phase}</div>
+      <h3>${oq.title}</h3>
+      <p>${oq.question}</p>
+      <textarea id="open-textarea" placeholder="Escribe tu análisis aquí (mínimo 80 palabras recomendados)..."
+        oninput="document.getElementById('char-cnt').textContent=this.value.length+' caracteres'">${ST.openTexts[key]}</textarea>
+      <div class="open-actions">
+        <button class="btn-sm" onclick="toggleHints()">💡 Ver pistas</button>
+        <span class="char-count" id="char-cnt">${ST.openTexts[key].length} caracteres</span>
+        <button class="btn-gold" id="btn-eval" onclick="submitOpenText('${key}')">Enviar y evaluar con IA →</button>
+      </div>
+      <div class="hints-box" id="hints-box"><h5>Pistas teóricas</h5>${hints}</div>
+      <div id="ai-fb-area"></div>
+    </div>`;
+
+  // If already has feedback, show it
+  if(ST.openFeedback[key]){
+    document.getElementById('open-textarea').value=ST.openTexts[key];
+    renderAIFeedback(ST.openFeedback[key],'ai-fb-area');
+  }
+}
+
+function toggleHints(){
+  const hb=document.getElementById('hints-box');
+  hb.style.display=hb.style.display==='block'?'none':'block';
+}
+
+async function submitOpenText(key){
+  const ta=document.getElementById('open-textarea');
+  const text=ta.value.trim();
+  if(text.length<30){alert('Por favor escribe al menos 30 caracteres antes de enviar.');return;}
+  ST.openTexts[key]=text;
+  document.getElementById('btn-eval').disabled=true;
+  document.getElementById('btn-eval').textContent='Evaluando...';
+  document.getElementById('ai-fb-area').innerHTML='<div class="ai-feedback"><div class="diagnosis-loading"><div class="loading-dots"><span></span><span></span><span></span></div><p>La IA está evaluando tu respuesta...</p></div></div>';
+
+  const c=CASES[ST.caseId];
+  const oq=c.openQuestions[ST.phase-1];
+  const phaseNum=ST.phase;
+  const phDecisions=ST.decisions.filter(d=>d.phase===phaseNum);
+  const mcqSummary=phDecisions.map(d=>`D${d.dNum} [${d.framework}]: Elegiste ${d.choice} (${d.correct?'CORRECTA':'INCORRECTA'}) — "${d.optionText.substring(0,60)}..."`).join('\n');
+
+  const systemPrompt=`Eres un evaluador experto en gestión del cambio posadquisición internacional para el Máster en Fusiones y Adquisiciones doinGlobal/USAL. Evalúas respuestas de estudiantes de posgrado con perfil financiero-directivo. Sé riguroso, constructivo y específico. No uses listas de bullets en tu respuesta; escribe en prosa. Responde ÚNICAMENTE con JSON válido, sin texto adicional, sin markdown.`;
+
+  const userPrompt=`CASO: ${c.name} (${c.acquirer.country} → ${c.target.country})
+PERFIL CULTURAL: Adquirente ${c.acquirer.name} (${c.acquirer.country}), Adquirido ${c.target.name} (${c.target.country})
+Brechas principales: ${c.brechas.filter(b=>b.severity==='high').map(b=>b.label+(b.delta?' Δ'+b.delta:'')).join(', ')}
+
+DECISIONES MCQ DEL ALUMNO EN FASE ${phaseNum}:
+${mcqSummary}
+
+PREGUNTA PLANTEADA:
+${oq.question}
+
+RESPUESTA DEL ALUMNO:
+${text}
+
+Evalúa según estos criterios:
+1. USO DE MARCOS TEÓRICOS (0-3): ¿Aplica correctamente Hofstede, Schein, Cohen & Levinthal, Edmondson, Bauer & Matzler, Haspeslagh & Jemison u otros relevantes al Manual PMI?
+2. COHERENCIA CON DECISIONES MCQ (0-3): ¿La respuesta es coherente con las elecciones tomadas en las preguntas de opción múltiple?
+3. PROFUNDIDAD INTERCULTURAL (0-2): ¿Identifica tensiones específicas de este par cultural, no genéricas?
+4. PROPUESTA DE ACCIÓN (0-2): ¿Incluye acciones concretas y justificadas?
+
+Responde SOLO con este JSON exacto (sin nada más):
+{"scores":{"marcos":0,"coherencia":0,"intercultural":0,"accion":0},"total":0,"fortaleza":"frase","debilidad":"frase","sugerencia":"frase","nivel":"Básico"}`;
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:systemPrompt,messages:[{role:'user',content:userPrompt}]})
+    });
+    const data=await resp.json();
+    const raw=data.content?.filter(b=>b.type==='text').map(b=>b.text).join('');
+    const clean=raw.replace(/```json|```/g,'').trim();
+    const fb=JSON.parse(clean);
+    ST.openFeedback[key]=fb;
+    renderAIFeedback(fb,'ai-fb-area');
+    document.getElementById('btn-eval').textContent='Evaluado ✓';
+    // Show next button
+    document.getElementById('ai-fb-area').insertAdjacentHTML('beforeend',`<div style="text-align:right;margin-top:16px"><button class="btn-primary" onclick="advancePhase()">Continuar →</button></div>`);
+  }catch(e){
+    document.getElementById('ai-fb-area').innerHTML='<div class="dec-result ko">Error al conectar con la IA. Puedes continuar sin la evaluación.</div><div style="text-align:right;margin-top:12px"><button class="btn-primary" onclick="advancePhase()">Continuar →</button></div>';
+    document.getElementById('btn-eval').textContent='Reintentar';
+    document.getElementById('btn-eval').disabled=false;
+  }
+}
+
+function renderAIFeedback(fb,containerId){
+  const total=fb.total||Object.values(fb.scores||{}).reduce((a,b)=>a+b,0);
+  const lvl=fb.nivel||'Básico';
+  document.getElementById(containerId).innerHTML=`
+    <div class="ai-feedback">
+      <h5>🤖 Evaluación IA <span class="ai-level level-${lvl}">${lvl}</span></h5>
+      <div class="ai-scores">
+        <div class="ai-score-item"><div class="ai-score-num">${fb.scores.marcos||0}<span class="ai-score-max">/3</span></div><span class="ai-score-lbl">Marcos teóricos</span></div>
+        <div class="ai-score-item"><div class="ai-score-num">${fb.scores.coherencia||0}<span class="ai-score-max">/3</span></div><span class="ai-score-lbl">Coherencia MCQ</span></div>
+        <div class="ai-score-item"><div class="ai-score-num">${fb.scores.intercultural||0}<span class="ai-score-max">/2</span></div><span class="ai-score-lbl">Profundidad</span></div>
+        <div class="ai-score-item"><div class="ai-score-num">${fb.scores.accion||0}<span class="ai-score-max">/2</span></div><span class="ai-score-lbl">Acción concreta</span></div>
+        <div class="ai-score-item"><div class="ai-score-num" style="color:var(--gold)">${total}<span class="ai-score-max">/10</span></div><span class="ai-score-lbl">Total</span></div>
+      </div>
+      <div class="ai-text-block"><div class="lbl">✅ Fortaleza</div><p>${fb.fortaleza}</p></div>
+      <div class="ai-text-block"><div class="lbl">⚠️ Área de mejora</div><p>${fb.debilidad}</p></div>
+      <div class="ai-text-block"><div class="lbl">💡 Sugerencia</div><p>${fb.sugerencia}</p></div>
+    </div>`;
+}
+
+function advancePhase(){
+  // Compute phase style before advancing
+  if(ST.phase===1) ST.phaseStyle=computePhaseStyle(1);
+  else if(ST.phase===2) ST.phase2Style=computePhaseStyle(2);
+
+  if(ST.phase<3){
+    ST.phase++;
+    ST.phaseDecIdx=0;
+    renderSimPhaseIntro();
+  } else {
+    showResults();
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// RESULTS
+// ═══════════════════════════════════════════════════════
+function showResults(){
+  const c=CASES[ST.caseId];
+  show('sc-results');
+  document.getElementById('res-title').textContent=`Diagnóstico · ${c.name}`;
+  document.getElementById('res-sub').textContent=`${c.acquirer.country} → ${c.target.country} · Simulación completada`;
+
+  // Metrics final
+  const m=ST.metrics;
+  const mlabels={trust:'Confianza',engagement:'Compromiso',absorption:'Absorción',integration:'Integración'};
+  document.getElementById('metrics-final').innerHTML=Object.entries(m).map(([k,v])=>`
+    <div class="mf-card">
+      <div class="mf-val" style="color:${metricColor(k)}">${Math.round(v)}</div>
+      <div class="mf-lbl">${mlabels[k]}</div>
+      <div class="mf-bar"><div class="mf-fill" style="width:${v}%;background:${metricColor(k)}"></div></div>
+    </div>`).join('');
+
+  // Score summary
+  const total=ST.decisions.length;
+  const correct=ST.decisions.filter(d=>d.correct).length;
+  const oqScores=Object.values(ST.openFeedback).filter(Boolean).map(f=>f.total||0);
+  const oqTotal=oqScores.reduce((a,b)=>a+b,0);
+  const styleLabel={collaborative:'Colaborativo-adaptativo',authoritative:'Directivo-impositivo',mixed:'Mixto-inconsistente'}[ST.phaseStyle]||'Mixto';
+  document.getElementById('score-summary').innerHTML=`
+    <h4>📋 Resumen de rendimiento</h4>
+    <div class="score-row"><span class="sr-label">Decisiones MCQ correctas</span><span class="sr-pts">${correct}/${total}</span></div>
+    <div class="score-row"><span class="sr-label">Puntuación análisis reflexivo (IA)</span><span class="sr-pts">${oqTotal}/${oqScores.length*10}</span></div>
+    <div class="score-row"><span class="sr-label">Confianza y seguridad psicológica final</span><span class="sr-pts">${Math.round(m.trust)}/100</span></div>
+    <div class="score-row"><span class="sr-label">Capacidad de integración final</span><span class="sr-pts">${Math.round(m.integration)}/100</span></div>
+    <div class="score-row"><span class="sr-label">Perfil directivo dominante (Fase I)</span><span class="sr-pts">${styleLabel}</span></div>`;
+
+  requestFinalDiagnosis();
+}
+
+async function requestFinalDiagnosis(){
+  const c=CASES[ST.caseId];
+  const decSummary=ST.decisions.map(d=>`[Fase ${d.phase}] D${d.dNum} ${d.framework}: Eligió ${d.choice} (${d.correct?'✓':'✗'}) — Estilo: ${d.style}`).join('\n');
+  const textSummary=Object.entries(ST.openTexts).filter(([k,v])=>v).map(([k,v])=>`${k.toUpperCase()}: ${v.substring(0,200)}...`).join('\n\n');
+  const fbSummary=Object.entries(ST.openFeedback).filter(([k,v])=>v).map(([k,v])=>`${k.toUpperCase()} → Total: ${v.total}/10 · Nivel: ${v.nivel}`).join('\n');
+  const m=ST.metrics;
+
+  const prompt=`Eres el diagnóstico final del Simulador PMI Internacional del Máster doinGlobal/USAL. Analiza el perfil integrador del alumno a partir de sus decisiones y análisis reflexivos y proporciona un diagnóstico profesional, riguroso y orientado a la práctica. Escribe en prosa fluida (sin listas ni bullets). Máximo 350 palabras.
+
+CASO: ${c.name} — ${c.acquirer.name} (${c.acquirer.country}) adquiere ${c.target.name} (${c.target.country})
+SECTOR: ${c.sector}
+BRECHAS CRÍTICAS: ${c.brechas.filter(b=>b.severity==='high').map(b=>b.label).join(', ')}
+
+DECISIONES:
+${decSummary}
+
+MÉTRICAS FINALES: Confianza=${Math.round(m.trust)} Compromiso=${Math.round(m.engagement)} Absorción=${Math.round(m.absorption)} Integración=${Math.round(m.integration)}
+
+ANÁLISIS REFLEXIVOS:
+${textSummary}
+
+EVALUACIONES IA:
+${fbSummary}
+
+Proporciona: (1) un diagnóstico del perfil integrador del alumno con sus fortalezas y áreas de mejora, (2) las tres decisiones más críticas que tomó y su impacto, (3) una orientación directa sobre cómo aplicar estos aprendizajes al caso FARMATECH–BIOASIA de la tarea evaluable.`;
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+    });
+    const data=await resp.json();
+    const text=data.content?.filter(b=>b.type==='text').map(b=>b.text).join('')||'No se pudo obtener el diagnóstico.';
+    document.getElementById('diagnosis-box').innerHTML=`<h4>🤖 Diagnóstico IA · Perfil integrador</h4><p>${text.replace(/\n/g,'<br>')}</p>`;
+  }catch(e){
+    document.getElementById('diagnosis-box').innerHTML=`<h4>🤖 Diagnóstico IA · Perfil integrador</h4><p>No se pudo conectar con la IA para el diagnóstico final. Consulta tus resultados de decisiones y reflexiones para autoevaluar tu perfil integrador.</p>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+renderCaseGrid();
+</script>
+</body>
+</html>
