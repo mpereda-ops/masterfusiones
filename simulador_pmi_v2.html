@@ -286,6 +286,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--cream);color:v
 
 <script>
 // ═══════════════════════════════════════════════════════
+// PROXY — sustituye con tu URL de Cloudflare Worker
+var PROXY_URL='https://broken-flower-ecde.mpereda.workers.dev';
+
+// ═══════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════
 const ST = {
@@ -1106,8 +1110,8 @@ async function submitOpenText(key){
     +'Máximo 250 palabras en total.';
 
   try{
-    var r=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',headers:{'Content-Type':'application/json','x-api-key':'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','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    var r=await fetch(PROXY_URL,{
+      method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:900,messages:[{role:'user',content:prompt}]})
     });
     var data=await r.json();
@@ -1217,8 +1221,8 @@ async function requestFinalDiagnosis(){
     +'[2-3 frases concretas. FARMATECH es una farmacéutica alemana que adquiere una biotecnológica japonesa con alto conocimiento tácito y brecha cultural crítica. Conecta directamente con lo que el alumno ha aprendido en este caso.]';
 
   try{
-    var r=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',headers:{'Content-Type':'application/json','x-api-key':'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','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    var r=await fetch(PROXY_URL,{
+      method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:900,messages:[{role:'user',content:prompt}]})
     });
     var data=await r.json();
