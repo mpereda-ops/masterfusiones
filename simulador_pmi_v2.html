@@ -1066,82 +1066,75 @@ function toggleHints(){
 }
 
 async function submitOpenText(key){
-  const ta=document.getElementById('open-textarea');
-  const text=ta.value.trim();
+  var ta=document.getElementById('open-textarea');
+  var text=ta.value.trim();
   if(text.length<30){alert('Por favor escribe al menos 30 caracteres antes de enviar.');return;}
   ST.openTexts[key]=text;
   document.getElementById('btn-eval').disabled=true;
   document.getElementById('btn-eval').textContent='Evaluando...';
   document.getElementById('ai-fb-area').innerHTML='<div class="ai-feedback"><div class="diagnosis-loading"><div class="loading-dots"><span></span><span></span><span></span></div><p>La IA está evaluando tu respuesta...</p></div></div>';
 
-  const c=CASES[ST.caseId];
-  const oq=c.openQuestions[ST.phase-1];
-  const phaseNum=ST.phase;
-  const phDecisions=ST.decisions.filter(d=>d.phase===phaseNum);
-  const mcqSummary=phDecisions.map(d=>`D${d.dNum} [${d.framework}]: Elegiste ${d.choice} (${d.correct?'CORRECTA':'INCORRECTA'}) — "${d.optionText.substring(0,60)}..."`).join('\n');
+  var c=CASES[ST.caseId];
+  var oq=c.openQuestions[ST.phase-1];
+  var phaseNum=ST.phase;
+  var phDecisions=ST.decisions.filter(function(d){return d.phase===phaseNum;});
+  var mcqSummary=phDecisions.map(function(d){
+    return 'D'+d.dNum+' ['+d.framework+']: Elegiste '+d.choice+' ('+(d.correct?'CORRECTA':'INCORRECTA')+')';
+  }).join('\n');
 
-  const systemPrompt=`Eres un evaluador experto en gestión del cambio posadquisición internacional para el Máster en Fusiones y Adquisiciones doinGlobal/USAL. Evalúas respuestas de estudiantes de posgrado con perfil financiero-directivo. Sé riguroso, constructivo y específico. No uses listas de bullets en tu respuesta; escribe en prosa. Responde ÚNICAMENTE con JSON válido, sin texto adicional, sin markdown.`;
-
-  const userPrompt=`CASO: ${c.name} (${c.acquirer.country} → ${c.target.country})
-PERFIL CULTURAL: Adquirente ${c.acquirer.name} (${c.acquirer.country}), Adquirido ${c.target.name} (${c.target.country})
-Brechas principales: ${c.brechas.filter(b=>b.severity==='high').map(b=>b.label+(b.delta?' Δ'+b.delta:'')).join(', ')}
-
-DECISIONES MCQ DEL ALUMNO EN FASE ${phaseNum}:
-${mcqSummary}
-
-PREGUNTA PLANTEADA:
-${oq.question}
-
-RESPUESTA DEL ALUMNO:
-${text}
-
-Evalúa según estos criterios:
-1. USO DE MARCOS TEÓRICOS (0-3): ¿Aplica correctamente Hofstede, Schein, Cohen & Levinthal, Edmondson, Bauer & Matzler, Haspeslagh & Jemison u otros relevantes al Manual PMI?
-2. COHERENCIA CON DECISIONES MCQ (0-3): ¿La respuesta es coherente con las elecciones tomadas en las preguntas de opción múltiple?
-3. PROFUNDIDAD INTERCULTURAL (0-2): ¿Identifica tensiones específicas de este par cultural, no genéricas?
-4. PROPUESTA DE ACCIÓN (0-2): ¿Incluye acciones concretas y justificadas?
-
-Responde SOLO con este JSON exacto (sin nada más):
-{"scores":{"marcos":0,"coherencia":0,"intercultural":0,"accion":0},"total":0,"fortaleza":"frase","debilidad":"frase","sugerencia":"frase","nivel":"Básico"}`;
+  var prompt='Eres evaluador del Máster en Fusiones y Adquisiciones doinGlobal/USAL. Evalúa la respuesta de un estudiante de posgrado con perfil financiero-directivo. Sé riguroso, directo y constructivo.\n\n'
+    +'CASO: '+c.name+' ('+c.acquirer.country+' → '+c.target.country+')\n'
+    +'BRECHAS CRÍTICAS: '+c.brechas.filter(function(b){return b.severity==='high';}).map(function(b){return b.label;}).join(', ')+'\n\n'
+    +'DECISIONES MCQ DEL ALUMNO EN FASE '+phaseNum+':\n'+mcqSummary+'\n\n'
+    +'PREGUNTA:\n'+oq.question+'\n\n'
+    +'RESPUESTA DEL ALUMNO:\n'+text+'\n\n'
+    +'Genera una evaluación con ESTA ESTRUCTURA EXACTA (usa los ## tal cual):\n\n'
+    +'## MARCOS TEÓRICOS (0-3)\n'
+    +'[1-2 frases. ¿Aplica correctamente Hofstede, Schein, Cohen & Levinthal, Edmondson, Haspeslagh & Jemison u otros del Manual PMI? Indica la puntuación al final: X/3]\n\n'
+    +'## COHERENCIA CON SUS DECISIONES (0-3)\n'
+    +'[1-2 frases. ¿La respuesta es coherente con las elecciones MCQ tomadas? Indica la puntuación al final: X/3]\n\n'
+    +'## PROFUNDIDAD INTERCULTURAL (0-2)\n'
+    +'[1 frase. ¿Identifica tensiones específicas de este par cultural o responde de forma genérica? Indica la puntuación al final: X/2]\n\n'
+    +'## PROPUESTA DE ACCIÓN (0-2)\n'
+    +'[1 frase. ¿Incluye acciones concretas y justificadas o se queda en el diagnóstico? Indica la puntuación al final: X/2]\n\n'
+    +'## FORTALEZA PRINCIPAL\n'
+    +'[1 frase concreta sobre lo mejor de la respuesta.]\n\n'
+    +'## ÁREA DE MEJORA\n'
+    +'[1 frase directa sobre la debilidad más importante.]\n\n'
+    +'## SUGERENCIA PARA LA PRÁCTICA\n'
+    +'[1-2 frases conectando con el caso FARMATECH-BIOASIA.]\n\n'
+    +'Máximo 250 palabras en total.';
 
   try{
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+    var r=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:systemPrompt,messages:[{role:'user',content:userPrompt}]})
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:900,messages:[{role:'user',content:prompt}]})
     });
-    const data=await resp.json();
-    const raw=data.content?.filter(b=>b.type==='text').map(b=>b.text).join('');
-    const clean=raw.replace(/```json|```/g,'').trim();
-    const fb=JSON.parse(clean);
-    ST.openFeedback[key]=fb;
-    renderAIFeedback(fb,'ai-fb-area');
+    var data=await r.json();
+    var txt=data.content[0].text;
+    ST.openFeedback[key]=txt;
+    renderAIFeedback(txt,'ai-fb-area');
     document.getElementById('btn-eval').textContent='Evaluado ✓';
-    // Show next button
-    document.getElementById('ai-fb-area').insertAdjacentHTML('beforeend',`<div style="text-align:right;margin-top:16px"><button class="btn-primary" onclick="advancePhase()">Continuar →</button></div>`);
+    document.getElementById('ai-fb-area').insertAdjacentHTML('beforeend','<div style="text-align:right;margin-top:16px"><button class="btn-primary" onclick="advancePhase()">Continuar →</button></div>');
   }catch(e){
-    document.getElementById('ai-fb-area').innerHTML='<div class="dec-result ko">Error al conectar con la IA. Puedes continuar sin la evaluación.</div><div style="text-align:right;margin-top:12px"><button class="btn-primary" onclick="advancePhase()">Continuar →</button></div>';
+    document.getElementById('ai-fb-area').innerHTML='<div class="dec-result ko">Error de conexión. Puedes continuar sin evaluación.</div><div style="text-align:right;margin-top:12px"><button class="btn-primary" onclick="advancePhase()">Continuar →</button></div>';
     document.getElementById('btn-eval').textContent='Reintentar';
     document.getElementById('btn-eval').disabled=false;
   }
 }
 
-function renderAIFeedback(fb,containerId){
-  const total=fb.total||Object.values(fb.scores||{}).reduce((a,b)=>a+b,0);
-  const lvl=fb.nivel||'Básico';
-  document.getElementById(containerId).innerHTML=`
-    <div class="ai-feedback">
-      <h5>🤖 Evaluación IA <span class="ai-level level-${lvl}">${lvl}</span></h5>
-      <div class="ai-scores">
-        <div class="ai-score-item"><div class="ai-score-num">${fb.scores.marcos||0}<span class="ai-score-max">/3</span></div><span class="ai-score-lbl">Marcos teóricos</span></div>
-        <div class="ai-score-item"><div class="ai-score-num">${fb.scores.coherencia||0}<span class="ai-score-max">/3</span></div><span class="ai-score-lbl">Coherencia MCQ</span></div>
-        <div class="ai-score-item"><div class="ai-score-num">${fb.scores.intercultural||0}<span class="ai-score-max">/2</span></div><span class="ai-score-lbl">Profundidad</span></div>
-        <div class="ai-score-item"><div class="ai-score-num">${fb.scores.accion||0}<span class="ai-score-max">/2</span></div><span class="ai-score-lbl">Acción concreta</span></div>
-        <div class="ai-score-item"><div class="ai-score-num" style="color:var(--gold)">${total}<span class="ai-score-max">/10</span></div><span class="ai-score-lbl">Total</span></div>
-      </div>
-      <div class="ai-text-block"><div class="lbl">✅ Fortaleza</div><p>${fb.fortaleza}</p></div>
-      <div class="ai-text-block"><div class="lbl">⚠️ Área de mejora</div><p>${fb.debilidad}</p></div>
-      <div class="ai-text-block"><div class="lbl">💡 Sugerencia</div><p>${fb.sugerencia}</p></div>
-    </div>`;
+function renderAIFeedback(txt,containerId){
+  var el=document.getElementById(containerId);
+  var html='<div class="ai-feedback"><h5>🤖 Evaluación IA</h5>';
+  txt.split('\n').forEach(function(line){
+    if(line.startsWith('## ')){
+      html+='<div class="ai-text-block"><div class="lbl">'+line.replace('## ','')+'</div>';
+    } else if(line.trim()){
+      html+='<p>'+line+'</p></div>';
+    }
+  });
+  html+='</div>';
+  el.innerHTML=html;
 }
 
 function advancePhase(){
@@ -1195,41 +1188,52 @@ function showResults(){
 }
 
 async function requestFinalDiagnosis(){
-  const c=CASES[ST.caseId];
-  const decSummary=ST.decisions.map(d=>`[Fase ${d.phase}] D${d.dNum} ${d.framework}: Eligió ${d.choice} (${d.correct?'✓':'✗'}) — Estilo: ${d.style}`).join('\n');
-  const textSummary=Object.entries(ST.openTexts).filter(([k,v])=>v).map(([k,v])=>`${k.toUpperCase()}: ${v.substring(0,200)}...`).join('\n\n');
-  const fbSummary=Object.entries(ST.openFeedback).filter(([k,v])=>v).map(([k,v])=>`${k.toUpperCase()} → Total: ${v.total}/10 · Nivel: ${v.nivel}`).join('\n');
-  const m=ST.metrics;
+  var c=CASES[ST.caseId];
+  var m=ST.metrics;
+  var decSummary=ST.decisions.map(function(d){
+    return '[Fase '+d.phase+'] D'+d.dNum+' '+d.framework+': '+d.choice+(d.correct?' ✓':' ✗')+' — Estilo: '+d.style;
+  }).join('\n');
+  var textSummary=Object.entries(ST.openTexts).filter(function(e){return e[1];}).map(function(e){
+    return e[0].toUpperCase()+': '+e[1].substring(0,200)+'...';
+  }).join('\n\n');
 
-  const prompt=`Eres el diagnóstico final del Simulador PMI Internacional del Máster doinGlobal/USAL. Analiza el perfil integrador del alumno a partir de sus decisiones y análisis reflexivos y proporciona un diagnóstico profesional, riguroso y orientado a la práctica. Escribe en prosa fluida (sin listas ni bullets). Máximo 350 palabras.
-
-CASO: ${c.name} — ${c.acquirer.name} (${c.acquirer.country}) adquiere ${c.target.name} (${c.target.country})
-SECTOR: ${c.sector}
-BRECHAS CRÍTICAS: ${c.brechas.filter(b=>b.severity==='high').map(b=>b.label).join(', ')}
-
-DECISIONES:
-${decSummary}
-
-MÉTRICAS FINALES: Confianza=${Math.round(m.trust)} Compromiso=${Math.round(m.engagement)} Absorción=${Math.round(m.absorption)} Integración=${Math.round(m.integration)}
-
-ANÁLISIS REFLEXIVOS:
-${textSummary}
-
-EVALUACIONES IA:
-${fbSummary}
-
-Proporciona: (1) un diagnóstico del perfil integrador del alumno con sus fortalezas y áreas de mejora, (2) las tres decisiones más críticas que tomó y su impacto, (3) una orientación directa sobre cómo aplicar estos aprendizajes al caso FARMATECH–BIOASIA de la tarea evaluable.`;
+  var prompt='Eres el diagnóstico final del Simulador PMI Internacional del Máster doinGlobal/USAL. '
+    +'Analiza el perfil integrador del alumno y proporciona un diagnóstico profesional y orientado a la práctica. '
+    +'Escribe en prosa fluida, sin listas ni bullets. Máximo 320 palabras.\n\n'
+    +'CASO: '+c.name+' — '+c.acquirer.name+' ('+c.acquirer.country+') adquiere '+c.target.name+' ('+c.target.country+')\n'
+    +'SECTOR: '+c.sector+'\n'
+    +'BRECHAS CRÍTICAS: '+c.brechas.filter(function(b){return b.severity==='high';}).map(function(b){return b.label;}).join(', ')+'\n\n'
+    +'DECISIONES:\n'+decSummary+'\n\n'
+    +'MÉTRICAS FINALES: Confianza='+Math.round(m.trust)+' Compromiso='+Math.round(m.engagement)+' Absorción='+Math.round(m.absorption)+' Integración='+Math.round(m.integration)+'\n\n'
+    +'ANÁLISIS REFLEXIVOS DEL ALUMNO:\n'+textSummary+'\n\n'
+    +'Genera el diagnóstico con ESTA ESTRUCTURA EXACTA:\n\n'
+    +'## PERFIL COMO DIRECTOR DE INTEGRACIÓN\n'
+    +'[2-3 frases. Asigna un nombre de perfil específico basado en sus patrones reales de decisión.]\n\n'
+    +'## LO QUE DOMINAS\n'
+    +'[1-2 frases. Una decisión concreta y el marco del manual que aplicó bien.]\n\n'
+    +'## TU MAYOR BRECHA\n'
+    +'[1-2 frases directas. Qué marco debería repasar y por qué.]\n\n'
+    +'## ORIENTACIONES PARA FARMATECH–BIOASIA\n'
+    +'[2-3 frases concretas. FARMATECH es una farmacéutica alemana que adquiere una biotecnológica japonesa con alto conocimiento tácito y brecha cultural crítica. Conecta directamente con lo que el alumno ha aprendido en este caso.]';
 
   try{
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+    var r=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:900,messages:[{role:'user',content:prompt}]})
     });
-    const data=await resp.json();
-    const text=data.content?.filter(b=>b.type==='text').map(b=>b.text).join('')||'No se pudo obtener el diagnóstico.';
-    document.getElementById('diagnosis-box').innerHTML=`<h4>🤖 Diagnóstico IA · Perfil integrador</h4><p>${text.replace(/\n/g,'<br>')}</p>`;
+    var data=await r.json();
+    var txt=data.content[0].text;
+    var html='<h4>🤖 Diagnóstico IA · Perfil integrador</h4>';
+    txt.split('\n').forEach(function(line){
+      if(line.startsWith('## ')){
+        html+='<div style="font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.5px;margin:18px 0 6px">'+line.replace('## ','')+'</div>';
+      } else if(line.trim()){
+        html+='<p style="font-size:13px;color:#444;line-height:1.7;margin:0 0 8px">'+line+'</p>';
+      }
+    });
+    document.getElementById('diagnosis-box').innerHTML=html;
   }catch(e){
-    document.getElementById('diagnosis-box').innerHTML=`<h4>🤖 Diagnóstico IA · Perfil integrador</h4><p>No se pudo conectar con la IA para el diagnóstico final. Consulta tus resultados de decisiones y reflexiones para autoevaluar tu perfil integrador.</p>`;
+    document.getElementById('diagnosis-box').innerHTML='<h4>🤖 Diagnóstico IA · Perfil integrador</h4><p>No se pudo conectar con la IA. Revisa tus decisiones y reflexiones para autoevaluar tu perfil.</p>';
   }
 }
 
