@@ -260,6 +260,12 @@ textarea#ui:focus{outline:none;border-color:var(--blue);}
     <input class="gate-input" id="gate-pwd" type="password" placeholder="CONTRASEÑA DE ACCESO" maxlength="32" autocomplete="off"/>
     <button class="gate-btn" id="gate-btn">ENTRAR</button>
     <div class="gate-err" id="gate-err"></div>
+    <div id="gate-resume" style="display:none;margin-top:1.1rem;border-top:1px solid var(--rule);padding-top:1rem;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--green2);letter-spacing:.1em;margin-bottom:.5rem;">✓ SESIÓN GUARDADA DETECTADA</div>
+      <div id="gate-resume-info" style="font-size:12.5px;color:var(--soft);line-height:1.6;margin-bottom:.75rem;"></div>
+      <button class="gate-btn" id="gate-resume-btn" style="background:var(--green2);margin-bottom:.4rem;">CONTINUAR SESIÓN ANTERIOR</button>
+      <button class="gate-btn" id="gate-new-btn" style="background:transparent;border:1px solid var(--rule-d);color:var(--soft);font-size:13px;">Empezar de nuevo</button>
+    </div>
     <div class="gate-note">Prof. Jorge Matías-Pereda · Dpto. Administración y Economía · Universidad de Salamanca</div>
   </div>
 </div>
@@ -1046,27 +1052,66 @@ textarea#ui:focus{outline:none;border-color:var(--blue);}
 <script>
 // ── ACCESS GATE ────────────────────────────────────────────────────────────
 (function(){
-  var HASH = '8e7f5a3c2b1d9e4f6a0c8b2d4e6f0a1c3b5d7e9f1a3c5e7b9d1f3a5c7e9b1d3'; // SHA-256 placeholder
-  // Simple hash: use btoa of reversed password for lightweight protection
+  var STORAGE_KEY = 'playbook_fa_session_v1';
   function h(s){ return btoa(s.split('').reverse().join('')); }
-  var CORRECT = h('doinglobal2026'); // password: doinglobal2026
-  var gate = document.getElementById('access-gate');
-  var inp  = document.getElementById('gate-pwd');
-  var btn  = document.getElementById('gate-btn');
-  var err  = document.getElementById('gate-err');
-  function tryAccess(){
+  var CORRECT = h('doinglobal2026');
+  var gate        = document.getElementById('access-gate');
+  var inp         = document.getElementById('gate-pwd');
+  var btn         = document.getElementById('gate-btn');
+  var err         = document.getElementById('gate-err');
+  var resumeBox   = document.getElementById('gate-resume');
+  var resumeInfo  = document.getElementById('gate-resume-info');
+  var resumeBtn   = document.getElementById('gate-resume-btn');
+  var newBtn      = document.getElementById('gate-new-btn');
+
+  // Check for saved session
+  var saved = null;
+  try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch(e){}
+
+  function tryAccess(resumeIfAvailable){
     var val = inp.value.trim().toLowerCase();
-    if(h(val) === CORRECT){
-      gate.classList.add('hidden');
-    } else {
+    if(h(val) !== CORRECT){
       err.textContent = 'Contraseña incorrecta. Contacta con el profesor.';
-      inp.value = '';
-      inp.focus();
+      inp.value = ''; inp.focus();
       setTimeout(function(){ err.textContent=''; }, 3000);
+      return;
+    }
+    gate.classList.add('hidden');
+    // Check saved session AFTER password OK
+    if(resumeIfAvailable && saved && !saved.finished){
+      window._resumeSession = true;
+    } else {
+      window._resumeSession = false;
+      localStorage.removeItem(STORAGE_KEY);
     }
   }
-  btn.addEventListener('click', tryAccess);
-  inp.addEventListener('keydown', function(e){ if(e.key==='Enter') tryAccess(); });
+
+  function showResumePanel(){
+    if(!saved || saved.finished) return;
+    var phaseNames = ['Diagnóstico','Crisis y decisiones','Consolidación'];
+    var ph = saved.phase !== undefined ? saved.phase : 0;
+    var turns = saved.turns || 0;
+    var pct = saved.lastPct || 0;
+    var phName = phaseNames[ph] || 'Fase '+(ph+1);
+    var dateStr = saved.savedAt ? new Date(saved.savedAt).toLocaleString('es-ES',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '';
+    resumeInfo.innerHTML = 'Fase '+(ph+1)+'/3 · '+phName+'<br>Decisiones tomadas: '+turns+' &nbsp;|&nbsp; Puntuación: '+pct+'%'+(dateStr?'<br><span style="font-size:11px;opacity:.7">Guardado el '+dateStr+'</span>':'');
+    resumeBox.style.display = 'block';
+  }
+
+  if(saved && !saved.finished) showResumePanel();
+
+  btn.addEventListener('click', function(){ tryAccess(false); });
+  inp.addEventListener('keydown', function(e){ if(e.key==='Enter') tryAccess(saved && !saved.finished); });
+  resumeBtn.addEventListener('click', function(){
+    var val = inp.value.trim().toLowerCase();
+    if(!val){ inp.focus(); err.textContent='Introduce primero la contraseña.'; setTimeout(function(){err.textContent='';},2500); return; }
+    tryAccess(true);
+  });
+  newBtn.addEventListener('click', function(){
+    var val = inp.value.trim().toLowerCase();
+    if(!val){ inp.focus(); err.textContent='Introduce primero la contraseña.'; setTimeout(function(){err.textContent='';},2500); return; }
+    saved = null; tryAccess(false);
+  });
   inp.focus();
 })();
 
@@ -1195,11 +1240,83 @@ function togLib(head){
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 function startTimer(){S.timer=setInterval(()=>{const e=Math.floor((new Date()-S.sessionStart)/1000),m=String(Math.floor(e/60)).padStart(2,'0'),s=String(e%60).padStart(2,'0');document.getElementById('st-tm').textContent=`${m}:${s}`;},1000);}
 
+// ── SESSION PERSISTENCE ───────────────────────────────────────────────────────
+const STORAGE_KEY = 'playbook_fa_session_v1';
+
+function saveState(){
+  try{
+    var snap = {
+      phase: S.phase, decIdx: S.decIdx, turns: S.turns, phaseTurns: S.phaseTurns,
+      finished: S.finished,
+      dimScores: S.dimScores, dimScoreSums: S.dimScoreSums, dimScoreCounts: S.dimScoreCounts,
+      history: S.history, allFB: S.allFB,
+      caHTML: document.getElementById('ca') ? document.getElementById('ca').innerHTML : '',
+      lastPct: (function(){
+        var wAvg=DIM_W.reduce(function(a,w,i){return a+w*(S.dimScoreSums[i]/(S.dimScoreCounts[i]||1));},0);
+        return Math.round((wAvg/2)*100*(50/65));
+      })(),
+      savedAt: new Date().toISOString()
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(snap));
+  }catch(e){ console.warn('saveState error',e); }
+}
+
+function restoreState(){
+  try{
+    var snap = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if(!snap || snap.finished) return false;
+    S.phase = snap.phase||0; S.decIdx = snap.decIdx||0;
+    S.turns = snap.turns||0; S.phaseTurns = snap.phaseTurns||0;
+    S.finished = false;
+    S.dimScores = snap.dimScores||[0,0,0,0,0];
+    S.dimScoreSums = snap.dimScoreSums||[0,0,0,0,0];
+    S.dimScoreCounts = snap.dimScoreCounts||[0,0,0,0,0];
+    S.history = snap.history||[]; S.allFB = snap.allFB||[];
+    // Restore scores UI
+    var keys=['coherencia','playbook','cultural','stakeholders','riesgos'];
+    keys.forEach(function(k,i){
+      var avg = (S.dimScoreSums[i]/(S.dimScoreCounts[i]||1)/2*100).toFixed(0);
+      var f=document.getElementById('df'+i), v=document.getElementById('dv'+i);
+      if(f) f.style.width=avg+'%'; if(v) v.textContent=avg+'%';
+    });
+    var wAvg=DIM_W.reduce(function(a,w,i){return a+w*(S.dimScoreSums[i]/(S.dimScoreCounts[i]||1));},0);
+    var tot=Math.round((wAvg/2)*100*(50/65));
+    var hsc=document.getElementById('h-sc'), sct=document.getElementById('sc-total'), scb=document.getElementById('sc-best');
+    if(hsc) hsc.textContent=tot;
+    if(sct) sct.textContent=tot+'%';
+    if(scb) scb.textContent=(Math.max.apply(null,S.allFB.map(function(f){return f.score;}).concat(0)))+'/10';
+    var stt=document.getElementById('st-t'), scp=document.getElementById('sc-turns'), stph=document.getElementById('st-ph'), scph=document.getElementById('sc-phase');
+    if(stt) stt.textContent=S.turns; if(scp) scp.textContent=S.turns;
+    if(stph) stph.textContent=(S.phase+1)+'/3'; if(scph) scph.textContent=(S.phase+1)+'/3';
+    // Restore chat HTML
+    var ca = document.getElementById('ca');
+    if(ca && snap.caHTML){ ca.innerHTML = snap.caHTML; ca.scrollTop=99999; }
+    return true;
+  }catch(e){ console.warn('restoreState error',e); return false; }
+}
+
 function startSim(){
-  S.sessionStart=new Date();S.phase=0;S.decIdx=0;S.turns=0;S.phaseTurns=0;S.finished=false;
-  S.dimScores=[0,0,0,0,0];S.dimScoreSums=[0,0,0,0,0];S.dimScoreCounts=[0,0,0,0,0];
-  S.history=[];S.allFB=[];
-  show('sm');startTimer();renderPhase(0);
+  S.sessionStart=new Date(); S.phase=0; S.decIdx=0; S.turns=0; S.phaseTurns=0; S.finished=false;
+  S.dimScores=[0,0,0,0,0]; S.dimScoreSums=[0,0,0,0,0]; S.dimScoreCounts=[0,0,0,0,0];
+  S.history=[]; S.allFB=[];
+  show('sm'); startTimer();
+  // Resume or fresh start
+  if(window._resumeSession && restoreState()){
+    show('sm'); startTimer();
+    // Restore phase header in toolbar
+    var tbph=document.getElementById('tb-phase');
+    if(tbph) tbph.textContent='Fase '+(S.phase+1)+' · '+PH_NAMES[S.phase].split('—')[0].trim();
+    // Re-render next decision prompt if not finished
+    if(!S.finished){ renderDecision(); }
+    // Show toast
+    var toast=document.createElement('div');
+    toast.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#2d7a4a;color:#fff;padding:10px 22px;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.08em;z-index:9999;border-radius:2px;';
+    toast.textContent='✓ Sesión restaurada — Fase '+(S.phase+1)+'/3 · Decisión '+S.decIdx+'/9';
+    document.body.appendChild(toast);
+    setTimeout(function(){ document.body.removeChild(toast); }, 3500);
+  } else {
+    renderPhase(0);
+  }
 }
 
 function renderPhase(ph){
@@ -1365,6 +1482,7 @@ function processR(p,text,dec){
 
   S.decIdx++;
   const nextDec=DECISIONS[S.decIdx];
+  saveState(); // persist progress
 
   if(!nextDec){
     // Fin de todas las decisiones
@@ -1400,7 +1518,7 @@ function nxtPhase(){
 }
 
 function showR(){
-  S.finished=true;clearInterval(S.timer);
+  S.finished=true; saveState(); clearInterval(S.timer);
   const el=Math.floor((new Date()-S.sessionStart)/1000);
   const m=String(Math.floor(el/60)).padStart(2,'0'),s=String(el%60).padStart(2,'0');
   const wAvg=DIM_W.reduce((a,w,i)=>a+w*(S.dimScoreSums[i]/(S.dimScoreCounts[i]||1)),0);
@@ -1457,3 +1575,5 @@ window.addEventListener('beforeunload',e=>{
 </script>
 </body>
 </html>
+
+
