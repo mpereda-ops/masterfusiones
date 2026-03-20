@@ -1,1 +1,1459 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Simulador Avanzado F&A · Gestión del Cambio · doinGlobal / USAL · Prof. Jorge Matías-Pereda 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --ink:#1a1612;--warm:#f5f0e8;--paper:#ede8df;--muted:#9a8e84;--rule:#d4ccc2;--rule-d:#b8b0a4;
+  --soft:#7a6e65;--red:#8b2635;--red2:#a02d3e;--red3:#c0392b;
+  --blue:#1a3d6e;--blue2:#15325a;--blue3:#0e2040;
+  --gold:#b8860b;--gold2:#9a720a;
+  --green:#2d7a4a;--green2:#1f5c36;
+  --teal:#1a7a6e;--teal2:#15685d;
+  --purple:#5a3472;
+}
+body{font-family:'Crimson Pro',serif;background:var(--warm);color:var(--ink);min-height:100vh;font-size:16px;line-height:1.6;}
+.screen{display:none;}.screen.active{display:flex;flex-direction:column;min-height:100vh;}
 
+/* ── ACCESS GATE ──────────────────────────────────────────────────────────── */
+#access-gate{position:fixed;inset:0;background:var(--blue3);display:flex;align-items:center;justify-content:center;z-index:9999;padding:2rem;}
+#access-gate.hidden{display:none;}
+.gate-box{background:var(--warm);border:1px solid var(--rule);max-width:420px;width:100%;padding:2.5rem 2rem;text-align:center;}
+.gate-logo{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;}
+.gate-title{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--ink);margin-bottom:.3rem;}
+.gate-sub{font-size:13px;color:var(--soft);margin-bottom:1.8rem;line-height:1.6;}
+.gate-input{width:100%;font-family:'JetBrains Mono',monospace;font-size:14px;padding:.75rem 1rem;border:1px solid var(--rule-d);background:var(--paper);color:var(--ink);text-align:center;letter-spacing:.15em;margin-bottom:.75rem;outline:none;}
+.gate-input:focus{border-color:var(--blue);}
+.gate-btn{width:100%;background:var(--blue);color:#fff;border:none;padding:.85rem;font-family:'Crimson Pro',serif;font-size:16px;font-weight:600;letter-spacing:.05em;cursor:pointer;transition:background .2s;}
+.gate-btn:hover{background:var(--blue2);}
+.gate-err{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--red);margin-top:.65rem;min-height:1.2em;letter-spacing:.05em;}
+.gate-note{font-size:11.5px;color:var(--muted);margin-top:1.2rem;line-height:1.6;border-top:1px solid var(--rule);padding-top:1rem;}
+
+/* ── INTRO ─────────────────────────────────────────────────────────────────── */
+#si{display:none;}.screen.active#si{display:block;}
+.i-wrap{max-width:900px;margin:0 auto;padding:48px 32px 64px;}
+.i-logo{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.18em;color:var(--muted);margin-bottom:12px;}
+.i-badge{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--blue);margin-bottom:18px;display:flex;align-items:center;gap:10px;}
+.i-badge::after{content:'';flex:1;height:1px;background:var(--blue);opacity:.25;}
+.i-title{font-family:'Playfair Display',serif;font-size:clamp(30px,5vw,56px);font-weight:700;color:var(--ink);line-height:1.08;margin-bottom:6px;}
+.i-sub{font-family:'Playfair Display',serif;font-size:clamp(15px,2.2vw,20px);font-style:italic;color:var(--soft);margin-bottom:26px;}
+.i-ct{font-size:16.5px;color:var(--soft);line-height:1.75;max-width:680px;margin-bottom:30px;}
+.case-box{background:var(--paper);border:1px solid var(--rule);border-left:4px solid var(--blue);padding:22px 26px;max-width:820px;margin-bottom:28px;}
+.case-head{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);margin-bottom:10px;}
+.case-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--ink);margin-bottom:12px;}
+.case-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px;}
+.case-col h4{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.case-col p,.case-col li{font-size:14px;color:var(--soft);line-height:1.65;}
+.case-col ul{padding-left:16px;}
+.case-alert{background:rgba(139,38,53,.07);border:1px solid rgba(139,38,53,.2);padding:10px 14px;font-size:13.5px;color:var(--red);line-height:1.6;margin-top:10px;}
+.btn-s{background:var(--blue);color:#fff;border:none;padding:14px 46px;font-family:'Crimson Pro',serif;font-size:17px;font-weight:600;letter-spacing:.04em;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:10px;}
+.btn-s:hover{background:var(--blue2);transform:translateY(-2px);box-shadow:0 6px 24px rgba(26,61,110,.25);}
+.i-note{font-size:12.5px;color:var(--muted);margin-top:14px;max-width:540px;line-height:1.6;border-left:2px solid var(--rule-d);padding-left:12px;}
+
+/* ── MAIN SIMULATION LAYOUT ─────────────────────────────────────────────────── */
+#sm{flex-direction:row;}
+.sim-left{flex:1;display:flex;flex-direction:column;border-right:1px solid var(--rule);min-height:100vh;}
+.sim-right{width:340px;display:flex;flex-direction:column;background:var(--paper);}
+
+/* Toolbar */
+.tb{background:var(--blue3);color:var(--warm);padding:10px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;flex-shrink:0;}
+.tb-lg{font-family:'Playfair Display',serif;font-size:13px;font-weight:700;flex:1;}
+.tb-meta{font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(245,240,232,.5);letter-spacing:.08em;}
+.tb-sc{font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(245,240,232,.7);}
+.tb-pts{font-family:'JetBrains Mono',monospace;font-size:11px;color:#7bc8c0;letter-spacing:.04em;}
+
+/* Chat area */
+.ca{flex:1;overflow-y:auto;padding:18px 22px;background:var(--warm);}
+.phase-header{background:var(--paper);border-left:4px solid var(--blue);padding:14px 18px;margin-bottom:16px;}
+.ph-tag{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:3px;}
+.ph-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+.ph-goal{font-size:13.5px;color:var(--soft);line-height:1.6;}
+
+/* Decision prompts */
+.dec-prompt{background:var(--paper);border:1px solid var(--rule);border-top:3px solid var(--blue);padding:16px 18px;margin-bottom:14px;}
+.dec-num{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:5px;}
+.dec-q{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--ink);margin-bottom:8px;line-height:1.35;}
+.dec-ctx{font-size:13.5px;color:var(--soft);line-height:1.65;margin-bottom:10px;}
+.dec-ctx strong{color:var(--ink);}
+.dec-hint{font-size:12px;color:var(--blue);font-style:italic;border-left:2px solid var(--blue);padding-left:8px;opacity:.8;}
+
+/* Student response bubbles */
+.resp-box{display:flex;gap:10px;margin-bottom:14px;align-items:flex-start;}
+.resp-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;margin-top:2px;background:rgba(26,61,110,.12);}
+.resp-body{flex:1;}
+.resp-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.08em;color:var(--muted);margin-bottom:3px;}
+.resp-text{background:rgba(26,61,110,.06);border:1px solid rgba(26,61,110,.15);border-radius:0 8px 8px 8px;padding:10px 14px;font-size:14.5px;line-height:1.65;}
+
+/* Coach evaluation card */
+.eval-card{background:var(--paper);border:1px solid var(--rule);margin-bottom:16px;overflow:hidden;}
+.eval-head{background:var(--ink);color:var(--warm);padding:8px 14px;display:flex;justify-content:space-between;align-items:center;}
+.eval-ht{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.07em;}
+.eval-lv{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:2px 10px;border-radius:100px;}
+.lv-i{background:#c0392b;color:#fff;}.lv-s{background:var(--gold);color:#fff;}.lv-n{background:var(--teal);color:#fff;}.lv-e{background:var(--green);color:#fff;}
+.eval-grid{padding:12px 14px;display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.eval-dim{background:var(--warm);padding:8px 10px;border-left:2px solid var(--rule-d);}
+.eval-dh{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;}
+.eval-dn{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
+.eval-sc{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:1px 7px;border-radius:100px;}
+.sc2{background:rgba(45,122,74,.18);color:var(--green);}
+.sc1{background:rgba(184,134,11,.18);color:var(--gold2);}
+.sc0{background:rgba(192,57,43,.15);color:var(--red3);}
+.eval-dc{font-size:12.5px;color:var(--soft);line-height:1.55;}
+.eval-ft{padding:10px 14px;display:grid;grid-template-columns:1fr 1fr;gap:10px;border-top:1px solid var(--rule);}
+.eval-sum{font-size:13px;color:var(--ink);line-height:1.6;}
+.eval-nxt{font-size:13px;color:var(--blue);line-height:1.6;}
+.eval-th{font-size:11.5px;color:var(--purple);margin-top:5px;font-style:italic;}
+
+/* Input */
+.inp-area{padding:14px 18px;border-top:1px solid var(--rule);background:var(--paper);flex-shrink:0;}
+.inp-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between;}
+textarea#ui{width:100%;border:1.5px solid var(--rule);background:var(--warm);padding:10px 14px;font-family:'Crimson Pro',serif;font-size:15px;resize:vertical;color:var(--ink);transition:border-color .2s;min-height:80px;}
+textarea#ui:focus{outline:none;border-color:var(--blue);}
+.inp-btns{display:flex;gap:10px;margin-top:9px;align-items:center;}
+.btn-sub{background:var(--ink);color:var(--warm);border:none;padding:10px 26px;font-family:'Crimson Pro',serif;font-size:15px;font-weight:600;cursor:pointer;letter-spacing:.04em;transition:all .2s;}
+.btn-sub:hover{background:var(--blue);}
+.btn-sub:disabled{opacity:.4;cursor:not-allowed;}
+.btn-nxt{background:var(--blue);color:#fff;border:none;padding:10px 24px;font-family:'Crimson Pro',serif;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s;display:none;}
+.btn-nxt:hover{background:var(--blue2);}
+.btn-nxt.v{display:block;}
+.thk{display:none;align-items:center;gap:7px;font-size:13px;color:var(--muted);}
+.thk.on{display:flex;}
+.tp{width:5px;height:5px;border-radius:50%;background:var(--blue);animation:p 1s ease-in-out infinite;}
+.tp:nth-child(2){animation-delay:.2s;}.tp:nth-child(3){animation-delay:.4s;}
+@keyframes p{0%,100%{opacity:.2}50%{opacity:1}}
+
+/* ── SIDEBAR ──────────────────────────────────────────────────────────────── */
+.sb-tabs{display:flex;border-bottom:1px solid var(--rule);flex-shrink:0;}
+.sb-tab{flex:1;padding:9px 4px;font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;color:var(--muted);text-align:center;border-bottom:2px solid transparent;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none;}
+.sb-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+.sb-panel{display:none;padding:14px;overflow-y:auto;flex:1;}
+.sb-panel.active{display:block;}
+
+/* Case panel */
+.case-mini{margin-bottom:12px;}
+.case-mini h4{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+.case-mini p,.case-mini li{font-size:12.5px;color:var(--soft);line-height:1.6;}
+.case-mini ul{padding-left:14px;margin-bottom:8px;}
+.case-mini .kpi{display:flex;justify-content:space-between;border-bottom:1px solid var(--rule);padding:4px 0;font-size:12px;}
+.case-mini .kpi span:last-child{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink);}
+.flag{background:rgba(139,38,53,.08);border:1px solid rgba(139,38,53,.2);padding:6px 8px;font-size:12px;color:var(--red);line-height:1.5;margin-bottom:6px;}
+
+/* Score panel */
+.sc-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid var(--rule);}
+.sc-row span:first-child{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
+.sc-val{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink);font-weight:500;}
+.dim-bar{margin-top:12px;}
+.dim-row{margin-bottom:8px;}
+.dim-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;}
+.dim-name{font-size:12px;font-weight:600;color:var(--ink);}
+.dim-pct{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--soft);}
+.d-bar{height:4px;background:var(--rule);border-radius:2px;overflow:hidden;}
+.d-bar-f{height:100%;border-radius:2px;background:var(--blue);transition:width .6s ease;}
+
+/* Library panel */
+.lib-item{border:1px solid var(--rule);margin-bottom:8px;overflow:hidden;}
+.lib-head{background:var(--ink);color:var(--warm);padding:7px 11px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.07em;}
+.lib-head:hover{background:var(--blue3);}
+.lib-body{display:none;padding:11px 13px;background:var(--warm);}
+.lib-body.open{display:block;}
+.lib-body h4{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:5px;margin-top:9px;}
+.lib-body h4:first-child{margin-top:0;}
+.lib-body p,.lib-body li{font-size:12px;color:var(--soft);line-height:1.6;}
+.lib-body ul,.lib-body ol{padding-left:14px;margin-bottom:6px;}
+.lib-body table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;}
+.lib-body th{background:var(--ink);color:var(--warm);padding:4px 7px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.06em;text-align:left;}
+.lib-body td{padding:4px 7px;border-bottom:1px solid var(--rule);color:var(--soft);}
+.lib-body td:first-child{font-weight:600;color:var(--ink);}
+.tip-box{background:rgba(26,61,110,.06);border-left:2px solid var(--blue);padding:7px 10px;font-size:11.5px;color:var(--blue);line-height:1.55;margin-top:6px;}
+
+/* ── REPORT ───────────────────────────────────────────────────────────────── */
+#sr{display:none;flex-direction:column;}.screen.active#sr{display:flex;}
+.rep-wrap{max-width:880px;margin:0 auto;padding:48px 32px 64px;width:100%;}
+.rep-tag{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);margin-bottom:12px;}
+.rep-title{font-family:'Playfair Display',serif;font-size:clamp(24px,4vw,44px);font-weight:700;color:var(--ink);line-height:1.12;margin-bottom:4px;}
+.rep-sub{font-family:'Playfair Display',serif;font-size:17px;font-style:italic;color:var(--soft);margin-bottom:28px;}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:26px;}
+.kpi-c{background:var(--paper);padding:14px;text-align:center;}
+.kpi-l{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.kpi-v{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--ink);line-height:1;margin-bottom:3px;}
+.kpi-s{font-size:11.5px;color:var(--muted);}
+.rep-sec{background:var(--paper);border:1px solid var(--rule);margin-bottom:14px;overflow:hidden;}
+.rep-sh{background:var(--ink);color:var(--warm);padding:10px 16px;font-family:'Playfair Display',serif;font-size:14px;font-weight:700;display:flex;justify-content:space-between;align-items:center;}
+.rep-sh span{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.1em;color:rgba(245,240,232,.5);}
+.rep-rb{padding:14px 16px;}
+.rep-dr{border-bottom:1px solid var(--rule);padding:9px 0;}
+.rep-dr:last-child{border-bottom:none;}
+.rep-dh{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;}
+.rep-dn{font-size:13.5px;font-weight:600;color:var(--ink);}
+.rep-bw{display:flex;align-items:center;gap:8px;min-width:120px;}
+.rep-bar{flex:1;height:5px;background:var(--rule);border-radius:3px;overflow:hidden;}
+.rep-bf{height:100%;border-radius:3px;}
+.rep-bf.hi{background:var(--green);}
+.rep-bf.mi{background:var(--gold);}
+.rep-bf.lo{background:var(--red3);}
+.rep-bn{font-family:'JetBrains Mono',monospace;font-size:11px;min-width:28px;}
+.rep-nar{font-size:13px;color:var(--soft);line-height:1.6;padding-top:2px;}
+.btn-rst{background:var(--ink);color:var(--warm);border:none;padding:11px 32px;font-family:'Crimson Pro',serif;font-size:16px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:24px;}
+.btn-rst:hover{background:var(--blue);}
+
+::-webkit-scrollbar{width:5px;}
+
+/* ── DOCUMENTO SCREEN ── */
+#sdoc{display:none;flex-direction:column;min-height:100vh;}
+.screen.active#sdoc{display:flex;flex-direction:column;}
+.doc-toolbar{background:var(--blue3);color:var(--warm);padding:12px 32px;display:flex;align-items:center;gap:16px;flex-shrink:0;}
+.doc-toolbar-title{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;flex:1;}
+.doc-toolbar-sub{font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(245,240,232,.5);letter-spacing:.1em;}
+.btn-print{background:rgba(255,255,255,.12);color:var(--warm);border:1px solid rgba(255,255,255,.25);padding:7px 18px;font-family:'Crimson Pro',serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;letter-spacing:.03em;}
+.btn-print:hover{background:rgba(255,255,255,.22);}
+.btn-back{background:transparent;color:rgba(245,240,232,.7);border:1px solid rgba(255,255,255,.2);padding:7px 16px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;cursor:pointer;transition:all .2s;}
+.btn-back:hover{background:rgba(255,255,255,.1);}
+.doc-body{flex:1;overflow-y:auto;padding:32px;background:var(--warm);}
+.doc-body.print-area{max-width:900px;margin:0 auto;}
+.doc-cover{text-align:center;padding:48px 0 40px;border-bottom:2px solid var(--ink);margin-bottom:40px;}
+.doc-cover-logo{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;}
+.doc-cover-title{font-family:'Playfair Display',serif;font-size:clamp(22px,4vw,38px);font-weight:700;color:var(--ink);line-height:1.15;margin-bottom:8px;}
+.doc-cover-sub{font-family:'Playfair Display',serif;font-size:16px;font-style:italic;color:var(--soft);margin-bottom:20px;}
+.doc-cover-case{display:inline-block;background:var(--ink);color:var(--warm);padding:8px 22px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;}
+.doc-section{margin-bottom:36px;}
+.doc-section-head{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--blue);margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+.doc-section-head::after{content:'';flex:1;height:1px;background:var(--blue);opacity:.25;}
+.doc-section-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--ink);margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--rule);}
+.doc-section p,.doc-section li{font-size:14px;color:var(--soft);line-height:1.7;}
+.doc-section ul,.doc-section ol{padding-left:18px;margin-bottom:10px;}
+.doc-section h4{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin:14px 0 6px;}
+.doc-section table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px;}
+.doc-section th{background:var(--ink);color:var(--warm);padding:6px 10px;font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.06em;text-align:left;}
+.doc-section td{padding:6px 10px;border-bottom:1px solid var(--rule);color:var(--soft);vertical-align:top;}
+.doc-section td:first-child{font-weight:600;color:var(--ink);}
+.doc-alert{background:rgba(139,38,53,.07);border:1px solid rgba(139,38,53,.2);padding:10px 14px;font-size:13px;color:var(--red);line-height:1.6;margin:10px 0;}
+.doc-tip{background:rgba(26,61,110,.06);border-left:3px solid var(--blue);padding:10px 14px;font-size:13px;color:var(--blue);line-height:1.6;margin:10px 0;}
+.doc-btn-start{display:block;text-align:center;margin:32px auto 0;background:var(--blue);color:#fff;border:none;padding:14px 52px;font-family:'Crimson Pro',serif;font-size:18px;font-weight:600;cursor:pointer;letter-spacing:.04em;transition:all .2s;}
+.doc-btn-start:hover{background:var(--blue2);}
+
+@media print{
+  .doc-toolbar,.doc-btn-start{display:none!important;}
+  .screen{display:none!important;}
+  #sdoc{display:flex!important;}
+  .doc-body{overflow:visible;padding:16px;}
+  body{background:white;}
+  .doc-section table{font-size:11px;}
+  .doc-section th{background:#333!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+}
+::-webkit-scrollbar-thumb{background:var(--rule-d);border-radius:100px;}
+@keyframes bi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.dec-prompt,.eval-card,.resp-box{animation:bi .25s ease both;}
+</style>
+</head>
+<body>
+
+<!-- ── ACCESS GATE ───────────────────────────────────────────────────────── -->
+<div id="access-gate">
+  <div class="gate-box">
+    <div class="gate-logo">SimuLab-AI · doinGlobal / USAL · 2026</div>
+    <div class="gate-title">Simulador F&amp;A</div>
+    <div class="gate-sub">Gestión del Cambio &amp; Integración Post-Adquisición<br>Acceso restringido a participantes del programa</div>
+    <input class="gate-input" id="gate-pwd" type="password" placeholder="CONTRASEÑA DE ACCESO" maxlength="32" autocomplete="off"/>
+    <button class="gate-btn" id="gate-btn">ENTRAR</button>
+    <div class="gate-err" id="gate-err"></div>
+    <div class="gate-note">Prof. Jorge Matías-Pereda · Dpto. Administración y Economía · Universidad de Salamanca</div>
+  </div>
+</div>
+
+<!-- ══ INTRO ════════════════════════════════════════════════════════════════ -->
+<div class="screen active" id="si">
+<div class="i-wrap">
+  <div class="i-logo">doinGlobal · Universidad de Salamanca · Máster en Fusiones y Adquisiciones · Prof. Jorge Matías-Pereda · 2026</div>
+  <div class="i-badge">Simulador Avanzado · Fusiones y Adquisiciones en Gestión del Cambio</div>
+  <h1 class="i-title">Playbook de Integración<br>Post-Adquisición</h1>
+  <p class="i-sub">Sala de decisiones para profesionales de M&A y gestión del cambio</p>
+  <p class="i-ct">Asumes el rol de <strong>Director/a de Integración (IMO Lead)</strong> en una operación real de M&A. A lo largo de tres fases —pre-cierre, day one y 100 días— tendrás que tomar decisiones de alta consecuencia sobre el diseño y ejecución del playbook. Tienes acceso a la <strong>biblioteca de documentos</strong> en el panel lateral. Un coach evaluará cada decisión con rigor académico y profesional.</p>
+
+  <div class="case-box">
+    <div class="case-head">El caso · Nordic Industrial Group adquiere ICOM</div>
+    <div class="case-title">Operación: NIG–ICOM · Integración industrial transfronteriza</div>
+    <div class="case-grid">
+      <div class="case-col">
+        <h4>Adquirente — Nordic Industrial Group (NIG)</h4>
+        <ul>
+          <li>Conglomerado escandinavo, cotizado, 12.400 empleados</li>
+          <li>Cultura de procesos, jerarquía plana, orientación a métricas</li>
+          <li>3ª adquisición en España en 5 años</li>
+          <li>Objetivo declarado: sinergias operativas de €28M en 36 meses</li>
+          <li>CFO como sponsor ejecutivo; Consejo exige resultados rápidos</li>
+        </ul>
+      </div>
+      <div class="case-col">
+        <h4>Target — Ibérica de Componentes S.A. (ICOM)</h4>
+        <ul>
+          <li>Fabricante de componentes de precisión, Valladolid, 3ª generación familiar</li>
+          <li>800 empleados, €94M facturación, EBITDA 11%</li>
+          <li>Know-how tácito crítico en 4 ingenieros senior (edad media: 58 años)</li>
+          <li>Cultura fuertemente identitaria: "los de siempre", lealtad interna alta</li>
+          <li>Fundador (73 años) sigue en el Consejo; familia retiene 15% del capital post-deal</li>
+          <li>Clientes clave vinculados personalmente a directivos ICOM, no a contratos</li>
+        </ul>
+      </div>
+    </div>
+    <div class="case-grid">
+      <div class="case-col">
+        <h4>Rationale del deal</h4>
+        <ul>
+          <li>Acceso a mercado español de componentes aeroespaciales (crecimiento 14% anual)</li>
+          <li>Capacidad de manufactura especializada no replicable en corto plazo</li>
+          <li>Diversificación geográfica de ingresos de NIG</li>
+        </ul>
+      </div>
+      <div class="case-col">
+        <h4>Tensiones identificadas en due diligence</h4>
+        <ul>
+          <li>Sistemas ERP completamente distintos e incompatibles</li>
+          <li>Estructura de remuneración ICOM 23% por debajo del estándar NIG</li>
+          <li>Sin contratos de retención para talento clave</li>
+          <li>Director General ICOM (Pablo Ruiz, 51) evaluando ofertas externas</li>
+        </ul>
+      </div>
+    </div>
+    <div class="case-alert">⚠ Riesgo crítico identificado post-signing: dos ingenieros clave han sido contactados por un competidor. El cierre formal es en 47 días. No hay playbook activo.</div>
+  </div>
+
+  <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:6px;">
+    <button class="btn-s" onclick="show('sdoc')"><span>📁 Leer documentación del caso</span><span>→</span></button>
+    <button class="btn-s" style="background:var(--ink);" onclick="startSim()"><span>Asumir el mando de la integración</span><span>→</span></button>
+  </div>
+  <p class="i-note">Recomendado: lee la documentación del caso antes de empezar. Durante la simulación tendrás acceso al Data Room y a la Biblioteca de marcos teóricos en el panel lateral.</p>
+</div>
+</div>
+
+
+<!-- ══ PANTALLA DOCUMENTACIÓN DEL CASO ══════════════════════════════════════ -->
+<div class="screen" id="sdoc">
+  <div class="doc-toolbar">
+    <div>
+      <div class="doc-toolbar-sub">doinGlobal · Universidad de Salamanca · Máster en F&A · 2026</div>
+      <div class="doc-toolbar-title">Data Room · Caso NIG–ICOM · Documentación confidencial</div>
+    </div>
+    <button class="btn-print" onclick="window.print()">🖨 Imprimir documentación</button>
+    <button class="btn-back" onclick="show('si')">← Volver al inicio</button>
+    <button class="btn-print" style="background:var(--blue);border-color:var(--blue);" onclick="startSim()">Iniciar simulación →</button>
+  </div>
+  <div class="doc-body print-area" id="doc-print-area">
+
+    <div class="doc-cover">
+      <div class="doc-cover-logo">doinGlobal · Universidad de Salamanca · Máster en Fusiones y Adquisiciones</div>
+      <div class="doc-cover-title">Simulador Avanzado<br>Fusiones y Adquisiciones en Gestión del Cambio</div>
+      <div class="doc-cover-sub">Documentación del caso — Data Room confidencial</div>
+      <div class="doc-cover-case">Caso: Nordic Industrial Group adquiere ICOM · Prof. Jorge Matías-Pereda · 2026</div>
+    </div>
+
+    <!-- DR-01 ORGANIGRAMA -->
+    <div class="doc-section">
+      <div class="doc-section-head">DR-01 · Estructura organizativa</div>
+      <div class="doc-section-title">Organigrama ICOM — Ibérica de Componentes S.A.</div>
+      <h4>Equipo directivo y situación actual</h4>
+      <table><tr><th>Cargo</th><th>Nombre</th><th>Edad</th><th>Antigüedad</th><th>Situación</th></tr>
+      <tr><td>Presidente Consejo</td><td>Arturo Castillo</td><td>73</td><td>52 años (fundador)</td><td>Rol simbólico; asiste reuniones mensuales. Figura de autoridad moral para toda la plantilla.</td></tr>
+      <tr><td>Director General</td><td>Pablo Ruiz</td><td>51</td><td>18 años</td><td>⚠ Evaluando oferta externa. Gestiona personalmente los 3 clientes más importantes.</td></tr>
+      <tr><td>Dir. Operaciones</td><td>Carmen Vidal</td><td>48</td><td>22 años</td><td>Lealtad alta. Escéptica del deal pero profesional. Clave para continuidad operativa.</td></tr>
+      <tr><td>Dir. Ingeniería</td><td>Marcos Herranz</td><td>57</td><td>28 años</td><td>🔴 Know-how crítico. Contactado por Praxim GmbH. Sin contrato de retención.</td></tr>
+      <tr><td>Ing. Senior — Proceso Serie 7</td><td>Félix Durán</td><td>60</td><td>31 años</td><td>🔴 Portador exclusivo del proceso de mecanizado Serie 7. Próximo a jubilación. Participó en diseño del MES propio.</td></tr>
+      <tr><td>Ing. Senior — Calidad / Cert.</td><td>Lourdes Peña</td><td>54</td><td>19 años</td><td>🟠 Responsable de certificación aeroespacial exigida por cliente Defensa Industrial. Contactada indirectamente.</td></tr>
+      <tr><td>Ing. Senior — Cliente Aeromecánica</td><td>Tomás Alcántara</td><td>52</td><td>16 años</td><td>🟡 Relación técnica directa con ingeniero jefe de Aeromecánica.</td></tr>
+      <tr><td>Dir. Comercial</td><td>Beatriz Salas</td><td>44</td><td>11 años</td><td>Sólida. Sin señales de salida. Clave para clientes mid-market.</td></tr>
+      <tr><td>Dir. RRHH</td><td>Ignacio Mora</td><td>46</td><td>9 años</td><td>Interlocutor con comité de empresa. Rol clave en la transición.</td></tr>
+      <tr><td>Dir. Financiero</td><td>Ana Blanco</td><td>43</td><td>7 años</td><td>Contratada externamente. Más afín a cultura NIG. Facilitadora potencial.</td></tr></table>
+      <h4>Mandos intermedios</h4>
+      <p>12 jefes de departamento. Antigüedad media 14 años. Alta cohesión interna — muchos se conocen desde antes de entrar en la empresa o son familia de empleados. El 60% vive en un radio de 20 km de la planta de Valladolid.</p>
+      <h4>Comité de empresa</h4>
+      <p>180 afiliados de 800 empleados (22,5%). CCOO 60%, UGT 40%. Presidenta: <strong>Rosa Fuentes</strong>, 49 años, 24 años en ICOM. Historial de negociación constructiva pero firme. Ha solicitado reunión urgente antes del cierre.</p>
+    </div>
+
+    <!-- DR-02 CLIENTES -->
+    <div class="doc-section">
+      <div class="doc-section-head">DR-02 · Cartera comercial</div>
+      <div class="doc-section-title">Clientes top 5 — Concentración y riesgo post-deal</div>
+      <table><tr><th>Cliente</th><th>Revenue %</th><th>Contrato</th><th>Interlocutor ICOM</th><th>Riesgo</th></tr>
+      <tr><td>Aeromecánica S.A.</td><td>30%</td><td>Marco anual, vence en 8 meses</td><td>Pablo Ruiz (personal) + Tomás Alcántara (técnico)</td><td>🔴 CRÍTICO — Director de compras ha preguntado explícitamente "qué cambia"</td></tr>
+      <tr><td>Turboibérica</td><td>18%</td><td>Contrato 3 años, firmado hace 14 meses</td><td>Beatriz Salas</td><td>🟡 Moderado — Contrato protege a corto plazo</td></tr>
+      <tr><td>Grupo Ferrón</td><td>14%</td><td>Sin contrato marco. Pedidos recurrentes.</td><td>Pablo Ruiz</td><td>🔴 ALTO — Sin contrato + relación personal con Ruiz</td></tr>
+      <tr><td>Defensa Industrial</td><td>11%</td><td>Contrato bianual + certificación especial</td><td>Lourdes Peña</td><td>🟠 Elevado — Peña es responsable de la certificación contractualmente exigida</td></tr>
+      <tr><td>Aerocomponentes UE</td><td>9%</td><td>Contrato marco UE, 2 años</td><td>Beatriz Salas + Marcos Herranz</td><td>🟡 Moderado — Contrato protege; Herranz es referencia técnica</td></tr>
+      <tr><td>Resto (27 clientes)</td><td>18%</td><td>Variable</td><td>Equipo comercial</td><td>🟢 Bajo — Diversificados, sin dependencia personal</td></tr></table>
+      <div class="doc-alert">⚠ El 44% del revenue (Aeromecánica + Ferrón) está vinculado personalmente a Pablo Ruiz. Si Ruiz sale en los primeros 90 días, el riesgo de pérdida de revenue en 12 meses asciende a hasta €17M.</div>
+    </div>
+
+    <!-- DR-03 RRHH -->
+    <div class="doc-section">
+      <div class="doc-section-head">DR-03 · Recursos humanos</div>
+      <div class="doc-section-title">Condiciones laborales — Brechas salariales y contrato psicológico</div>
+      <h4>Estructura salarial comparada ICOM vs banda NIG</h4>
+      <table><tr><th>Nivel</th><th>Salario medio ICOM</th><th>Banda NIG equivalente</th><th>Brecha</th></tr>
+      <tr><td>C-suite (DG)</td><td>€95.000</td><td>€145.000</td><td>-34%</td></tr>
+      <tr><td>Directivos N-1</td><td>€68.000</td><td>€92.000</td><td>-26%</td></tr>
+      <tr><td>Ingenieros senior</td><td>€54.000</td><td>€78.000</td><td>-31%</td></tr>
+      <tr><td>Mandos intermedios</td><td>€42.000</td><td>€55.000</td><td>-24%</td></tr>
+      <tr><td>Técnicos y operarios</td><td>€28.000</td><td>€33.000</td><td>-18%</td></tr></table>
+      <div class="doc-alert">⚠ La brecha salarial es conocida por los empleados. Durante el due diligence varios directivos preguntaron directamente si NIG armonizaría condiciones. No hubo respuesta oficial.</div>
+      <h4>Situación contractual del talento crítico</h4>
+      <ul>
+        <li><strong>Pablo Ruiz:</strong> Contrato indefinido. Sin cláusula de permanencia ni non-compete. Puede salir con 3 meses de preaviso.</li>
+        <li><strong>Los 4 ingenieros senior:</strong> Contratos indefinidos estándar. Sin non-compete. Preaviso 2 meses.</li>
+        <li><strong>Resto directivos:</strong> Sin contratos de retención. Convenio colectivo metal Castilla y León.</li>
+      </ul>
+      <h4>Beneficios no monetarios — Contrato psicológico ICOM</h4>
+      <ul>
+        <li>Flexibilidad horaria amplia (no formalizada, cultura de confianza mutua)</li>
+        <li>Comedor subvencionado al 80% (muy valorado por toda la plantilla)</li>
+        <li>Cena de Navidad empresa — tradición de 40 años, alta carga simbólica</li>
+        <li>Préstamos a empleados sin interés para situaciones personales</li>
+        <li>Política no escrita: "no se despide a nadie salvo causa grave"</li>
+        <li>Plan de pensiones de empleo (3% aportación empresa, empleados >5 años). Coste: €280.000/año</li>
+      </ul>
+      <div class="doc-tip">💡 Estos beneficios forman el contrato psicológico de ICOM. Si NIG los elimina o "racionaliza" en los primeros meses, el impacto en compromiso será desproporcionado al ahorro generado.</div>
+    </div>
+
+    <!-- DR-04 CULTURA -->
+    <div class="doc-section">
+      <div class="doc-section-head">DR-04 · Diagnóstico cultural</div>
+      <div class="doc-section-title">Hallazgos del diagnóstico cultural — Due diligence (18 entrevistas)</div>
+      <h4>Valores declarados vs valores observados</h4>
+      <table><tr><th>Dimensión</th><th>Discurso oficial</th><th>Observado en entrevistas</th></tr>
+      <tr><td>Toma de decisiones</td><td>"Participativa, bottom-up"</td><td>Centralizada en Pablo Ruiz y Arturo Castillo informalmente. Los mandos consultan antes de decidir.</td></tr>
+      <tr><td>Actitud al cambio</td><td>"Adaptables e innovadores"</td><td>Alta resistencia a cambios impuestos externamente. Cambios internos se aceptan si "lo propone alguien de aquí".</td></tr>
+      <tr><td>Relación con la propiedad</td><td>"Profesional"</td><td>Fuerte lealtad personal a la familia Castillo. Arturo sigue siendo figura de autoridad moral.</td></tr>
+      <tr><td>Identidad</td><td>"Empresa industrial moderna"</td><td>"Los de siempre" es un término de orgullo, no peyorativo. Identidad local y familiar muy arraigada.</td></tr>
+      <tr><td>Relación con NIG</td><td>—</td><td>Mezcla de curiosidad y desconfianza. La palabra más repetida en entrevistas: "esperar a ver".</td></tr></table>
+      <h4>Señales de alerta identificadas</h4>
+      <ul>
+        <li>3 de 6 mandos intermedios mencionaron espontáneamente miedo a "que nos conviertan en una fábrica más del grupo".</li>
+        <li>Los ingenieros senior perciben su know-how como poder: <em>"sin nosotros, esto no funciona"</em> (textual, Félix Durán).</li>
+        <li>La informalidad es parte del funcionamiento: muchas decisiones operativas se toman en el comedor, no en reuniones formales.</li>
+        <li>El modelo de gestión NIG (KPIs, reporting semanal, dashboards) es percibido como "burocracia escandinava".</li>
+      </ul>
+      <h4>Perfil Competing Values Framework (Quinn)</h4>
+      <table><tr><th>Organización</th><th>Clan</th><th>Adhocracia</th><th>Jerarquía</th><th>Mercado</th></tr>
+      <tr><td>ICOM</td><td>67%</td><td>10%</td><td>18%</td><td>5%</td></tr>
+      <tr><td>NIG (estándar filiales)</td><td>12%</td><td>8%</td><td>45%</td><td>35%</td></tr></table>
+      <div class="doc-alert">⚠ Esta es la mayor divergencia posible en el CVF. ICOM es Clan dominante; NIG es Jerarquía + Mercado. Una integración que aplique el modelo de gestión NIG directamente producirá resistencia masiva y fuga de talento en 90 días.</div>
+    </div>
+
+    <!-- DR-05 SINERGIAS -->
+    <div class="doc-section">
+      <div class="doc-section-head">DR-05 · Modelo financiero</div>
+      <div class="doc-section-title">Desglose de sinergias — €28M en 36 meses (NIG Finance, confidencial)</div>
+      <table><tr><th>Fuente de sinergia</th><th>€M</th><th>Plazo</th><th>Supuesto clave</th><th>Riesgo</th></tr>
+      <tr><td>Compras consolidadas</td><td>6,2</td><td>12-18 meses</td><td>Poder negociador NIG aplicado a proveedores ICOM</td><td>🟢 Bajo — No depende de personas</td></tr>
+      <tr><td>Eficiencias operativas (lean)</td><td>5,8</td><td>18-30 meses</td><td>Implementación NIG Production System</td><td>🟠 Medio — Requiere aceptación cultural del equipo</td></tr>
+      <tr><td>Reducción G&A</td><td>4,1</td><td>6-12 meses</td><td>Eliminación de duplicidades en finanzas, RRHH, IT</td><td>🟠 Medio — Implica posibles salidas; riesgo reputacional</td></tr>
+      <tr><td>Revenue cross-sell (clientes NIG)</td><td>7,4</td><td>24-36 meses</td><td>ICOM vende a clientes europeos del grupo NIG</td><td>🔴 Alto — Depende de mantener capacidad técnica y certificaciones</td></tr>
+      <tr><td>Revenue nuevos mercados (aeroespacial nórdico)</td><td>4,5</td><td>30-36 meses</td><td>NIG abre mercado nórdico a capacidades aeroespaciales ICOM</td><td>🔴 Muy alto — Depende de retener a Peña y Herranz</td></tr></table>
+      <h4>Análisis de sensibilidad</h4>
+      <ul>
+        <li><strong>Escenario base:</strong> €28M en 36 meses — asume retención del 100% del talento clave</li>
+        <li><strong>Escenario pesimista</strong> (pérdida 2 ingenieros + Aeromecánica): €14,2M — destrucción significativa de valor vs precio pagado</li>
+        <li><strong>Escenario de ruptura</strong> (salida Ruiz + 3 ingenieros): €8,1M — el deal no crea valor</li>
+      </ul>
+      <div class="doc-alert">⚠ €11,9M de las sinergias (43%) dependen directamente de retener talento técnico y clientes vinculados a personas. El modelo financiero asume retención del 100% — supuesto actualmente en riesgo crítico.</div>
+    </div>
+
+    <!-- DR-06 STAKEHOLDERS -->
+    <div class="doc-section">
+      <div class="doc-section-head">DR-06 · Perfiles individuales</div>
+      <div class="doc-section-title">Fichas de stakeholders críticos</div>
+      <h4>Pablo Ruiz · Director General ICOM</h4>
+      <table><tr><th>Variable</th><th>Detalle</th></tr>
+      <tr><td>Motivación declarada</td><td>"Quiero que ICOM siga siendo ICOM"</td></tr>
+      <tr><td>Motivación real</td><td>Reconocimiento profesional. Lleva 18 años construyendo algo — necesita que NIG lo vea como arquitecto, no como activo heredado.</td></tr>
+      <tr><td>Oferta externa</td><td>DG en empresa de componentes en Madrid. +40% salario base. Decisión pendiente.</td></tr>
+      <tr><td>Qué le retendría</td><td>Rol claro y relevante en estructura NIG (no subordinado a un gestor de filiales). Reunión directa con CEO NIG. Reconocimiento público de su aportación.</td></tr>
+      <tr><td>Qué le haría salir</td><td>Ser tratado como "uno más". Decisiones sobre ICOM sin consultarle. Su equipo desmantelado.</td></tr></table>
+      <h4>Arturo Castillo · Fundador / Presidente del Consejo</h4>
+      <table><tr><th>Variable</th><th>Detalle</th></tr>
+      <tr><td>Razón de la venta</td><td>Garantizar continuidad de la empresa, no maximizar precio.</td></tr>
+      <tr><td>Preocupación principal</td><td>Que "los de fuera" desmantelen lo que construyó. Especialmente: el comedor, la cena de Navidad y el trato al personal.</td></tr>
+      <tr><td>Influencia real</td><td>Alta e informal. Si respalda públicamente el deal, reduce resistencia. Si lo cuestiona, la amplifica.</td></tr>
+      <tr><td>Qué necesita de NIG</td><td>Ser consultado (no solo informado). Que su legado sea reconocido públicamente en la comunicación.</td></tr></table>
+      <h4>Erik Lindqvist · CFO NIG / Sponsor ejecutivo</h4>
+      <table><tr><th>Variable</th><th>Detalle</th></tr>
+      <tr><td>Perfil</td><td>Financiero puro. Ha liderado 4 integraciones para NIG. Orientación a resultados y plazos.</td></tr>
+      <tr><td>Presión</td><td>El Consejo exige presentar sinergias capturadas en 12 meses. Su bonus personal vinculado al 60% del plan.</td></tr>
+      <tr><td>Riesgo</td><td>Puede imponer velocidad de integración incompatible con el perfil cultural de ICOM. Ha propuesto migración ERP en mes 6.</td></tr>
+      <tr><td>Cómo trabajar con él</td><td>Argumentos en lenguaje financiero: "ralentizar la integración cultural evita pérdida de €11,9M en sinergias".</td></tr></table>
+      <h4>Rosa Fuentes · Presidenta Comité de Empresa</h4>
+      <table><tr><th>Variable</th><th>Detalle</th></tr>
+      <tr><td>Perfil</td><td>24 años en ICOM. Respetada por la plantilla. Negociadora constructiva pero firme.</td></tr>
+      <tr><td>Demanda inmediata</td><td>Reunión pre-cierre con información sobre: plan de empleo, condiciones salariales, mantenimiento de beneficios.</td></tr>
+      <tr><td>Riesgo si se ignora</td><td>Puede alimentar desconfianza y resistencia pasiva en la plantilla.</td></tr>
+      <tr><td>Oportunidad</td><td>Si se le involucra con honestidad, puede ser canal de comunicación hacia la plantilla más eficaz que cualquier comunicado oficial.</td></tr></table>
+    </div>
+
+    <!-- DR-07 IT -->
+    <div class="doc-section">
+      <div class="doc-section-head">DR-07 · Sistemas y tecnología</div>
+      <div class="doc-section-title">Diagnóstico IT — Due diligence tecnológico</div>
+      <table><tr><th>Sistema</th><th>ICOM actual</th><th>NIG estándar</th><th>Brecha / Riesgo</th></tr>
+      <tr><td>ERP</td><td>SAP B1 (versión 2017, customizado)</td><td>SAP S/4HANA</td><td>Migración: 14-18 meses, €1,2M. Alto riesgo operativo.</td></tr>
+      <tr><td>MES (producción)</td><td>Sistema propio in-house (2009)</td><td>Siemens Opcenter</td><td>🔴 CRÍTICO — Contiene lógica no documentada del proceso Serie 7. Migración: 24+ meses.</td></tr>
+      <tr><td>CRM</td><td>Excel + correo electrónico</td><td>Salesforce</td><td>Implementación 3-4 meses. Riesgo: pérdida de relaciones no documentadas.</td></tr>
+      <tr><td>Email / Comunicación</td><td>Microsoft 365</td><td>Microsoft 365</td><td>🟢 Compatible. Migración de tenant: 2-3 semanas. Prioritario Day One.</td></tr>
+      <tr><td>RRHH</td><td>A3 Nómina (proveedor local)</td><td>Workday</td><td>Migración 6-9 meses. No crítico en primeros 100 días.</td></tr></table>
+      <div class="doc-alert">⚠ El MES propio contiene reglas del proceso Serie 7 que no están documentadas externamente — están en el código y en la cabeza de Félix Durán. Si Durán se va antes de transferir ese conocimiento, la migración del MES se convierte en una reconstrucción desde cero. El CFO ha propuesto migración ERP en mes 6: técnicamente inviable y estratégicamente peligroso.</div>
+      <div class="doc-tip">Recomendación due diligence IT: integración email en Day One. Freeze de sistemas productivos mínimo 12 meses. Documentación urgente del MES como proyecto independiente y prioritario.</div>
+    </div>
+
+    <!-- DR-08 LEGAL -->
+    <div class="doc-section">
+      <div class="doc-section-head">DR-08 · Marco legal y regulatorio</div>
+      <div class="doc-section-title">Cronograma de obligaciones legales y cláusulas del SPA</div>
+      <table><tr><th>Hito</th><th>Fecha</th><th>Obligación y consecuencias</th></tr>
+      <tr><td>Signing</td><td>Completado</td><td>Acuerdo firmado. Confidencialidad activa.</td></tr>
+      <tr><td>Aprobación CNMC</td><td>Completada</td><td>Sin condiciones antimonopolio.</td></tr>
+      <tr><td>Notificación Comité Empresa</td><td>⚠ Pendiente — obligatoria</td><td>Art. 44 ET: información obligatoria a representantes laborales mínimo 15 días hábiles antes del cierre. Si no se cumple, el cierre puede ser impugnado.</td></tr>
+      <tr><td>Cierre (Closing)</td><td>Día 47</td><td>Transmisión de acciones. Toma efectiva de control.</td></tr>
+      <tr><td>Comunicación pública</td><td>Day One</td><td>Nota de prensa coordinada. NIG cotiza en Oslo — obligaciones de información al mercado.</td></tr>
+      <tr><td>Armonización condiciones</td><td>Obligación 36 meses</td><td>Art. 44 ET: condiciones de los trabajadores deben mantenerse al menos 3 años salvo acuerdo colectivo.</td></tr></table>
+      <h4>Cláusulas relevantes del SPA</h4>
+      <ul>
+        <li>Familia Castillo retiene 15% durante 3 años con opción de venta a NIG al precio de valoración ajustado.</li>
+        <li>Arturo Castillo permanece en el Consejo con voz pero sin voto durante 2 años.</li>
+        <li>Earn-out: €3,2M adicionales si EBITDA año 2 supera el 13%.</li>
+        <li>Non-compete: familia Castillo no puede participar en componentes de precisión en España durante 5 años.</li>
+      </ul>
+      <div class="doc-alert">⚠ La notificación al Comité de Empresa no es opcional — es una obligación legal (Art. 44 ET). Si NIG no la completa antes del cierre, Rosa Fuentes puede impugnar la transmisión. Confirmar con el departamento jurídico que el plazo está en curso.</div>
+    </div>
+
+    <button class="doc-btn-start" onclick="startSim()">Comenzar simulación: Asumir el mando de la integración →</button>
+
+  </div><!-- /doc-print-area -->
+</div>
+
+<!-- ══ SIMULACIÓN ════════════════════════════════════════════════════════════ -->
+<div class="screen" id="sm">
+  <!-- Left: main sim -->
+  <div class="sim-left">
+    <div class="tb">
+      <div class="tb-lg">IMO Lead · Integración NIG–ICOM</div>
+      <div class="tb-sc" id="tb-phase">Fase 1 · Pre-cierre</div>
+      <div style="display:flex;gap:14px;">
+        <div><div class="tb-meta">DECISIÓN</div><span class="tb-sc" id="st-t">0</span></div>
+        <div><div class="tb-meta">FASE</div><span class="tb-sc" id="st-ph">1/3</span></div>
+        <div><div class="tb-meta">TIEMPO</div><span class="tb-sc" id="st-tm">00:00</span></div>
+      </div>
+      <div class="tb-pts">Score: <strong id="h-sc">0</strong>/100</div>
+    </div>
+    <div class="ca" id="ca"></div>
+    <div class="inp-area">
+      <div class="inp-label">
+        <span>Tu análisis y decisión — nivel máster, sé preciso y justifica con marcos teóricos</span>
+        <span id="tl">Decisión 1</span>
+      </div>
+      <textarea id="ui" rows="5" placeholder="Desarrolla tu razonamiento. Usa los marcos de la biblioteca. Anticipa consecuencias. Mínimo 80 palabras para que el coach pueda evaluarte en profundidad..."></textarea>
+      <div class="inp-btns">
+        <button class="btn-sub" id="bs" onclick="subTurn()">Enviar análisis →</button>
+        <button class="btn-nxt" id="bn">Siguiente fase →</button>
+        <div class="thk" id="thk"><div class="tp"></div><div class="tp"></div><div class="tp"></div><span>El coach analiza tu decisión...</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: sidebar -->
+  <div class="sim-right">
+    <div class="sb-tabs">
+      <button class="sb-tab active" onclick="showTab('caso')">Caso</button>
+      <button class="sb-tab" onclick="showTab('score')">Score</button>
+      <button class="sb-tab" onclick="showTab('dr')">Data Room</button>
+      <button class="sb-tab" onclick="showTab('lib')">Marco</button>
+    </div>
+
+    <!-- CASO -->
+    <div class="sb-panel active" id="tab-caso">
+      <div class="case-mini">
+        <h4>KPIs del deal</h4>
+        <div class="kpi"><span>Facturación ICOM</span><span>€94M</span></div>
+        <div class="kpi"><span>EBITDA</span><span>11%</span></div>
+        <div class="kpi"><span>Empleados</span><span>800</span></div>
+        <div class="kpi"><span>Sinergias objetivo</span><span>€28M / 36m</span></div>
+        <div class="kpi"><span>Días al cierre</span><span>47</span></div>
+      </div>
+      <div class="case-mini">
+        <h4>Stakeholders críticos</h4>
+        <ul>
+          <li><strong>Pablo Ruiz</strong> — DG ICOM, 51a, evaluando salida</li>
+          <li><strong>Familia Castillo</strong> — Fundador + 2 hijos, 15% capital</li>
+          <li><strong>4 ingenieros senior</strong> — know-how tácito, edad media 58a</li>
+          <li><strong>Erik Lindqvist</strong> — CFO NIG, sponsor, orientado a resultados</li>
+          <li><strong>Comité de empresa ICOM</strong> — 180 afiliados, CCOO</li>
+        </ul>
+      </div>
+      <div class="case-mini">
+        <h4>Señales de alarma activas</h4>
+        <div class="flag">🔴 2 ingenieros contactados por competidor</div>
+        <div class="flag">🟠 DG ICOM evaluando ofertas externas</div>
+        <div class="flag">🟠 ERP incompatibles — migración estimada 18 meses</div>
+        <div class="flag">🟡 Clientes clave vinculados a personas, no a contratos</div>
+        <div class="flag">🟡 Sin plan de comunicación interna activo</div>
+      </div>
+      <div class="case-mini">
+        <h4>Fases del simulador</h4>
+        <ul>
+          <li><strong>Fase 1:</strong> Diagnóstico y modelo de integración</li>
+          <li><strong>Fase 2:</strong> Day One — diseño operativo</li>
+          <li><strong>Fase 3:</strong> 100 días — ejecución y métricas</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- SCORE -->
+    <div class="sb-panel" id="tab-score">
+      <div class="sc-row"><span>Puntuación global</span><span class="sc-val" id="sc-total">0%</span></div>
+      <div class="sc-row"><span>Mejor decisión</span><span class="sc-val" id="sc-best">—</span></div>
+      <div class="sc-row"><span>Decisiones tomadas</span><span class="sc-val" id="sc-turns">0</span></div>
+      <div class="sc-row"><span>Fase actual</span><span class="sc-val" id="sc-phase">1/3</span></div>
+      <div class="dim-bar">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Dimensiones</div>
+        <div class="dim-row"><div class="dim-label"><span class="dim-name">Coherencia estratégica</span><span class="dim-pct" id="dv0">0%</span></div><div class="d-bar"><div class="d-bar-f" id="df0" style="width:0%"></div></div></div>
+        <div class="dim-row"><div class="dim-label"><span class="dim-name">Diseño del playbook</span><span class="dim-pct" id="dv1">0%</span></div><div class="d-bar"><div class="d-bar-f" id="df1" style="width:0%"></div></div></div>
+        <div class="dim-row"><div class="dim-label"><span class="dim-name">Inteligencia cultural</span><span class="dim-pct" id="dv2">0%</span></div><div class="d-bar"><div class="d-bar-f" id="df2" style="width:0%"></div></div></div>
+        <div class="dim-row"><div class="dim-label"><span class="dim-name">Gestión de stakeholders</span><span class="dim-pct" id="dv3">0%</span></div><div class="d-bar"><div class="d-bar-f" id="df3" style="width:0%"></div></div></div>
+        <div class="dim-row"><div class="dim-label"><span class="dim-name">Identificación de riesgos</span><span class="dim-pct" id="dv4">0%</span></div><div class="d-bar"><div class="d-bar-f" id="df4" style="width:0%"></div></div></div>
+      </div>
+    </div>
+
+    <!-- BIBLIOTECA -->
+    <div class="sb-panel" id="tab-lib">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">📚 Biblioteca de referencia — 8 módulos</div>
+
+      <div class="lib-item">
+        <div class="lib-head" onclick="togLib(this)"><span>① Modelos de integración (H&J)</span><span>+</span></div>
+        <div class="lib-body">
+          <h4>Tipología Haspeslagh & Jemison (1991)</h4>
+          <table><tr><th>Modelo</th><th>Interdependencia</th><th>Autonomía</th><th>Cuándo usarlo</th></tr>
+          <tr><td>Absorción</td><td>Alta</td><td>Baja</td><td>Eficiencias operativas prioritarias; culturas compatibles</td></tr>
+          <tr><td>Preservación</td><td>Baja</td><td>Alta</td><td>Valor en know-how/cultura de la adquirida; no tocar</td></tr>
+          <tr><td>Simbiosis</td><td>Alta</td><td>Alta</td><td>Creación de valor compartida; más compleja y lenta</td></tr>
+          <tr><td>Holding</td><td>Baja</td><td>Baja</td><td>Inversión financiera pura; sin integración operativa</td></tr></table>
+          <h4>Clave de decisión</h4>
+          <p>El modelo debe derivarse del <em>deal rationale</em>, no de la preferencia del adquirente. Si el valor está en el know-how tácito y las relaciones de cliente (como en ICOM), la absorción rápida destruye precisamente lo que se compró.</p>
+          <div class="tip-box">💡 En operaciones donde la fuente de valor es intangible y personal (relaciones, conocimiento experto, cultura), la Preservación o Simbiosis preservan más sinergias reales que la Absorción, aunque parezcan más lentas.</div>
+          <h4>Error frecuente</h4>
+          <p>Aplicar el modelo de la última integración exitosa independientemente del contexto. Cada deal tiene un perfil de valor distinto que requiere un modelo distinto.</p>
+        </div>
+      </div>
+
+      <div class="lib-item">
+        <div class="lib-head" onclick="togLib(this)"><span>② IMO: estructura y gobernanza</span><span>+</span></div>
+        <div class="lib-body">
+          <h4>Integration Management Office (IMO)</h4>
+          <p>El IMO es el centro neurálgico de la integración. No es un comité de coordinación — es una unidad ejecutiva con autoridad real para tomar decisiones, desbloquear recursos y escalar conflictos.</p>
+          <h4>Componentes del IMO</h4>
+          <ul>
+            <li><strong>IMO Lead:</strong> Rol tiempo completo; independiente de las líneas funcionales. Reporta directamente al sponsor ejecutivo.</li>
+            <li><strong>Workstream Leads (WSLs):</strong> Un responsable por área funcional. Dedicación mínima 50% a la integración.</li>
+            <li><strong>Steering Committee:</strong> Órgano de decisión estratégica. Reunión semanal durante los primeros 90 días.</li>
+            <li><strong>Clean Team:</strong> Equipo con acceso a información sensible pre-cierre bajo protocolo legal.</li>
+          </ul>
+          <h4>Cadencia operativa estándar</h4>
+          <ul>
+            <li>Daily standup IMO: 15 min, issues abiertos y bloqueantes</li>
+            <li>WSL sync semanal: 60 min, progreso por workstream</li>
+            <li>Steering Committee: semanal primeros 90d, quincenal después</li>
+            <li>Town hall ICOM: cada 3-4 semanas, comunicación masiva</li>
+          </ul>
+          <div class="tip-box">💡 El mayor error de gobernanza es crear un IMO sin autoridad real. Si los workstream leads tienen que pedir permiso a sus jefes funcionales para tomar decisiones de integración, el IMO es decorativo.</div>
+          <h4>Principio de escalación</h4>
+          <p>Todo issue no resuelto en 48h a nivel WSL sube automáticamente al IMO Lead. Todo issue no resuelto en 72h sube al Steering Committee. Sin este protocolo, los problemas se acumulan silenciosamente.</p>
+        </div>
+      </div>
+
+      <div class="lib-item">
+        <div class="lib-head" onclick="togLib(this)"><span>③ Workstreams: 7 áreas clave</span><span>+</span></div>
+        <div class="lib-body">
+          <h4>Los 7 workstreams estándar en integración industrial</h4>
+          <ol>
+            <li><strong>RRHH y organización:</strong> Estructura combinada, bandas salariales, retención, redundancias, roles duplicados. Decisiones críticas pre-day-one: quién lidera qué.</li>
+            <li><strong>Operaciones y producción:</strong> Procesos, capacidades, KPIs operativos, integración de cadena de valor. En ICOM: proteger know-how de ingeniería.</li>
+            <li><strong>Tecnología y sistemas:</strong> ERP, sistemas legacy, hoja de ruta de migración. Regla: no migrar ERP en los primeros 6 meses salvo emergencia.</li>
+            <li><strong>Finanzas y reporting:</strong> Chart of accounts, reporting consolidado, tesorería, seguimiento de sinergias.</li>
+            <li><strong>Comercial y clientes:</strong> Retención de cuentas clave, presentación del deal a clientes, propuesta de valor combinada.</li>
+            <li><strong>Legal y cumplimiento:</strong> Contratos, regulaciones sectoriales, laborales, GDPR, propiedad intelectual.</li>
+            <li><strong>Comunicación y cultura:</strong> Cascada interna, mensajes externos, gestión de rumores, narrativa de integración.</li>
+          </ol>
+          <h4>Priorización Day-One vs 100 días</h4>
+          <table><tr><th>Workstream</th><th>Crítico Day-One</th><th>Puede esperar</th></tr>
+          <tr><td>RRHH</td><td>Estructura de liderazgo, retención contratos clave</td><td>Armonización salarial completa</td></tr>
+          <tr><td>Tecnología</td><td>Accesos, email, conectividad básica</td><td>Migración ERP</td></tr>
+          <tr><td>Finanzas</td><td>Reporting mínimo, cuentas bancarias</td><td>Chart of accounts unificado</td></tr>
+          <tr><td>Comercial</td><td>Comunicación a clientes top 10</td><td>Integración CRM</td></tr>
+          <tr><td>Comunicación</td><td>Mensaje a todos los empleados</td><td>Rebrand</td></tr></table>
+        </div>
+      </div>
+
+      <div class="lib-item">
+        <div class="lib-head" onclick="togLib(this)"><span>④ Diagnóstico cultural</span><span>+</span></div>
+        <div class="lib-body">
+          <h4>McKinsey 7-S aplicado a integración</h4>
+          <p>Los 7 elementos (Strategy, Structure, Systems, Style, Staff, Skills, Shared Values) deben diagnosticarse en <em>ambas</em> organizaciones. El diagnóstico revela dónde hay alineación natural y dónde hay tensión estructural que necesita gestión activa.</p>
+          <h4>Competing Values Framework (Quinn)</h4>
+          <table><tr><th>Cuadrante</th><th>Valores</th><th>Riesgo en integración</th></tr>
+          <tr><td>Clan (colaborar)</td><td>Cohesión, participación, lealtad</td><td>Resistencia a cambio externo; "nosotros vs ellos"</td></tr>
+          <tr><td>Adhocracia (crear)</td><td>Innovación, adaptabilidad, riesgo</td><td>Choca con culturas de control</td></tr>
+          <tr><td>Jerarquía (controlar)</td><td>Procesos, eficiencia, estabilidad</td><td>Paraliza si no hay claridad rápida</td></tr>
+          <tr><td>Mercado (competir)</td><td>Resultados, cuota, velocidad</td><td>Puede ignorar impacto humano</td></tr></table>
+          <p><strong>ICOM:</strong> cultura Clan dominante (lealtad multigeneracional, identidad local fuerte). <strong>NIG:</strong> cultura Jerarquía + Mercado (procesos y resultados). Tensión máxima entre estos dos perfiles.</p>
+          <h4>Señales de degradación cultural durante integración</h4>
+          <ul>
+            <li>Aumento de bajas voluntarias en los primeros 60 días</li>
+            <li>Reducción de productividad sin causa técnica identificable</li>
+            <li>Incremento de comunicación informal (rumores) vs formal</li>
+            <li>Absentismo en reuniones mixtas NIG–ICOM</li>
+            <li>Silencio en reuniones donde antes había participación activa</li>
+          </ul>
+          <div class="tip-box">💡 La cultura no se "gestiona" en un taller. Se gestiona a través de miles de microdecisiones: quién presenta el plan, en qué idioma, qué nombre lleva el producto resultante, si se conserva la fiesta de empresa de ICOM o se sustituye por el formato NIG.</div>
+        </div>
+      </div>
+
+      <div class="lib-item">
+        <div class="lib-head" onclick="togLib(this)"><span>⑤ Mapa de stakeholders y comunicación</span><span>+</span></div>
+        <div class="lib-body">
+          <h4>Matriz de stakeholders: poder × interés</h4>
+          <table><tr><th>Cuadrante</th><th>Estrategia</th><th>Ejemplos NIG–ICOM</th></tr>
+          <tr><td>Alto poder / Alto interés</td><td>Gestionar de cerca</td><td>Familia Castillo, DG ICOM, CFO NIG, comité empresa</td></tr>
+          <tr><td>Alto poder / Bajo interés</td><td>Mantener satisfechos</td><td>Clientes clave (no involucrar en detalles internos)</td></tr>
+          <tr><td>Bajo poder / Alto interés</td><td>Mantener informados</td><td>Empleados ICOM, mandos intermedios</td></tr>
+          <tr><td>Bajo poder / Bajo interés</td><td>Monitorizar</td><td>Proveedores secundarios, prensa local</td></tr></table>
+          <h4>Cascada de comunicación — secuencia correcta</h4>
+          <ol>
+            <li>Liderazgo senior de ambas compañías (D-1 al cierre)</li>
+            <li>Mandos intermedios ICOM (Day One, mañana)</li>
+            <li>Todos los empleados ICOM (Day One, tarde — town hall)</li>
+            <li>Clientes clave — llamada personal del DG (Day One o Day Two)</li>
+            <li>Proveedores críticos (primera semana)</li>
+            <li>Comunicado público / prensa (simultáneo al town hall)</li>
+          </ol>
+          <h4>Principios de comunicación en integración</h4>
+          <ul>
+            <li><strong>Vacío de información = rumor.</strong> Si no comunicas, la gente inventa — y lo que inventa siempre es peor que la realidad.</li>
+            <li><strong>Honestidad sobre incertidumbre.</strong> "No lo sabemos todavía, pero lo decidiremos antes del [fecha]" es mejor que el silencio o la ambigüedad.</li>
+            <li><strong>Repetición deliberada.</strong> En contextos de alta ansiedad, los mensajes necesitan repetirse 5-7 veces en canales distintos para ser absorbidos.</li>
+            <li><strong>Personalización por audiencia.</strong> El mensaje para el ingeniero senior de 58 años no es el mismo que para el operario de 30.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="lib-item">
+        <div class="lib-head" onclick="togLib(this)"><span>⑥ Retención de talento clave</span><span>+</span></div>
+        <div class="lib-body">
+          <h4>Taxonomía del talento crítico en integración</h4>
+          <ul>
+            <li><strong>Portadores de conocimiento tácito:</strong> No documentado, no transferible rápidamente. En ICOM: los 4 ingenieros senior. Si se van, el know-how se va con ellos.</li>
+            <li><strong>Gestores de relaciones de cliente:</strong> Su salida activa la evaluación del cliente sobre si quedarse. En ICOM: DG Ruiz gestiona personalmente 3 de los 5 clientes top.</li>
+            <li><strong>Líderes de cultura:</strong> Personas que aunque no tienen poder formal tienen autoridad moral sobre el equipo. En ICOM: varios "veteranos" de más de 20 años.</li>
+          </ul>
+          <h4>Palancas de retención: más allá del dinero</h4>
+          <table><tr><th>Palanca</th><th>Efectividad</th><th>Aplicación ICOM</th></tr>
+          <tr><td>Retention bonus (12-24m)</td><td>Necesaria pero no suficiente</td><td>Para ingenieros senior y DG Ruiz inmediatamente</td></tr>
+          <tr><td>Claridad de rol</td><td>Alta</td><td>Definir qué manda cada uno en el nuevo modelo</td></tr>
+          <tr><td>Reconocimiento de legado</td><td>Alta en culturas Clan</td><td>Visibilizar la historia de ICOM en la narrativa combinada</td></tr>
+          <tr><td>Participación en diseño</td><td>Muy alta</td><td>Involucrar a ICOM en diseño del playbook, no solo ejecutarlo</td></tr>
+          <tr><td>Acceso al sponsor</td><td>Alta para C-suite</td><td>Reunión directa DG Ruiz con CEO NIG en semana 1</td></tr></table>
+          <h4>Ventana crítica</h4>
+          <p>Los primeros <strong>30 días</strong> post-cierre son la ventana de mayor riesgo de fuga de talento. Las personas evalúan activamente si el nuevo entorno "es para ellas". Cada señal cuenta — incluso las involuntarias (qué idioma se usa en la primera reunión, si se pregunta antes de imponer).</p>
+          <div class="tip-box">💡 El error más caro: asumir que el talento clave se queda porque no ha dicho que se va. El silencio en una integración no es conformidad — es evaluación.</div>
+        </div>
+      </div>
+
+      <div class="lib-item">
+        <div class="lib-head" onclick="togLib(this)"><span>⑦ Matriz de riesgos de integración</span><span>+</span></div>
+        <div class="lib-body">
+          <h4>Tipología de riesgos en M&A post-deal</h4>
+          <table><tr><th>Categoría</th><th>Ejemplos</th><th>Horizonte</th></tr>
+          <tr><td>Riesgo de talento</td><td>Fuga de key people, pérdida de know-how</td><td>0-60 días</td></tr>
+          <tr><td>Riesgo de cliente</td><td>Defección ante la incertidumbre del deal</td><td>0-90 días</td></tr>
+          <tr><td>Riesgo cultural</td><td>Resistencia pasiva, "compliance sin commitment"</td><td>30-180 días</td></tr>
+          <tr><td>Riesgo operativo</td><td>Disrupciones en producción durante la transición</td><td>Day One - 6 meses</td></tr>
+          <tr><td>Riesgo de sistemas</td><td>Fallos de integración tecnológica</td><td>6-18 meses</td></tr>
+          <tr><td>Riesgo de sinergias</td><td>No se materializan en los plazos previstos</td><td>12-36 meses</td></tr></table>
+          <h4>Matriz Impacto × Probabilidad</h4>
+          <p>Para cada riesgo identificado: <strong>(1)</strong> Impacto si ocurre (1-5); <strong>(2)</strong> Probabilidad en los próximos 90 días (1-5); <strong>(3)</strong> Score = P×I; <strong>(4)</strong> Owner y plan de mitigación; <strong>(5)</strong> Indicador de alerta temprana.</p>
+          <h4>Riesgos críticos activos en NIG–ICOM</h4>
+          <ul>
+            <li>🔴 <strong>P×I=25:</strong> Fuga ingenieros senior → Mitigación: retention bonus + plan de transferencia de conocimiento urgente</li>
+            <li>🔴 <strong>P×I=20:</strong> Salida DG Ruiz → Mitigación: engagement directo CEO NIG + claridad de rol</li>
+            <li>🟠 <strong>P×I=15:</strong> Defección cliente Aeromecánica (30% revenue) → Mitigación: visita conjunta NIG-ICOM en 10 días</li>
+            <li>🟠 <strong>P×I=12:</strong> Resistencia comité empresa → Mitigación: reunión pre-day-one con representantes</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="lib-item">
+        <div class="lib-head" onclick="togLib(this)"><span>⑧ Métricas de integración</span><span>+</span></div>
+        <div class="lib-body">
+          <h4>Dashboard de integración: indicadores clave</h4>
+          <h4>Financieros y operativos</h4>
+          <ul>
+            <li>% sinergias capturadas vs plan (acumulado)</li>
+            <li>Revenue retention: % ingresos ICOM mantenidos post-deal</li>
+            <li>Productividad operativa: output/empleado vs baseline pre-deal</li>
+            <li>% workstreams en verde / ámbar / rojo vs plan</li>
+          </ul>
+          <h4>Talento y cultura</h4>
+          <ul>
+            <li>Tasa de rotación voluntaria: alarma si supera 2x baseline</li>
+            <li>Retención talento clave identificado: % de key people que siguen</li>
+            <li>Pulse survey mensual: NPS interno (eNPS) — mide compromiso y confianza</li>
+            <li>Participación en reuniones mixtas NIG–ICOM</li>
+          </ul>
+          <h4>Comunicación y clima</h4>
+          <ul>
+            <li>% empleados que dicen haber recibido información suficiente (encuesta)</li>
+            <li>Volumen de preguntas en canales oficiales vs rumores detectados</li>
+            <li>Incidentes de fricción cultural reportados</li>
+          </ul>
+          <div class="tip-box">💡 La sinergia más cara de medir es la que no se produce por destrucción de valor humano. Incluir métricas de cultura y talento al mismo nivel que las financieras no es soft — es la única forma de detectar a tiempo si la integración está destruyendo lo que compró.</div>
+          <h4>Milestone estándar 100 días</h4>
+          <table><tr><th>Hito</th><th>Plazo</th></tr>
+          <tr><td>Estructura de liderazgo definida y comunicada</td><td>Day One</td></tr>
+          <tr><td>Retention agreements firmados con key people</td><td>Semana 2</td></tr>
+          <tr><td>Diagnóstico cultural completado</td><td>Semana 4</td></tr>
+          <tr><td>100-day plan aprobado por Steering</td><td>Semana 2</td></tr>
+          <tr><td>Primer pulse survey</td><td>Semana 4</td></tr>
+          <tr><td>Revisión de sinergias vs plan</td><td>Día 60</td></tr>
+          <tr><td>Informe de integración al Consejo</td><td>Día 100</td></tr></table>
+        </div>
+      </div>
+
+
+
+    </div><!-- /tab-lib -->
+
+    <!-- DATA ROOM -->
+    <div class="sb-panel" id="tab-dr">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">📁 Data Room · NIG–ICOM · Confidencial</div>
+
+      <div class="lib-item">
+        <div class="lib-head" onclick="togLib(this)"><span>DR-01 · Organigrama ICOM</span><span>+</span></div>
+        <div class="lib-body">
+          <h4>Estructura directiva — Ibérica de Componentes S.A.</h4>
+          <table><tr><th>Cargo</th><th>Nombre</th><th>Edad</th><th>Antigüedad</th><th>Situación</th></tr>
+          <tr><td>Presidente Consejo</td><td>Arturo Castillo</td><td>73</td><td>52 años (fundador)</td><td>Rol simbólico; asiste reuniones mensuales. Muy respetado internamente.</td></tr>
+          <tr><td>Director General</td><td>Pablo Ruiz</td><td>51</td><td>18 años</td><td>⚠ Evaluando ofertas externas. Gestiona personalmente clientes top 3.</td></tr>
+          <tr><td>Dir. Operaciones</td><td>Carmen Vidal</td><td>48</td><td>22 años</td><td>Lealtad alta a la empresa. Escéptica del deal pero profesional.</td></tr>
+          <tr><td>Dir. Ingeniería</td><td>Marcos Herranz</td><td>57</td><td>28 años</td><td>🔴 Know-how crítico. Contactado por Praxim GmbH (competidor). Sin contrato de retención.</td></tr>
+          <tr><td>Ing. Senior 1</td><td>Félix Durán</td><td>60</td><td>31 años</td><td>🔴 Portador del proceso de mecanizado de precisión Serie 7. Próximo a jubilación.</td></tr>
+          <tr><td>Ing. Senior 2</td><td>Lourdes Peña</td><td>54</td><td>19 años</td><td>🟠 Conocimiento de calidad y certificación aeroespacial. Contactada indirectamente.</td></tr>
+          <tr><td>Ing. Senior 3</td><td>Tomás Alcántara</td><td>52</td><td>16 años</td><td>🟡 Especialista en cliente Aeromecánica. Relación técnica directa con su ingeniero jefe.</td></tr>
+          <tr><td>Dir. Comercial</td><td>Beatriz Salas</td><td>44</td><td>11 años</td><td>Sólida. Sin señales de salida. Clave para clientes mid-market.</td></tr>
+          <tr><td>Dir. RRHH</td><td>Ignacio Mora</td><td>46</td><td>9 años</td><td>Interlocutor con comité de empresa. Rol clave en transición.</td></tr>
+          <tr><td>Dir. Financiero</td><td>Ana Blanco</td><td>43</td><td>7 años</td><td>Contratada externamente. Más afín a cultura NIG. Facilitadora potencial.</td></tr></table>
+          <h4>Estructura mandos intermedios (resumen)</h4>
+          <p>12 jefes de departamento. Antigüedad media: 14 años. Alta cohesión interna — muchos se conocen desde antes de la empresa o son familia de empleados. El 60% vive en un radio de 20 km de la planta de Valladolid.</p>
+          <h4>Comité de empresa</h4>
+          <p>180 afiliados de 800 empleados (22.5%). Representación: CCOO 60%, UGT 40%. Presidenta: Rosa Fuentes, 49 años, 24 años en ICOM. Historial de negociaciones constructivas pero firmes. Ha solicitado reunión urgente con la dirección antes del cierre.</p>
+        </div>
+      </div>
+
+      <div class="lib-item">
+        <div class="lib-head" onclick="togLib(this)"><span>DR-02 · Clientes: top 5 y análisis de riesgo</span><span>+</span></div>
+        <div class="lib-body">
+          <h4>Cartera de clientes — concentración y riesgo</h4>
+          <table><tr><th>Cliente</th><th>Revenue %</th><th>Contrato</th><th>Interlocutor ICOM</th><th>Riesgo post-deal</th></tr>
+          <tr><td>Aeromecánica S.A.</td><td>30%</td><td>Marco anual, renovable. Vence en 8 meses.</td><td>Pablo Ruiz (personal) + Tomás Alcántara (técnico)</td><td>🔴 CRÍTICO. El director de compras ha preguntado explícitamente "qué cambia" tras el deal.</td></tr>
+          <tr><td>Turboibérica</td><td>18%</td><td>Contrato 3 años, firmado hace 14 meses.</td><td>Beatriz Salas</td><td>🟡 Moderado. Contrato protege a corto plazo. Relación sólida pero no personal.</td></tr>
+          <tr><td>Grupo Ferrón</td><td>14%</td><td>Sin contrato marco. Pedidos recurrentes.</td><td>Pablo Ruiz</td><td>🔴 ALTO. Sin contrato + relación personal con Ruiz = riesgo de fuga si Ruiz sale.</td></tr>
+          <tr><td>Defensa Industrial</td><td>11%</td><td>Contrato bianual + requisitos certificación especial.</td><td>Lourdes Peña (certificación)</td><td>🟠 Elevado. Lourdes Peña es la responsable de la certificación que el cliente exige. Si sale, hay riesgo de incumplimiento contractual.</td></tr>
+          <tr><td>Aerocomponentes UE</td><td>9%</td><td>Contrato marco UE, 2 años.</td><td>Beatriz Salas + Marcos Herranz</td><td>🟡 Moderado. Contrato protege. Pero Herranz es referencia técnica.</td></tr>
+          <tr><td>Resto (27 clientes)</td><td>18%</td><td>Variable</td><td>Equipo comercial</td><td>🟢 Bajo. Diversificados. Sin dependencia personal.</td></tr></table>
+          <div class="tip-box">⚠ El 73% del revenue está en los 5 primeros clientes. El 44% (Aeromecánica + Ferrón) está vinculado personalmente a Pablo Ruiz. Si Ruiz sale en los primeros 90 días, el riesgo de revenue en 12 meses es de hasta €17M.</div>
+        </div>
+      </div>
+
+      <div class="lib-item">
+        <div class="lib-head" onclick="togLib(this)"><span>DR-03 · RRHH: condiciones y brechas</span><span>+</span></div>
+        <div class="lib-body">
+          <h4>Estructura salarial comparada</h4>
+          <table><tr><th>Nivel</th><th>Salario medio ICOM</th><th>Banda NIG equivalente</th><th>Brecha</th></tr>
+          <tr><td>C-suite (DG)</td><td>€95.000</td><td>€145.000</td><td>-34%</td></tr>
+          <tr><td>Directivos (N-1)</td><td>€68.000</td><td>€92.000</td><td>-26%</td></tr>
+          <tr><td>Ingenieros senior</td><td>€54.000</td><td>€78.000</td><td>-31%</td></tr>
+          <tr><td>Mandos intermedios</td><td>€42.000</td><td>€55.000</td><td>-24%</td></tr>
+          <tr><td>Técnicos y operarios</td><td>€28.000</td><td>€33.000</td><td>-18%</td></tr></table>
+          <p style="font-size:11.5px;color:var(--red);margin-top:6px">⚠ La brecha salarial es conocida por los empleados de ICOM. Durante el due diligence varios directivos preguntaron directamente si NIG armonizaría las condiciones y en qué plazo. No hubo respuesta oficial.</p>
+          <h4>Contratos y situación legal</h4>
+          <ul>
+            <li><strong>Pablo Ruiz:</strong> Contrato indefinido. Sin cláusula de permanencia ni non-compete. Puede salir con 3 meses de preaviso.</li>
+            <li><strong>Ingenieros senior (4):</strong> Contratos indefinidos estándar. Sin cláusula de no competencia. Preaviso 2 meses.</li>
+            <li><strong>Resto directivos:</strong> Sin contratos de retención. Convenio colectivo metal Castilla y León.</li>
+          </ul>
+          <h4>Beneficios diferenciales ICOM (no monetarios)</h4>
+          <ul>
+            <li>Flexibilidad horaria amplia (no formalizada, cultura de confianza)</li>
+            <li>Comedor subvencionado al 80% (muy valorado)</li>
+            <li>Evento anual empresa (cena de Navidad con tradición de 40 años)</li>
+            <li>Préstamos a empleados sin interés para situaciones personales</li>
+            <li>Política no escrita de "no se despide a nadie salvo causa grave"</li>
+          </ul>
+          <div class="tip-box">💡 Estos beneficios no monetarios son parte del contrato psicológico de ICOM. Si NIG los elimina o "racionaliza" en los primeros meses, el impacto en compromiso será desproporcionado al ahorro.</div>
+          <h4>Plan de pensiones</h4>
+          <p>ICOM tiene un plan de pensiones de empleo con aportación del 3% para todos los empleados con más de 5 años. NIG no tiene equivalente en sus filiales españolas. Coste de mantenimiento: €280.000/año.</p>
+        </div>
+      </div>
+
+      <div class="lib-item">
+        <div class="lib-head" onclick="togLib(this)"><span>DR-04 · Diagnóstico cultural pre-deal</span><span>+</span></div>
+        <div class="lib-body">
+          <h4>Hallazgos del diagnóstico cultural (entrevistas due diligence)</h4>
+          <p>Se realizaron 18 entrevistas confidenciales durante el due diligence. Participaron: DG, directivos N-1, 6 mandos intermedios y 4 operarios seleccionados. Los hallazgos no se compartieron formalmente con ICOM.</p>
+          <h4>Valores declarados vs valores observados</h4>
+          <table><tr><th>Dimensión</th><th>Discurso oficial</th><th>Observado en entrevistas</th></tr>
+          <tr><td>Toma de decisiones</td><td>"Participativa, bottom-up"</td><td>Centralizada en Pablo Ruiz y en Arturo Castillo informalmente. Mandos intermedios consultan antes de decidir.</td></tr>
+          <tr><td>Actitud al cambio</td><td>"Adaptables e innovadores"</td><td>Alta resistencia a cambios impuestos externamente. Cambios internos se aceptan si "lo propone alguien de aquí".</td></tr>
+          <tr><td>Relación con la propiedad</td><td>"Profesional"</td><td>Fuerte lealtad personal a la familia Castillo. Arturo Castillo sigue siendo figura de autoridad moral aunque no ejecutiva.</td></tr>
+          <tr><td>Identidad</td><td>"Empresa industrial moderna"</td><td>Identidad fuertemente local y familiar. "Los de siempre" es un término de orgullo, no peyorativo.</td></tr>
+          <tr><td>Relación con NIG</td><td>—</td><td>Mezcla de curiosidad y desconfianza. La palabra más repetida en entrevistas: "esperar a ver".</td></tr></table>
+          <h4>Señales de alerta cultural identificadas</h4>
+          <ul>
+            <li>3 de 6 mandos intermedios mencionaron espontáneamente miedo a "que nos conviertan en una fábrica más del grupo".</li>
+            <li>Los ingenieros senior perciben su know-how como poder real y lo saben — "sin nosotros, esto no funciona" (textual, Félix Durán).</li>
+            <li>La informalidad es parte del funcionamiento: muchas decisiones operativas se toman en el comedor, no en reuniones formales.</li>
+            <li>El modelo de gestión de NIG (KPIs, reporting semanal, dashboards) es percibido como "burocracia escandinava" por varios directivos.</li>
+          </ul>
+          <h4>Perfil CVF (Competing Values Framework)</h4>
+          <p><strong>ICOM:</strong> Clan dominante (67%) → Jerarquía (18%) → Adhocracia (10%) → Mercado (5%)</p>
+          <p><strong>NIG (perfil estándar filiales):</strong> Jerarquía (45%) → Mercado (35%) → Clan (12%) → Adhocracia (8%)</p>
+          <div class="tip-box">⚠ Esta es la mayor divergencia cultural posible en el CVF. Una integración que ignore esta brecha y aplique el modelo de gestión NIG directamente producirá resistencia masiva y fuga de talento en 90 días.</div>
+        </div>
+      </div>
+
+      <div class="lib-item">
+        <div class="lib-head" onclick="togLib(this)"><span>DR-05 · Desglose de sinergias €28M</span><span>+</span></div>
+        <div class="lib-body">
+          <h4>Modelo de sinergias — base del deal (NIG Finance, confidencial)</h4>
+          <table><tr><th>Fuente de sinergia</th><th>€M</th><th>Plazo</th><th>Supuesto clave</th><th>Riesgo</th></tr>
+          <tr><td>Compras consolidadas (materias primas)</td><td>6.2</td><td>12-18 meses</td><td>Poder negociador NIG aplicado a proveedores ICOM</td><td>🟢 Bajo. No depende de personas.</td></tr>
+          <tr><td>Eficiencias operativas (lean)</td><td>5.8</td><td>18-30 meses</td><td>Implementación metodología NIG Production System</td><td>🟠 Medio. Requiere aceptación cultural del equipo de operaciones.</td></tr>
+          <tr><td>Reducción estructura G&A</td><td>4.1</td><td>6-12 meses</td><td>Eliminación duplicidades en finanzas, RRHH, IT</td><td>🟠 Medio. Implica posibles salidas. Riesgo reputacional interno.</td></tr>
+          <tr><td>Revenue cross-sell (clientes NIG)</td><td>7.4</td><td>24-36 meses</td><td>ICOM vende a clientes europeos del grupo NIG</td><td>🔴 Alto. Depende de que ICOM mantenga capacidad técnica y certificaciones.</td></tr>
+          <tr><td>Revenue nuevos mercados (aeroespacial)</td><td>4.5</td><td>30-36 meses</td><td>NIG abre mercado nórdico a capacidades aeroespaciales ICOM</td><td>🔴 Muy alto. Depende de retención de ingenieros certificados (Lourdes Peña, Marcos Herranz).</td></tr></table>
+          <div class="tip-box">⚠ €11.9M de las sinergias (43%) dependen directamente de retener talento técnico y clientes. Si se pierde a Marcos Herranz y Lourdes Peña, las sinergias de revenue caen un 43%. Si se pierde a Aeromecánica, caen otro 30%. El modelo financiero asume retención del 100% del talento clave — supuesto que actualmente está en riesgo.</div>
+          <h4>Sensibilidad del modelo</h4>
+          <ul>
+            <li>Escenario base: €28M en 36 meses (asume retención completa)</li>
+            <li>Escenario pesimista (pérdida 2 ingenieros + Aeromecánica): €14.2M — destrucción de valor significativa vs precio pagado</li>
+            <li>Escenario ruptura (salida Ruiz + 3 ingenieros): €8.1M — el deal no crea valor</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="lib-item">
+        <div class="lib-head" onclick="togLib(this)"><span>DR-06 · Stakeholder profiles individuales</span><span>+</span></div>
+        <div class="lib-body">
+          <h4>Pablo Ruiz · Director General ICOM</h4>
+          <table><tr><th></th><th></th></tr>
+          <tr><td>Motivación declarada</td><td>"Quiero que ICOM siga siendo ICOM"</td></tr>
+          <tr><td>Motivación real (entrevista confidencial)</td><td>Reconocimiento profesional. Lleva 18 años construyendo algo — necesita que NIG lo vea como arquitecto, no como activo heredado.</td></tr>
+          <tr><td>Oferta externa conocida</td><td>DG en empresa de componentes en Madrid. +40% salario base. Decisión pendiente.</td></tr>
+          <tr><td>Qué le retendría</td><td>Rol claro y relevante en la estructura NIG (no subordinado a un gestor de filiales). Reunión directa con CEO NIG. Reconocimiento público de su aportación.</td></tr>
+          <tr><td>Qué le haría salir</td><td>Ser tratado como "uno más". Que se tomen decisiones sobre ICOM sin consultarle. Que su equipo sea desmantelado.</td></tr></table>
+          <h4>Arturo Castillo · Fundador / Presidente Consejo</h4>
+          <table><tr><th></th><th></th></tr>
+          <tr><td>Situación</td><td>Vendió para garantizar continuidad de la empresa, no para maximizar precio. Precio fue el secundario.</td></tr>
+          <tr><td>Preocupación principal</td><td>Que "los de fuera" desmantelen lo que construyó. Especialmente: el comedor, la cena de Navidad y el trato al personal.</td></tr>
+          <tr><td>Influencia real</td><td>Alta, informal. Tiene el respeto de toda la plantilla. Si respalda públicamente el deal, reduce resistencia. Si lo cuestiona, la amplifica.</td></tr>
+          <tr><td>Qué necesita de NIG</td><td>Ser consultado (no solo informado). Que su legado sea reconocido públicamente en la comunicación del deal.</td></tr></table>
+          <h4>Erik Lindqvist · CFO NIG / Sponsor ejecutivo</h4>
+          <table><tr><th></th><th></th></tr>
+          <tr><td>Perfil</td><td>Financiero puro. Ha liderado 4 integraciones para NIG. Orientación a resultados y plazos. Poca paciencia con "la dimensión humana".</td></tr>
+          <tr><td>Presión</td><td>El Consejo de NIG le exige presentar sinergias capturadas en 12 meses. Su bonus personal está vinculado al 60% de cumplimiento del plan.</td></tr>
+          <tr><td>Riesgo que representa</td><td>Puede imponer velocidad de integración incompatible con el perfil cultural de ICOM. Ha propuesto migración ERP en mes 6.</td></tr>
+          <tr><td>Cómo trabajar con él</td><td>Presentar argumentos en lenguaje financiero: "ralentizar la integración cultural evita pérdida de €11.9M en sinergias". No en lenguaje de gestión del cambio.</td></tr></table>
+          <h4>Rosa Fuentes · Presidenta Comité de Empresa</h4>
+          <table><tr><th></th><th></th></tr>
+          <tr><td>Perfil</td><td>24 años en ICOM. Respetada por la plantilla. Historial de negociación constructiva pero firme.</td></tr>
+          <tr><td>Demanda inmediata</td><td>Reunión antes del cierre con información sobre: plan de empleo, condiciones salariales, mantenimiento de beneficios.</td></tr>
+          <tr><td>Riesgo si se ignora</td><td>Puede movilizar a la plantilla pasivamente (rumores, resistencia no organizada). No tiene incentivos para protagonizar conflicto abierto, pero sí para alimentar desconfianza.</td></tr>
+          <tr><td>Oportunidad</td><td>Si se le involucra y se le da información honesta, puede ser un canal de comunicación hacia la plantilla más eficaz que cualquier comunicado oficial.</td></tr></table>
+        </div>
+      </div>
+
+      <div class="lib-item">
+        <div class="lib-head" onclick="togLib(this)"><span>DR-07 · Sistemas IT y ERP</span><span>+</span></div>
+        <div class="lib-body">
+          <h4>Situación de sistemas — diagnóstico IT due diligence</h4>
+          <table><tr><th>Sistema</th><th>ICOM</th><th>NIG estándar</th><th>Brecha</th></tr>
+          <tr><td>ERP</td><td>SAP B1 (versión 2017, customizado)</td><td>SAP S/4HANA</td><td>Migración estimada: 14-18 meses, €1.2M. Alto riesgo operativo.</td></tr>
+          <tr><td>MES (producción)</td><td>Sistema propio desarrollado in-house (2009)</td><td>Siemens Opcenter</td><td>El sistema propio contiene lógica de procesos no documentada. Migración: 24+ meses.</td></tr>
+          <tr><td>CRM</td><td>Excel + correo electrónico</td><td>Salesforce</td><td>Implementación: 3-4 meses. Riesgo: pérdida de relaciones no documentadas en la migración.</td></tr>
+          <tr><td>Email / Comunicación</td><td>Microsoft 365</td><td>Microsoft 365</td><td>Compatible. Migración de tenant: 2-3 semanas. Prioritario para Day One.</td></tr>
+          <tr><td>RRHH</td><td>A3 Nómina (proveedor local)</td><td>Workday</td><td>Migración: 6-9 meses. No crítico en primeros 100 días.</td></tr></table>
+          <h4>Riesgo crítico: el MES propio</h4>
+          <p>El sistema de gestión de producción de ICOM fue desarrollado internamente entre 2007 y 2009. Contiene reglas de proceso de la Serie 7 (el producto más rentable) que <strong>no están documentadas externamente</strong> — están en el código y en la cabeza de Félix Durán, que participó en su diseño. Si Durán se jubila o se va antes de que ese conocimiento se transfiera, la migración del MES se convierte en una reconstrucción desde cero.</p>
+          <div class="tip-box">⚠ El CFO NIG ha propuesto migración ERP en el mes 6. Esto es técnicamente inviable (14-18 meses) y estratégicamente peligroso: una migración fallida en producción destruiría la continuidad operativa justo cuando los clientes están evaluando la relación post-deal.</div>
+          <h4>Recomendación IT del due diligence</h4>
+          <p>Integración de email y conectividad básica en Day One. Freeze de sistemas productivos mínimo 12 meses. Documentación urgente del MES como proyecto paralelo independiente del roadmap de migración.</p>
+        </div>
+      </div>
+
+      <div class="lib-item">
+        <div class="lib-head" onclick="togLib(this)"><span>DR-08 · Cronograma legal y regulatorio</span><span>+</span></div>
+        <div class="lib-body">
+          <h4>Hitos legales y obligaciones regulatorias</h4>
+          <table><tr><th>Hito</th><th>Fecha</th><th>Obligación</th></tr>
+          <tr><td>Signing</td><td>Completado</td><td>Acuerdo firmado. Confidencialidad activa.</td></tr>
+          <tr><td>Notificación CNMC</td><td>Completada</td><td>Aprobación antimonopolio recibida sin condiciones.</td></tr>
+          <tr><td>Notificación Comité Empresa</td><td>⚠ Pendiente (obligatoria pre-cierre)</td><td>Art. 44 ET: información obligatoria a representantes laborales antes del cierre. Plazo mínimo: 15 días hábiles. <strong>Si no se hace: el cierre puede ser impugnado.</strong></td></tr>
+          <tr><td>Cierre (Closing)</td><td>Día 47</td><td>Transmisión de acciones. Toma efectiva de control.</td></tr>
+          <tr><td>Inscripción Registro Mercantil</td><td>Días 48-55</td><td>Formalización legal. No bloquea operación.</td></tr>
+          <tr><td>Comunicación pública</td><td>Day One (simultánea al cierre)</td><td>Nota de prensa coordinada. NIG cotiza en Oslo — obligaciones de información al mercado.</td></tr>
+          <tr><td>Armonización condiciones laborales</td><td>Obligación 12 meses post-cierre</td><td>Art. 44 ET: condiciones de los trabajadores deben mantenerse al menos 3 años, salvo acuerdo colectivo.</td></tr></table>
+          <div class="tip-box">⚠ La notificación al Comité de Empresa es una obligación legal, no una opción de gestión del cambio. Si NIG no la completa antes del cierre, Rosa Fuentes puede impugnar la transmisión. El equipo legal de NIG está gestionando el timing — confirmar con el departamento jurídico que está en curso.</div>
+          <h4>Cláusulas relevantes del SPA (Share Purchase Agreement)</h4>
+          <ul>
+            <li>Familia Castillo retiene 15% durante 3 años con opción de venta a NIG al precio de valoración ajustado.</li>
+            <li>Arturo Castillo permanece en el Consejo de Administración con voz pero sin voto durante 2 años.</li>
+            <li>Cláusula de earn-out: €3.2M adicionales si EBITDA año 2 supera el 13%. Incentivo alineado con retención de rentabilidad.</li>
+            <li>Cláusula de no competencia: familia Castillo no puede participar en empresas de componentes de precisión en España durante 5 años.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div><!-- /tab-dr -->
+  </div><!-- /sim-right -->
+</div>
+
+<!-- ══ INFORME FINAL ═════════════════════════════════════════════════════════ -->
+<div class="screen" id="sr">
+<div class="rep-wrap">
+  <div class="rep-tag">Informe de simulación · IMO Lead · NIG–ICOM</div>
+  <h2 class="rep-title" id="r-ti">Simulación completada</h2>
+  <p class="rep-sub">Integración Post-Adquisición · Nordic Industrial Group × ICOM</p>
+  <div class="kpis" id="r-sb"></div>
+  <div class="rep-sec">
+    <div class="rep-sh">Análisis por dimensión <span>Media ponderada de todas las decisiones</span></div>
+    <div class="rep-rb" id="r-dm"></div>
+  </div>
+  <div class="rep-sec">
+    <div class="rep-sh">Evaluación narrativa <span>Decisión a decisión</span></div>
+    <div class="rep-rb" id="r-nv"></div>
+  </div>
+  <button class="btn-rst" onclick="rstSim()">← Reiniciar simulación</button>
+</div>
+</div>
+
+<script>
+// ── ACCESS GATE ────────────────────────────────────────────────────────────
+(function(){
+  var HASH = '8e7f5a3c2b1d9e4f6a0c8b2d4e6f0a1c3b5d7e9f1a3c5e7b9d1f3a5c7e9b1d3'; // SHA-256 placeholder
+  // Simple hash: use btoa of reversed password for lightweight protection
+  function h(s){ return btoa(s.split('').reverse().join('')); }
+  var CORRECT = h('doinglobal2026'); // password: doinglobal2026
+  var gate = document.getElementById('access-gate');
+  var inp  = document.getElementById('gate-pwd');
+  var btn  = document.getElementById('gate-btn');
+  var err  = document.getElementById('gate-err');
+  function tryAccess(){
+    var val = inp.value.trim().toLowerCase();
+    if(h(val) === CORRECT){
+      gate.classList.add('hidden');
+    } else {
+      err.textContent = 'Contraseña incorrecta. Contacta con el profesor.';
+      inp.value = '';
+      inp.focus();
+      setTimeout(function(){ err.textContent=''; }, 3000);
+    }
+  }
+  btn.addEventListener('click', tryAccess);
+  inp.addEventListener('keydown', function(e){ if(e.key==='Enter') tryAccess(); });
+  inp.focus();
+})();
+
+// ── SIMULADOR ─────────────────────────────────────────────────────────────
+// API key removed — proxy handles auth
+const DIM_W=[0.25,0.25,0.20,0.20,0.10];
+
+// ── MARCO TEÓRICO PARA EL COACH ───────────────────────────────────────────────
+const TH=`MARCO TEÓRICO — PLAYBOOK DE INTEGRACIÓN POST-ADQUISICIÓN (MÁSTER NIVEL)
+
+MODELOS DE INTEGRACIÓN (Haspeslagh & Jemison, 1991):
+Absorción: alta interdependencia, baja autonomía. Apropiado cuando el valor está en activos tangibles y las culturas son compatibles. Riesgo: destruye know-how tácito y relaciones de cliente si se aplica a empresas como ICOM.
+Preservación: baja interdependencia, alta autonomía. Apropiado cuando el valor está en la cultura, las relaciones y el conocimiento tácito de la adquirida. Permite capturar valor sin destruirlo.
+Simbiosis: alta interdependencia, alta autonomía. La más compleja y potencialmente más valiosa. Requiere madurez de integración alta en ambas organizaciones.
+Holding: inversión financiera pura. No aplicable a NIG-ICOM dado el rationale del deal.
+
+IMO Y GOBERNANZA:
+El IMO es una unidad ejecutiva con autoridad real, no un comité coordinador. Requiere: IMO Lead a tiempo completo, WSLs con dedicación mínima 50%, Steering Committee semanal, protocolo de escalación automático (48h a IMO Lead, 72h a Steering). Sin autoridad real el IMO es decorativo.
+
+WORKSTREAMS PRIORITARIOS (Day One vs 100 días):
+Day One críticos: estructura de liderazgo, retención contratos clave, accesos tecnológicos básicos, comunicación a todos los empleados, mensaje a clientes top 10.
+Puede esperar: armonización salarial completa, migración ERP, rebrand, reorganización completa.
+Regla de oro: no hacer en los primeros 6 meses nada que no sea absolutamente necesario. El cambio tiene costes de integración que se multiplican con la velocidad.
+
+DIAGNÓSTICO CULTURAL:
+CVF (Quinn): ICOM es cultura Clan dominante (lealtad, cohesión, identidad local). NIG es Jerarquía + Mercado (procesos, resultados). Máxima tensión entre estos perfiles — requiere gestión activa, no se resolverá sola.
+McKinsey 7-S: los Shared Values y Style son los elementos más lentos en cambiar y los que más predicen la resistencia. Diagnóstico obligatorio en ambas organizaciones antes de diseñar el modelo.
+Señales de degradación cultural: rotación voluntaria elevada, productividad sin causa técnica, silencio en reuniones, rumores dominantes sobre comunicación oficial.
+
+RETENCIÓN DE TALENTO:
+Ventana crítica: primeros 30 días. El talento clave evalúa activamente. Categorías: portadores de know-how tácito (ingenieros senior ICOM — riesgo extremo), gestores de relaciones de cliente (DG Ruiz — riesgo alto), líderes de cultura informal.
+Palancas: retention bonus (necesario pero no suficiente), claridad de rol, reconocimiento del legado, participación en diseño del playbook, acceso al sponsor.
+Error crítico: asumir que el silencio es conformidad.
+
+GESTIÓN DE STAKEHOLDERS:
+Matriz poder × interés. Cascada de comunicación correcta: liderazgo → mandos medios → todos los empleados → clientes clave → proveedores → público. El vacío de información siempre se llena con rumores. Los mensajes necesitan repetirse 5-7 veces en canales distintos para ser absorbidos en contexto de alta ansiedad.
+
+RIESGOS CRÍTICOS NIG-ICOM por horizonte:
+0-60 días: fuga talento (P×I=25), defección clientes (P×I=20).
+30-180 días: resistencia cultural, compliance sin commitment.
+6-18 meses: riesgos de sistemas (ERP).
+12-36 meses: no materialización de sinergias.
+
+MÉTRICAS DE INTEGRACIÓN:
+Financieras: % sinergias capturadas, revenue retention, productividad operativa.
+Talento: tasa de rotación voluntaria (alarma >2x baseline), retención key people.
+Cultura: eNPS mensual, participación en reuniones mixtas, incidentes de fricción.
+Error frecuente: medir solo indicadores financieros y descubrir el deterioro cultural cuando ya es irreversible.`;
+
+// ── DECISIONES POR FASE ───────────────────────────────────────────────────────
+const DECISIONS = [
+  // FASE 1: Pre-cierre
+  {phase:0, num:1,
+   title:'Selección del modelo de integración',
+   question:'¿Qué modelo de integración recomiendas para NIG–ICOM y por qué? ¿Cómo condiciona este modelo el diseño de todo el playbook?',
+   context:'Tienes 47 días hasta el cierre. El CFO de NIG presiona por "integración rápida y sinergias visibles en 12 meses". Al mismo tiempo, el due diligence revela que el valor de ICOM reside fundamentalmente en know-how tácito de 4 ingenieros senior y en relaciones de cliente gestionadas personalmente. Dos de esos ingenieros han sido contactados por un competidor.',
+   hint:'Consulta el módulo ① de la biblioteca. El modelo debe derivarse del deal rationale, no de la presión del CFO. Explica la tensión entre ambas lógicas.'},
+  {phase:0, num:2,
+   title:'Diseño del IMO y gobernanza',
+   question:'Diseña la estructura de gobernanza del IMO para esta integración. ¿Quién ocupa cada rol, con qué autoridad y con qué cadencia operativa?',
+   context:'NIG ha propuesto que el IMO lo lidere el CFO de NIG a tiempo parcial, asistido por un project manager de su equipo financiero. El DG de ICOM (Pablo Ruiz) no aparece en el organigrama propuesto del IMO. Tienes que evaluar si este diseño es adecuado o proponer uno alternativo.',
+   hint:'Consulta el módulo ②. Un IMO liderado por el CFO a tiempo parcial tiene implicaciones sobre la percepción de ICOM y sobre la efectividad real de la gobernanza.'},
+  {phase:0, num:3,
+   title:'Plan de retención de talento crítico',
+   question:'¿Cuál es tu plan de retención para los 4 ingenieros senior y para el DG Pablo Ruiz en los próximos 30 días? ¿Qué palancas usas y en qué secuencia?',
+   context:'Los retention bonuses estándar de NIG son del 15% anual durante 24 meses. Un headhunter ha ofrecido a los ingenieros una mejora del 35% en salario base. Pablo Ruiz ha pedido una reunión con el CEO de NIG que todavía no se ha agendado. El cierre es en 47 días.',
+   hint:'Consulta el módulo ⑥. El dinero es necesario pero no suficiente. Piensa en qué necesita cada perfil más allá del bonus.'},
+
+  // FASE 2: Day One
+  {phase:1, num:4,
+   title:'Prioridades del Day One',
+   question:'El day one es mañana. Tienes 8 horas hábiles. Define las 5 acciones más críticas que deben ocurrir hoy, en qué orden y quién las ejecuta.',
+   context:'El equipo de NIG propone empezar el día con una presentación de la "nueva visión integrada" preparada en Estocolmo, en inglés, de 45 diapositivas, dirigida a todos los empleados de ICOM. El DG Ruiz te ha llamado esta mañana con preocupación — los mandos intermedios de ICOM todavía no saben cuáles son sus roles en la nueva estructura.',
+   hint:'Consulta los módulos ③ y ⑤. La secuencia de comunicación importa tanto como el contenido. ¿Quién sabe qué y cuándo?'},
+  {phase:1, num:5,
+   title:'Diagnóstico cultural e integración',
+   question:'¿Cómo diseñas el diagnóstico cultural de ICOM en las primeras 4 semanas? ¿Qué instrumento usas, quién lo aplica y cómo usas los resultados?',
+   context:'El equipo de RRHH de NIG propone aplicar a ICOM su "encuesta estándar de clima organizativo" — la misma que usan en todas sus filiales — en la semana 2 post-cierre. La encuesta está en inglés y tiene 60 preguntas. Algunos mandos de ICOM han preguntado ya "¿esto para qué sirve?"',
+   hint:'Consulta el módulo ④. La forma en que se hace el diagnóstico cultural es ya parte de la intervención cultural. ¿Qué mensaje envía cada opción?'},
+  {phase:1, num:6,
+   title:'Comunicación al cliente clave: Aeromecánica',
+   question:'Aeromecánica representa el 30% del revenue de ICOM. Su director de compras tiene una relación personal de 12 años con Pablo Ruiz. Esta semana hay que comunicarles la adquisición. ¿Cómo lo haces?',
+   context:'El equipo comercial de NIG quiere enviar una "carta corporativa estándar" firmada por el CEO de NIG presentando la operación y los "beneficios para el cliente del grupo ampliado". Pablo Ruiz propone una llamada conjunta NIG-ICOM donde él presenta personalmente a su contacto en Aeromecánica.',
+   hint:'Consulta el módulo ⑤. Piensa en quién tiene la relación real y qué señales envía cada opción sobre el futuro de esa relación.'},
+
+  // FASE 3: 100 días
+  {phase:2, num:7,
+   title:'Métricas del dashboard de integración',
+   question:'Diseña el dashboard de integración para los primeros 100 días. ¿Qué 8-10 indicadores incluyes, por qué estos y no otros, y con qué frecuencia los revisas?',
+   context:'El Steering Committee presidido por el CFO de NIG quiere un dashboard con métricas financieras únicamente: avance de sinergias, revenue, EBITDA. El IMO ha identificado que la tasa de rotación voluntaria en ICOM ha pasado del 3% anual al 8% en los primeros 30 días post-cierre — dato que no aparece en ningún reporte actual.',
+   hint:'Consulta el módulo ⑧. La rotación del 8% en 30 días es una señal de alarma crítica. ¿Cómo la pones en el radar del Steering sin generar pánico contraproducente?'},
+  {phase:2, num:8,
+   title:'Gestión de la resistencia cultural a los 60 días',
+   question:'En el día 60, el pulse survey muestra un eNPS de -22 en ICOM (vs +31 en NIG). Los mandos intermedios reportan "fatiga de integración" y hay dos workstreams en rojo. ¿Cuál es tu diagnóstico y qué haces en los próximos 15 días?',
+   context:'El CFO de NIG interpreta el dato como "ruido normal de integración que se resolverá solo en 6 meses". Dos workstream leads de ICOM han pedido reunirse contigo de forma urgente. El DG Ruiz ha enviado un email al CEO de NIG expresando preocupación por "la velocidad del cambio". Tienes Steering Committee en 48 horas.',
+   hint:'Consulta los módulos ④ y ⑦. Un eNPS de -22 no es ruido — es una señal estructural. ¿Qué le dices al CFO y qué propones al Steering?'},
+  {phase:2, num:9,
+   title:'Revisión de sinergias y ajuste del playbook',
+   question:'En el día 90, el informe de seguimiento muestra que las sinergias capturadas son el 35% de lo previsto. ¿Cuál es tu análisis de las causas y qué ajustes propones al playbook para los meses 4-12?',
+   context:'Las sinergias de eficiencia operativa están al 60% del plan — van razonablemente bien. Pero las sinergias de revenue (venta cruzada, nuevos clientes) están al 8% del plan. Aeromecánica ha reducido su pedido anual en un 20%. Tres de los cuatro ingenieros senior siguen en ICOM, pero el cuarto se ha marchado llevándose know-how sobre un proceso clave.',
+   hint:'Consulta los módulos ①, ③ y ⑧. Distingue entre sinergias que necesitan más tiempo y sinergias que están en riesgo estructural. El 8% en revenue no es retraso — es una señal de que algo del modelo de integración no está funcionando.'}
+];
+
+const PH_NAMES=['Pre-cierre — Diagnóstico y modelo','Day One — Diseño operativo','100 días — Ejecución y métricas'];
+const PH_GOALS=[
+  'Selecciona el modelo de integración, diseña la gobernanza y activa los mecanismos de retención antes del cierre.',
+  'Ejecuta las prioridades del day one, lanza el diagnóstico cultural y gestiona los stakeholders críticos.',
+  'Monitoriza métricas de integración, gestiona la resistencia cultural y ajusta el playbook según la realidad.'
+];
+
+// ── ESTADO ─────────────────────────────────────────────────────────────────────
+const S={phase:0,decIdx:0,turns:0,phaseTurns:0,
+  dimScores:[0,0,0,0,0],dimScoreSums:[0,0,0,0,0],dimScoreCounts:[0,0,0,0,0],
+  history:[],allFB:[],sessionStart:null,timer:null,submitting:false,finished:false};
+
+// ── UI HELPERS ──────────────────────────────────────────────────────────────────
+function showTab(id){
+  document.querySelectorAll('.sb-tab').forEach((t,i)=>t.classList.toggle('active',['caso','score','dr','lib'][i]===id));
+  document.querySelectorAll('.sb-panel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+id));
+}
+function togLib(head){
+  const body=head.nextElementSibling;
+  const open=body.classList.toggle('open');
+  head.querySelector('span:last-child').textContent=open?'−':'+';
+}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function startTimer(){S.timer=setInterval(()=>{const e=Math.floor((new Date()-S.sessionStart)/1000),m=String(Math.floor(e/60)).padStart(2,'0'),s=String(e%60).padStart(2,'0');document.getElementById('st-tm').textContent=`${m}:${s}`;},1000);}
+
+function startSim(){
+  S.sessionStart=new Date();S.phase=0;S.decIdx=0;S.turns=0;S.phaseTurns=0;S.finished=false;
+  S.dimScores=[0,0,0,0,0];S.dimScoreSums=[0,0,0,0,0];S.dimScoreCounts=[0,0,0,0,0];
+  S.history=[];S.allFB=[];
+  show('sm');startTimer();renderPhase(0);
+}
+
+function renderPhase(ph){
+  S.phase=ph;
+  document.getElementById('st-ph').textContent=`${ph+1}/3`;
+  document.getElementById('sc-phase').textContent=`${ph+1}/3`;
+  document.getElementById('tb-phase').textContent=`Fase ${ph+1} · ${PH_NAMES[ph].split('—')[0].trim()}`;
+  const ca=document.getElementById('ca');
+  ca.innerHTML=`<div class="phase-header"><div class="ph-tag">Fase ${ph+1} de 3 · ${PH_NAMES[ph]}</div><div class="ph-title">Integración NIG–ICOM · ${PH_NAMES[ph].split('—')[1]?.trim()||''}</div><div class="ph-goal">${PH_GOALS[ph]}</div></div>`;
+  renderDecision();
+}
+
+function renderDecision(){
+  const dec=DECISIONS[S.decIdx];
+  if(!dec)return;
+  document.getElementById('tl').textContent=`Decisión ${dec.num}/9`;
+  document.getElementById('ui').value='';
+  document.getElementById('ui').disabled=false;
+  document.getElementById('bs').disabled=false;
+  document.getElementById('bs').style.display='';
+  document.getElementById('bn').classList.remove('v');
+  document.getElementById('ca').insertAdjacentHTML('beforeend',
+    `<div class="dec-prompt"><div class="dec-num">Decisión ${dec.num} de 9 · ${dec.title}</div><div class="dec-q">${dec.question}</div><div class="dec-ctx">${dec.context}</div><div class="dec-hint">📌 ${dec.hint}</div></div>`);
+  document.getElementById('ca').scrollTop=99999;
+}
+
+async function subTurn(){
+  const inp=document.getElementById('ui');
+  const text=inp.value.trim();
+  if(!text||S.submitting)return;
+  if(text.split(' ').length<15){inp.style.borderColor='var(--red)';alert('Desarrolla más tu análisis — mínimo 80 palabras para una evaluación rigurosa.');return;}
+  inp.style.borderColor='';
+  inp.disabled=true;document.getElementById('bs').disabled=true;
+  document.getElementById('thk').classList.add('on');
+  S.submitting=true;S.turns++;S.phaseTurns++;
+  document.getElementById('st-t').textContent=S.turns;
+  document.getElementById('sc-turns').textContent=S.turns;
+
+  const dec=DECISIONS[S.decIdx];
+  document.getElementById('ca').insertAdjacentHTML('beforeend',
+    `<div class="resp-box"><div class="resp-av">👤</div><div class="resp-body"><div class="resp-label">IMO Lead — Decisión ${dec.num}: ${dec.title}</div><div class="resp-text">${text.replace(/\n/g,'<br>')}</div></div></div>`);
+  document.getElementById('ca').scrollTop=99999;
+
+  S.history.push({role:'user',content:`[DECISIÓN ${dec.num} — ${dec.title}]\nPregunta: ${dec.question}\nContexto: ${dec.context}\nRespuesta del alumno: ${text}`});
+
+  try{
+    const r=await fetch('https://broken-flower-ecde.mpereda.workers.dev/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2200,system:buildSys(dec),messages:S.history})
+    });
+    const d=await r.json();
+    if(!r.ok)throw new Error(`API ${d.error?.message}`);
+    const raw=d.content?.[0]?.text||'{}';
+    S.history.push({role:'assistant',content:raw});
+    const p=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    processR(p,text,dec);
+  }catch(e){
+    console.error(e);
+    document.getElementById('ca').insertAdjacentHTML('beforeend',`<div class="dec-prompt" style="border-top-color:var(--red)">Error: ${e.message}</div>`);
+    inp.disabled=false;document.getElementById('bs').disabled=false;
+  }
+  document.getElementById('thk').classList.remove('on');S.submitting=false;
+}
+
+function buildSys(dec){
+  return `Eres un coach experto en integración post-adquisición M&A evaluando a un alumno de máster con experiencia profesional. Tu función es evaluar la calidad de sus decisiones de playbook con rigor académico y profesional. No eres condescendiente — este es un profesional que puede recibir crítica directa y aprovechable.
+
+MARCO TEÓRICO DE REFERENCIA:
+${TH}
+
+CASO: Integración NIG–ICOM (Nordic Industrial Group adquiere Ibérica de Componentes S.A.)
+DECISIÓN EVALUADA: ${dec.num}/9 — ${dec.title}
+PREGUNTA PLANTEADA: ${dec.question}
+CONTEXTO DE LA DECISIÓN: ${dec.context}
+
+Responde ÚNICAMENTE con JSON válido, sin markdown, sin texto fuera del JSON:
+
+{
+  "evaluation": {
+    "coherencia": {
+      "score": 0,
+      "comment": "2-3 frases: ¿La decisión es coherente con el deal rationale de NIG-ICOM? ¿Deriva el modelo de la naturaleza del valor adquirido o de la presión operativa del adquirente? ¿Anticipó las consecuencias de segundo orden de su elección?"
+    },
+    "playbook": {
+      "score": 0,
+      "comment": "2-3 frases: ¿El diseño propuesto es operativamente viable? ¿Prioriza correctamente entre day-one y 100 días? ¿Asigna responsabilidades, plazos y mecanismos de gobernanza concretos o se queda en generalidades?"
+    },
+    "cultural": {
+      "score": 0,
+      "comment": "2-3 frases: ¿Demuestra comprensión de la dinámica cultural ICOM (cultura Clan) vs NIG (Jerarquía/Mercado)? ¿Incorpora mecanismos de diagnóstico cultural y retención de talento tácito? ¿Anticipa resistencia cultural o la ignora?"
+    },
+    "stakeholders": {
+      "score": 0,
+      "comment": "2-3 frases: ¿Identifica a los stakeholders críticos de este caso concreto (DG Ruiz, ingenieros senior, familia Castillo, Aeromecánica)? ¿Diseña comunicación diferenciada por audiencia? ¿Gestiona el poder y los intereses de cada grupo?"
+    },
+    "riesgos": {
+      "score": 0,
+      "comment": "2-3 frases: ¿Identifica los riesgos más críticos para esta decisión concreta (fuga de talento, pérdida de cliente, resistencia cultural)? ¿Propone mitigaciones específicas o genéricas? ¿Anticipa señales de alerta temprana?"
+    }
+  },
+  "turn_score": 0,
+  "level": "insuficiente",
+  "summary": "3-4 frases directas y críticas. ¿Qué marcos aplicó con precisión y cuáles están ausentes? ¿Dónde la decisión es sólida y dónde crea riesgos que no anticipó? ¿Cuál es el impacto probable de esta decisión en la integración real? Escribe en español.",
+  "next_step": "La laguna más importante de esta decisión y una acción concreta que el alumno debe incorporar en la siguiente — con el marco teórico específico a aplicar. Escribe en español.",
+  "expert_note": "Una observación de nivel experto que un alumno de máster necesita oír: algo que los practitioners conocen por experiencia y que los libros suelen suavizar. Escribe en español."
+}
+
+CRITERIOS DE PUNTUACIÓN (nivel máster, profesional en ejercicio):
+  coherencia     25% — alineación con deal rationale, consecuencias de segundo orden
+  playbook       25% — viabilidad operativa, priorización, gobernanza concreta
+  cultural       20% — diagnóstico cultural, retención de talento tácito, resistencia
+  stakeholders   20% — mapping, cascada de comunicación, gestión de poder e intereses
+  riesgos        10% — identificación específica, mitigaciones, señales de alerta
+
+ESCALA:
+  2/2 — Aplica el marco teórico EXPLÍCITAMENTE al caso NIG-ICOM con precisión conceptual y operativa. No basta mencionar el concepto.
+  1/2 — Conciencia parcial: identifica la dirección correcta pero sin precisión conceptual o sin operativizar. O viceversa: operativamente sólido pero sin marco teórico.
+  0/2 — Ausente, genérico (aplicable a cualquier integración, no a NIG-ICOM), o activamente contraproducente.
+
+PENALIZACIONES:
+  — Respuesta genérica que no menciona ICOM, NIG, Pablo Ruiz, los ingenieros, o Aeromecánica: máximo turn_score 4.
+  — Recomienda absorción rápida sin justificar el riesgo de destrucción de know-how tácito: 0 en coherencia.
+  — Ignora la dimensión cultural: 0 en cultural, máximo 5 en turn_score total.
+  — Propuesta sin responsables nombrados ni plazos en decisiones que los requieren: máximo 1 en playbook.
+
+turn_score = suma de las cinco dimensiones (máximo 10).
+level: insuficiente (0-4), suficiente (5-6), notable (7-8), excelente (9-10).`;
+}
+
+function processR(p,text,dec){
+  const sc=p.turn_score||0;
+  const keys=['coherencia','playbook','cultural','stakeholders','riesgos'];
+
+  keys.forEach((k,i)=>{
+    const s=p.evaluation?.[k]?.score||0;
+    S.dimScores[i]=Math.max(S.dimScores[i],s);
+    S.dimScoreSums[i]+=s;S.dimScoreCounts[i]++;
+    const avg=(S.dimScoreSums[i]/S.dimScoreCounts[i]/2*100).toFixed(0);
+    document.getElementById(`df${i}`).style.width=`${avg}%`;
+    document.getElementById(`dv${i}`).textContent=`${avg}%`;
+  });
+
+  const wAvg=DIM_W.reduce((a,w,i)=>a+w*(S.dimScoreSums[i]/(S.dimScoreCounts[i]||1)),0);
+  const tot=Math.round((wAvg/2)*100*(50/65));
+  document.getElementById('h-sc').textContent=tot;
+  document.getElementById('sc-total').textContent=`${tot}%`;
+  document.getElementById('sc-best').textContent=`${Math.max(...S.allFB.map(f=>f.score).concat(sc))}/10`;
+  S.allFB.push({phase:S.phase,decNum:dec.num,decTitle:dec.title,studentText:text,parsed:p,score:sc});
+
+  const lc={insuficiente:'lv-i',suficiente:'lv-s',notable:'lv-n',excelente:'lv-e'}[p.level]||'lv-s';
+  const lbs=['Coherencia estratégica','Diseño del playbook','Inteligencia cultural','Gestión de stakeholders','Identificación de riesgos'];
+  const dhtml=keys.map((k,i)=>{
+    const ev=p.evaluation?.[k]||{score:0,comment:''};
+    const s=ev.score;const sc2=s>=2?'sc2':s===1?'sc1':'sc0';const sl=s>=2?'2/2':s===1?'1/2':'0/2';
+    return `<div class="eval-dim"><div class="eval-dh"><span class="eval-dn">${lbs[i]}</span><span class="eval-sc ${sc2}">${sl}</span></div><div class="eval-dc">${ev.comment||''}</div></div>`;
+  }).join('');
+
+  const expert=p.expert_note?`<div class="eval-th">🔍 Experto: ${p.expert_note}</div>`:'';
+  document.getElementById('ca').insertAdjacentHTML('beforeend',
+    `<div class="eval-card"><div class="eval-head"><div class="eval-ht">📋 Coach — Decisión ${dec.num}: ${dec.title}</div><div class="eval-lv ${lc}">${p.level||''} · ${sc}/10</div></div><div class="eval-grid">${dhtml}</div><div class="eval-ft"><div><div class="eval-sum"><strong>Balance:</strong> ${p.summary||''}</div>${expert}</div><div class="eval-nxt"><strong>Siguiente decisión →</strong> ${p.next_step||''}</div></div></div>`);
+  document.getElementById('ca').scrollTop=99999;
+
+  S.decIdx++;
+  const nextDec=DECISIONS[S.decIdx];
+
+  if(!nextDec){
+    // Fin de todas las decisiones
+    document.getElementById('ui').disabled=true;
+    document.getElementById('bs').style.display='none';
+    const bn=document.getElementById('bn');
+    bn.textContent='Ver informe final →';bn.onclick=showR;bn.classList.add('v');
+  } else if(nextDec.phase>S.phase){
+    // Fin de fase, siguiente disponible
+    document.getElementById('ui').disabled=true;
+    document.getElementById('bs').style.display='none';
+    const bn=document.getElementById('bn');
+    bn.textContent=`Fase ${nextDec.phase+1}: ${PH_NAMES[nextDec.phase].split('—')[0].trim()} →`;
+    bn.onclick=nxtPhase;bn.classList.add('v');
+  } else {
+    // Siguiente decisión en la misma fase
+    document.getElementById('ui').value='';
+    document.getElementById('ui').disabled=false;
+    document.getElementById('ui').placeholder='Desarrolla tu análisis para la siguiente decisión...';
+    document.getElementById('bs').disabled=false;
+    renderDecision();
+  }
+}
+
+function nxtPhase(){
+  S.phaseTurns=0;
+  const nextPh=DECISIONS[S.decIdx]?.phase||S.phase+1;
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:#1a1612;color:#f5f0e8;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;font-family:"Playfair Display",serif;';
+  ov.innerHTML=`<div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;opacity:.5;margin-bottom:14px">FASE ${nextPh+1} DE 3</div><div style="font-size:clamp(24px,4vw,44px);font-weight:700;margin-bottom:10px">${PH_NAMES[nextPh]}</div><div style="font-size:15px;max-width:500px;text-align:center;opacity:.7;line-height:1.65;font-family:'Crimson Pro',serif">${PH_GOALS[nextPh]}</div>`;
+  document.body.appendChild(ov);
+  setTimeout(()=>{document.body.removeChild(ov);document.getElementById('bn').classList.remove('v');renderPhase(nextPh);},2500);
+}
+
+function showR(){
+  S.finished=true;clearInterval(S.timer);
+  const el=Math.floor((new Date()-S.sessionStart)/1000);
+  const m=String(Math.floor(el/60)).padStart(2,'0'),s=String(el%60).padStart(2,'0');
+  const wAvg=DIM_W.reduce((a,w,i)=>a+w*(S.dimScoreSums[i]/(S.dimScoreCounts[i]||1)),0);
+  const pct=Math.round((wAvg/2)*100*(50/65));
+  const passed=pct>=50;
+  document.getElementById('r-ti').textContent=passed?'Simulación completada — Playbook aprobado ✓':'Simulación completada';
+
+  const cards=[
+    {l:'Puntuación ponderada',v:`${pct}%`,s:passed?'✓ Playbook aprobado (≥50%)':'✗ Por debajo del umbral'},
+    {l:'Mejor decisión',v:`${Math.max(...S.allFB.map(f=>f.score),0)}/10`,s:'Máximo individual'},
+    {l:'Decisiones tomadas',v:S.turns,s:'de 9 posibles'},
+    {l:'Duración',v:`${m}:${s}`,s:'Tiempo de sesión'},
+    {l:'Fases completadas',v:`${S.phase+1}/3`,s:''}
+  ];
+  document.getElementById('r-sb').innerHTML=cards.map(c=>`<div class="kpi-c"><div class="kpi-l">${c.l}</div><div class="kpi-v">${c.v}</div><div class="kpi-s">${c.s}</div></div>`).join('');
+
+  const dn=['Coherencia estratégica','Diseño del playbook','Inteligencia cultural','Gestión de stakeholders','Identificación de riesgos'];
+  const dkeys=['coherencia','playbook','cultural','stakeholders','riesgos'];
+  const dwl=['25%','25%','20%','20%','10%'];
+  document.getElementById('r-dm').innerHTML=dn.map((n,i)=>{
+    const sv=S.dimScoreSums[i]/(S.dimScoreCounts[i]||1);const pp=(sv/2*100);
+    const cl=pp>=75?'hi':pp>=40?'mi':'lo';
+    const cmt=S.allFB.map(f=>f.parsed.evaluation?.[dkeys[i]]?.comment).filter(Boolean).join(' ');
+    return `<div class="rep-dr"><div class="rep-dh"><span class="rep-dn">${n} <span style="font-size:10px;opacity:.6">(${dwl[i]})</span></span><div class="rep-bw"><div class="rep-bar"><div class="rep-bf ${cl}" style="width:${pp}%"></div></div><span class="rep-bn">${sv.toFixed(1)}/2</span></div></div><div class="rep-nar">${cmt||'Sin datos.'}</div></div>`;
+  }).join('');
+
+  const lvcl={insuficiente:'lv-i',suficiente:'lv-s',notable:'lv-n',excelente:'lv-e'};
+  document.getElementById('r-nv').innerHTML=S.allFB.map(f=>{
+    const lc=lvcl[f.parsed.level]||'lv-s';
+    const dhtml2=dkeys.map((k,i)=>{
+      const ev=f.parsed.evaluation?.[k]||{score:0,comment:''};
+      const s=ev.score;const sc2=s>=2?'sc2':s===1?'sc1':'sc0';const sl=s>=2?'2/2':s===1?'1/2':'0/2';
+      return `<div class="eval-dim"><div class="eval-dh"><span class="eval-dn">${dn[i]}</span><span class="eval-sc ${sc2}">${sl}</span></div><div class="eval-dc">${ev.comment||''}</div></div>`;
+    }).join('');
+    const expert=f.parsed.expert_note?`<div class="eval-th" style="margin-top:5px">🔍 ${f.parsed.expert_note}</div>`:'';
+    return `<div class="rep-dr"><div class="rep-dh"><span class="rep-dn">Decisión ${f.decNum}: ${f.decTitle}</span><span><span class="eval-lv ${lc}" style="font-size:10px;padding:2px 8px">${f.parsed.level||''}</span> <strong>${f.score}/10</strong></span></div><div style="margin-top:8px;font-size:12px;color:var(--muted);font-style:italic;margin-bottom:8px">"${f.studentText.substring(0,100)}${f.studentText.length>100?'…':''}"</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">${dhtml2}</div><div style="font-size:13px;color:var(--ink);line-height:1.6"><strong>Balance:</strong> ${f.parsed.summary||''}</div>${expert}</div>`;
+  }).join('')||'<p style="color:var(--muted)">Sin decisiones registradas.</p>';
+
+  show('sr');
+}
+
+function rstSim(){
+  clearInterval(S.timer);
+  Object.assign(S,{phase:0,decIdx:0,turns:0,phaseTurns:0,finished:false,
+    dimScores:[0,0,0,0,0],dimScoreSums:[0,0,0,0,0],dimScoreCounts:[0,0,0,0,0],history:[],allFB:[]});
+  for(let i=0;i<5;i++){document.getElementById(`df${i}`).style.width='0%';document.getElementById(`dv${i}`).textContent='0%';}
+  document.getElementById('h-sc').textContent='0';
+  show('si');
+}
+
+window.addEventListener('beforeunload',e=>{
+  if(S.turns>0&&!S.finished){e.preventDefault();e.returnValue='La simulación está en progreso.';}
+});
+</script>
+</body>
+</html>
