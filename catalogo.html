@@ -963,13 +963,21 @@ body {
 
 /* ─── PRINT ─────────────────────────────────────── */
 @media print {
-  body { background: white; }
+  body { background: white; margin: 0; padding: 0; }
   .page {
-    margin: 0;
-    box-shadow: none;
-    page-break-after: always;
+    margin: 0 !important;
+    box-shadow: none !important;
+    width: 210mm !important;
+    min-height: 0 !important;
+    height: 297mm !important;
+    overflow: hidden !important;
+    page-break-after: always !important;
+    page-break-inside: avoid !important;
+    display: block !important;
   }
-  .page:last-child { page-break-after: avoid; }
+  .page:last-child { page-break-after: avoid !important; }
+  .cover { min-height: 0 !important; height: 297mm !important; }
+  .content-page { min-height: 0 !important; height: 277mm !important; }
 }
 
 @page {
@@ -1512,5 +1520,78 @@ body {
   </div>
 </div>
 
+
+<!-- ── FLOATING TOOLBAR ── -->
+<div id="toolbar" style="
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(7,16,30,0.92);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(200,150,60,0.35);
+  border-radius: 50px;
+  padding: 8px 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  z-index: 9999;
+  font-family: 'Segoe UI', Arial, sans-serif;
+">
+  <button onclick="changeZoom(-10)" title="Reducir" style="
+    background: none; border: none; cursor: pointer;
+    color: rgba(255,255,255,0.7); font-size: 18px; line-height: 1;
+    padding: 4px 6px; border-radius: 6px; transition: all 0.15s;
+  " onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='none'">−</button>
+
+  <span id="zoom-label" style="
+    color: rgba(255,255,255,0.5);
+    font-size: 11px; letter-spacing: 0.05em;
+    min-width: 38px; text-align: center;
+  ">100%</span>
+
+  <button onclick="changeZoom(+10)" title="Ampliar" style="
+    background: none; border: none; cursor: pointer;
+    color: rgba(255,255,255,0.7); font-size: 18px; line-height: 1;
+    padding: 4px 6px; border-radius: 6px; transition: all 0.15s;
+  " onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='none'">+</button>
+
+  <div style="width: 1px; height: 20px; background: rgba(255,255,255,0.15); margin: 0 4px;"></div>
+
+  <button onclick="printDoc()" title="Imprimir / Guardar PDF" style="
+    background: #C8963C; border: none; cursor: pointer;
+    color: #07101E; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 7px 18px; border-radius: 50px;
+    transition: all 0.15s;
+  " onmouseover="this.style.background='#E8B86D'" onmouseout="this.style.background='#C8963C'">
+    🖨 Imprimir · PDF
+  </button>
+</div>
+
+<script>
+  var currentZoom = 100;
+
+  function changeZoom(delta) {
+    currentZoom = Math.min(150, Math.max(50, currentZoom + delta));
+    document.body.style.zoom = (currentZoom / 100).toString();
+    document.getElementById('zoom-label').textContent = currentZoom + '%';
+  }
+
+  function printDoc() {
+    var toolbar = document.getElementById('toolbar');
+    toolbar.style.display = 'none';
+    // Reset zoom for printing
+    var savedZoom = document.body.style.zoom;
+    document.body.style.zoom = '1';
+    window.print();
+    // Restore after print dialog closes
+    setTimeout(function() {
+      document.body.style.zoom = savedZoom;
+      toolbar.style.display = 'flex';
+    }, 500);
+  }
+</script>
 </body>
 </html>
