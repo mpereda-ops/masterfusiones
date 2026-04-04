@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SimuLab · Posicionamiento Estratégico</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ─── RESET & BASE ───────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:    #0D1E35;
+  --navy2:   #1A3A5C;
+  --navy3:   #243B55;
+  --mid:     #2A5A8A;
+  --amber:   #E8A020;
+  --amberD:  #C07010;
+  --amberL:  #FFD070;
+  --white:   #F0F4F8;
+  --gray:    #8899AA;
+  --red:     #8B1A1A;
+  --green:   #1A5C2A;
+  --card:    rgba(26,58,92,0.7);
+  --glass:   rgba(255,255,255,0.04);
+  --border:  rgba(232,160,32,0.3);
+}
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--navy);
+  color: var(--white);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── CANVAS BACKGROUND ──────────────────────────────────────────────── */
+#bg-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ─── LAYOUT ─────────────────────────────────────────────────────────── */
+.app {
+  position: relative;
+  z-index: 1;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 1.5rem 4rem;
+}
+
+/* ─── HEADER ─────────────────────────────────────────────────────────── */
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 0 1rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2.5rem;
+}
+.site-header .brand {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: var(--amber);
+  text-transform: uppercase;
+}
+.site-header .badge {
+  font-size: 0.7rem;
+  color: var(--gray);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+}
+
+/* ─── PROGRESS BAR ───────────────────────────────────────────────────── */
+.progress-wrap {
+  margin-bottom: 2.5rem;
+}
+.progress-steps {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.6rem;
+}
+.step-dot {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border: 2px solid rgba(255,255,255,0.15);
+  color: var(--gray);
+  background: rgba(255,255,255,0.03);
+  transition: all 0.4s ease;
+  flex-shrink: 0;
+}
+.step-dot.active {
+  border-color: var(--amber);
+  color: var(--navy);
+  background: var(--amber);
+  box-shadow: 0 0 16px rgba(232,160,32,0.5);
+}
+.step-dot.done {
+  border-color: var(--amber);
+  color: var(--amber);
+  background: rgba(232,160,32,0.15);
+}
+.step-line {
+  flex: 1;
+  height: 2px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.step-line-fill {
+  height: 100%;
+  background: var(--amber);
+  border-radius: 2px;
+  transition: width 0.6s ease;
+  width: 0%;
+}
+.step-line.done .step-line-fill { width: 100%; }
+.progress-label {
+  font-size: 0.72rem;
+  color: var(--gray);
+  letter-spacing: 0.05em;
+}
+.progress-label span { color: var(--amber); font-weight: 600; }
+
+/* ─── SCREENS ────────────────────────────────────────────────────────── */
+.screen { display: none; animation: fadeSlideIn 0.5s ease; }
+.screen.active { display: block; }
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── INTRO SCREEN ───────────────────────────────────────────────────── */
+.intro-hero {
+  text-align: center;
+  padding: 2rem 0 3rem;
+}
+.intro-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: var(--amber);
+  text-transform: uppercase;
+  margin-bottom: 1.2rem;
+}
+.intro-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, #ffffff 0%, var(--amberL) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.intro-sub {
+  font-size: 1.05rem;
+  color: var(--gray);
+  line-height: 1.7;
+  max-width: 640px;
+  margin: 0 auto 2.5rem;
+}
+
+.context-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+.context-card {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.2rem;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+.context-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--amber);
+}
+.context-card .icon { font-size: 1.8rem; margin-bottom: 0.6rem; }
+.context-card .label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--amber);
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+.context-card .value {
+  font-size: 0.9rem;
+  color: var(--white);
+  line-height: 1.4;
+}
+
+/* ─── COMPANY PROFILE ────────────────────────────────────────────────── */
+.company-card {
+  background: linear-gradient(135deg, rgba(26,58,92,0.9), rgba(13,30,53,0.95));
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  backdrop-filter: blur(20px);
+  position: relative;
+  overflow: hidden;
+}
+.company-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px; height: 100%;
+  background: var(--amber);
+}
+.company-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.company-logo {
+  width: 56px; height: 56px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--amber), var(--amberD));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+.company-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 0.2rem;
+}
+.company-sector {
+  font-size: 0.8rem;
+  color: var(--amber);
+  font-weight: 500;
+}
+.company-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+.stat-item {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  padding: 0.75rem;
+  text-align: center;
+}
+.stat-value {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--amber);
+  margin-bottom: 0.2rem;
+}
+.stat-label {
+  font-size: 0.68rem;
+  color: var(--gray);
+  line-height: 1.3;
+}
+.company-situation {
+  font-size: 0.9rem;
+  color: rgba(240,244,248,0.8);
+  line-height: 1.7;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  padding-top: 1.2rem;
+}
+.situation-title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--amber);
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+}
+
+/* ─── ALERT CHIPS ────────────────────────────────────────────────────── */
+.alerts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.alert-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  border: 1px solid;
+}
+.alert-chip.warning {
+  color: #FFB347;
+  border-color: rgba(255,179,71,0.4);
+  background: rgba(255,179,71,0.1);
+}
+.alert-chip.danger {
+  color: #FF7777;
+  border-color: rgba(255,119,119,0.4);
+  background: rgba(255,119,119,0.1);
+}
+.alert-chip.info {
+  color: #77BBFF;
+  border-color: rgba(119,187,255,0.4);
+  background: rgba(119,187,255,0.1);
+}
+
+/* ─── DECISION SECTION ───────────────────────────────────────────────── */
+.decision-header {
+  margin-bottom: 1.5rem;
+}
+.decision-num {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  color: var(--amber);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.decision-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 0.6rem;
+}
+.decision-context {
+  font-size: 0.9rem;
+  color: var(--gray);
+  line-height: 1.6;
+  padding: 1rem 1.2rem;
+  background: rgba(255,255,255,0.03);
+  border-left: 3px solid var(--amber);
+  border-radius: 0 8px 8px 0;
+}
+
+/* ─── OPTION CARDS ───────────────────────────────────────────────────── */
+.options-grid {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.option-card {
+  background: var(--glass);
+  border: 2px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 1.4rem 1.6rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+.option-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--amber), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 12px;
+  pointer-events: none;
+}
+.option-card:hover {
+  border-color: rgba(232,160,32,0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.option-card:hover::after { opacity: 0.05; }
+.option-card.selected {
+  border-color: var(--amber);
+  background: rgba(232,160,32,0.08);
+  box-shadow: 0 0 0 1px var(--amber), 0 8px 32px rgba(232,160,32,0.2);
+}
+.option-card.selected::after { opacity: 0.08; }
+
+.option-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.8rem;
+}
+.option-icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+  width: 48px; height: 48px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+}
+.option-label {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 0.2rem;
+}
+.option-tag {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--amber);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.option-body {
+  font-size: 0.88rem;
+  color: rgba(240,244,248,0.75);
+  line-height: 1.6;
+}
+.option-meta {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+  flex-wrap: wrap;
+}
+.meta-pill {
+  font-size: 0.68rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 10px;
+  font-weight: 500;
+}
+.meta-pill.risk-high { background: rgba(139,26,26,0.4); color: #FF9999; }
+.meta-pill.risk-med  { background: rgba(192,112,16,0.4); color: #FFD070; }
+.meta-pill.risk-low  { background: rgba(26,92,42,0.4); color: #88DD99; }
+.meta-pill.inv-high  { background: rgba(42,90,138,0.4); color: #99CCFF; }
+.meta-pill.inv-med   { background: rgba(42,90,138,0.3); color: #AADDFF; }
+.meta-pill.inv-low   { background: rgba(42,90,138,0.2); color: #CCEEEE; }
+
+.selected-check {
+  position: absolute;
+  top: 1rem; right: 1rem;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--amber);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+}
+.option-card.selected .selected-check { display: flex; }
+
+/* ─── BUTTONS ────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.85rem 2rem;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.02em;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--amber), var(--amberD));
+  color: var(--navy);
+  box-shadow: 0 4px 20px rgba(232,160,32,0.35);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(232,160,32,0.5);
+}
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+.btn-ghost {
+  background: rgba(255,255,255,0.05);
+  color: var(--white);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+.btn-ghost:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.25);
+}
+.btn-lg { font-size: 1rem; padding: 1rem 2.5rem; }
+.btn-block { width: 100%; justify-content: center; }
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
+/* ─── LOADING STATE ──────────────────────────────────────────────────── */
+.loading-screen {
+  text-align: center;
+  padding: 4rem 1rem;
+}
+.loader-ring {
+  width: 72px; height: 72px;
+  border: 3px solid rgba(232,160,32,0.15);
+  border-top-color: var(--amber);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1.5rem;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text {
+  font-size: 1.05rem;
+  color: var(--gray);
+  margin-bottom: 0.4rem;
+}
+.loading-sub {
+  font-size: 0.8rem;
+  color: rgba(136,153,170,0.6);
+}
+.dots span {
+  display: inline-block;
+  animation: blink 1.4s infinite both;
+}
+.dots span:nth-child(2) { animation-delay: 0.2s; }
+.dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes blink {
+  0%, 80%, 100% { opacity: 0; }
+  40% { opacity: 1; }
+}
+
+/* ─── RESULTS SCREEN ─────────────────────────────────────────────────── */
+.results-header {
+  text-align: center;
+  padding: 2rem 0 2.5rem;
+}
+.results-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--amber);
+  text-transform: uppercase;
+  background: rgba(232,160,32,0.1);
+  border: 1px solid rgba(232,160,32,0.3);
+  padding: 0.35rem 1rem;
+  border-radius: 20px;
+  margin-bottom: 1.2rem;
+}
+.results-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+.results-company {
+  font-size: 0.9rem;
+  color: var(--gray);
+}
+
+/* ─── DECISIONS SUMMARY ──────────────────────────────────────────────── */
+.decisions-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+.summary-item {
+  background: rgba(232,160,32,0.07);
+  border: 1px solid rgba(232,160,32,0.2);
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+}
+.summary-num {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--amber);
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+.summary-choice {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--white);
+  line-height: 1.3;
+}
+
+/* ─── AI ANALYSIS CARD ───────────────────────────────────────────────── */
+.analysis-card {
+  background: linear-gradient(135deg, rgba(13,30,53,0.97), rgba(26,58,92,0.9));
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+.analysis-card::before {
+  content: '';
+  position: absolute;
+  top: -50%; right: -20%;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(232,160,32,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.analysis-label {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  color: var(--amber);
+  text-transform: uppercase;
+  margin-bottom: 1.2rem;
+}
+.analysis-label::before {
+  content: '';
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 10px var(--amber);
+  animation: pulse-dot 2s infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 6px var(--amber); }
+  50% { box-shadow: 0 0 16px var(--amber), 0 0 24px rgba(232,160,32,0.4); }
+}
+.analysis-content {
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: rgba(240,244,248,0.9);
+}
+.analysis-content h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--amber);
+  margin: 1.4rem 0 0.5rem;
+}
+.analysis-content h3:first-child { margin-top: 0; }
+.analysis-content p { margin-bottom: 0.8rem; }
+.analysis-content strong { color: var(--amberL); font-weight: 600; }
+.analysis-content em { color: var(--white); font-style: normal; font-weight: 500; }
+.analysis-content ul {
+  padding-left: 1.2rem;
+  margin-bottom: 0.8rem;
+}
+.analysis-content li { margin-bottom: 0.35rem; }
+
+/* ─── METRICS GRID ───────────────────────────────────────────────────── */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.metric-card {
+  background: var(--glass);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 1.2rem;
+}
+.metric-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--gray);
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+}
+.metric-bar-wrap {
+  background: rgba(255,255,255,0.06);
+  border-radius: 6px;
+  height: 8px;
+  overflow: hidden;
+  margin-bottom: 0.4rem;
+}
+.metric-bar {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 0%;
+}
+.metric-bar.positive { background: linear-gradient(90deg, var(--green), #44CC66); }
+.metric-bar.warning  { background: linear-gradient(90deg, var(--amberD), var(--amber)); }
+.metric-bar.negative { background: linear-gradient(90deg, var(--red), #CC4444); }
+.metric-value {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.metric-sub {
+  font-size: 0.72rem;
+  color: var(--gray);
+  margin-top: 0.2rem;
+}
+
+/* ─── REFLECTION BOX ─────────────────────────────────────────────────── */
+.reflection-box {
+  background: rgba(232,160,32,0.06);
+  border: 1px solid rgba(232,160,32,0.25);
+  border-radius: 14px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+.reflection-title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--amber);
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+}
+.reflection-questions {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.reflection-questions li {
+  display: flex;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+  color: rgba(240,244,248,0.85);
+  line-height: 1.5;
+}
+.reflection-questions li::before {
+  content: '→';
+  color: var(--amber);
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 0.05rem;
+}
+
+/* ─── FOOTER ─────────────────────────────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 2rem 0 0;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  margin-top: 3rem;
+}
+.footer-text {
+  font-size: 0.75rem;
+  color: var(--gray);
+  line-height: 1.6;
+}
+.footer-text span { color: var(--amber); }
+
+/* ─── RESPONSIVE ─────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .company-stats { grid-template-columns: repeat(2, 1fr); }
+  .context-grid  { grid-template-columns: 1fr; }
+  .decisions-summary { grid-template-columns: 1fr; }
+  .metrics-grid  { grid-template-columns: 1fr; }
+  .actions { flex-direction: column; }
+  .btn { width: 100%; justify-content: center; }
+}
+
+/* ─── TOOLTIP ────────────────────────────────────────────────────────── */
+.tooltip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  font-size: 0.65rem;
+  color: var(--gray);
+  cursor: help;
+}
+.tooltip:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1A3A5C;
+  color: var(--white);
+  font-size: 0.72rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  white-space: nowrap;
+  border: 1px solid var(--border);
+  z-index: 100;
+}
+
+/* ─── STREAMED TEXT ──────────────────────────────────────────────────── */
+.cursor-blink {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: var(--amber);
+  animation: blink-cursor 0.8s infinite;
+  vertical-align: text-bottom;
+  margin-left: 2px;
+}
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ─── GLOW ACCENTS ───────────────────────────────────────────────────── */
+.glow-amber { text-shadow: 0 0 20px rgba(232,160,32,0.4); }
+</style>
+</head>
+<body>
+
+<!-- Animated background -->
+<canvas id="bg-canvas"></canvas>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="brand">SimuLab · Universidad de Salamanca</div>
+    <div class="badge">Bloque 1 · Estrategia y Sostenibilidad</div>
+  </header>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap" id="progress-wrap" style="display:none">
+    <div class="progress-steps">
+      <div class="step-dot" id="dot-1">1</div>
+      <div class="step-line" id="line-1"><div class="step-line-fill"></div></div>
+      <div class="step-dot" id="dot-2">2</div>
+      <div class="step-line" id="line-2"><div class="step-line-fill"></div></div>
+      <div class="step-dot" id="dot-3">3</div>
+      <div class="step-line" id="line-3"><div class="step-line-fill"></div></div>
+      <div class="step-dot" id="dot-4">✓</div>
+    </div>
+    <div class="progress-label">Paso <span id="current-step">1</span> de 3</div>
+  </div>
+
+  <!-- ══════════ SCREEN 0: INTRO ══════════ -->
+  <div class="screen active" id="screen-intro">
+    <div class="intro-hero">
+      <div class="intro-eyebrow">Simulador de Decisión Estratégica</div>
+      <h1 class="intro-title">Posicionamiento<br>en Mercados Sostenibles</h1>
+      <p class="intro-sub">
+        Tomas el control de una empresa industrial latinoamericana con exposición a mercados europeos.
+        Tres decisiones estratégicas. Consecuencias reales. Un análisis basado en IA.
+      </p>
+    </div>
+
+    <div class="context-grid">
+      <div class="context-card">
+        <div class="icon">⏱</div>
+        <div class="label">Duración</div>
+        <div class="value">10 minutos</div>
+      </div>
+      <div class="context-card">
+        <div class="icon">🎯</div>
+        <div class="label">Decisiones</div>
+        <div class="value">3 decisiones estratégicas</div>
+      </div>
+      <div class="context-card">
+        <div class="icon">🤖</div>
+        <div class="label">Análisis</div>
+        <div class="value">IA · Proyección 3 años</div>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top:1rem;">
+      <button class="btn btn-primary btn-lg" onclick="startSimulator()">
+        Comenzar simulación →
+      </button>
+    </div>
+
+    <div style="margin-top:3rem; padding:1.5rem; background:rgba(255,255,255,0.03); border-radius:12px; border:1px solid rgba(255,255,255,0.07);">
+      <div class="situation-title">Marco de referencia</div>
+      <p style="font-size:0.88rem; color:var(--gray); line-height:1.7;">
+        El ejercicio aplica los marcos analíticos trabajados en el Bloque 1: las <strong style="color:var(--white)">Cinco Fuerzas de Porter</strong> en mercados sostenibles, el impacto de la regulación europea (<strong style="color:var(--white)">CBAM, CSRD, Taxonomía UE</strong>) y los tres posicionamientos del caso automóvil. Tu empresa se enfrenta al mismo tipo de dilema estratégico que Tesla, Volkswagen y Toyota, pero desde la perspectiva de una empresa proveedora latinoamericana.
+      </p>
+    </div>
+  </div>
+
+  <!-- ══════════ SCREEN 1: COMPANY PROFILE ══════════ -->
+  <div class="screen" id="screen-profile">
+    <div class="decision-header">
+      <div class="decision-num">Tu empresa</div>
+      <h2 class="decision-title">Conoce a ACERLATAM S.A.</h2>
+    </div>
+
+    <div class="company-card">
+      <div class="company-header">
+        <div class="company-logo">🏭</div>
+        <div>
+          <div class="company-name">ACERLATAM S.A.</div>
+          <div class="company-sector">Siderurgia · Bogotá, Colombia · Exportador a Europa</div>
+        </div>
+      </div>
+
+      <div class="company-stats">
+        <div class="stat-item">
+          <div class="stat-value">$480M</div>
+          <div class="stat-label">Facturación anual</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">38%</div>
+          <div class="stat-label">Exportaciones a UE</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">2.800</div>
+          <div class="stat-label">Empleados</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">42 t CO₂</div>
+          <div class="stat-label">por tonelada de acero</div>
+        </div>
+      </div>
+
+      <div class="company-situation">
+        <div class="situation-title">Situación estratégica</div>
+        <p>ACERLATAM es el tercer productor de acero de Colombia. Lleva 35 años exportando acero estructural y productos laminados a constructoras e industria manufacturera en España, Alemania y Francia. Es una empresa rentable con márgenes sólidos, pero su proceso productivo es intensivo en carbono y depende de hornos de arco eléctrico alimentados parcialmente con carbón.</p>
+        <p style="margin-top:0.8rem;">En los últimos seis meses, tres clientes europeos que representan el 22% de sus ingresos han solicitado datos de emisiones Scope 3 para sus informes CSRD. Ningún cliente ha cancelado todavía, pero dos han abierto procesos de evaluación de proveedores alternativos en Brasil y Europa del Este.</p>
+      </div>
+
+      <div class="alerts">
+        <div class="alert-chip danger">⚠ Exposición CBAM directa — sector acero</div>
+        <div class="alert-chip warning">📊 3 clientes solicitan datos Scope 3</div>
+        <div class="alert-chip info">💶 €12M en contratos europeos bajo revisión</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" onclick="goToDecision(1)">
+        Tomar decisiones →
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════ SCREEN 2: DECISION 1 ══════════ -->
+  <div class="screen" id="screen-d1">
+    <div class="decision-header">
+      <div class="decision-num">Decisión 1 de 3 · Posicionamiento General</div>
+      <h2 class="decision-title">¿Cuál es la apuesta estratégica de ACERLATAM?</h2>
+      <div class="decision-context">
+        La Junta Directiva te pide que definas la postura estratégica de la empresa ante la transición sostenible. Esta decisión marcará el horizonte de las inversiones de los próximos 3 años y el mensaje que se transmitirá a clientes, inversores y empleados.
+      </div>
+    </div>
+
+    <div class="options-grid">
+      <div class="option-card" onclick="selectOption('d1','A',this)">
+        <div class="selected-check">✓</div>
+        <div class="option-top">
+          <div class="option-icon">🛡</div>
+          <div>
+            <div class="option-label">Defender la posición actual</div>
+            <div class="option-tag">Estrategia de mantenimiento</div>
+          </div>
+        </div>
+        <div class="option-body">
+          Continuar con el modelo actual optimizando costes operativos. Responder a las exigencias de clientes de forma reactiva y mínima. Apostar a que la regulación tardará más de lo esperado en endurecerse.
+        </div>
+        <div class="option-meta">
+          <span class="meta-pill risk-high">Riesgo regulatorio alto</span>
+          <span class="meta-pill inv-low">Inversión mínima</span>
+        </div>
+      </div>
+
+      <div class="option-card" onclick="selectOption('d1','B',this)">
+        <div class="selected-check">✓</div>
+        <div class="option-top">
+          <div class="option-icon">🔄</div>
+          <div>
+            <div class="option-label">Transformar el modelo productivo</div>
+            <div class="option-tag">Estrategia de descarbonización progresiva</div>
+          </div>
+        </div>
+        <div class="option-body">
+          Invertir en la conversión de los hornos a 100% arco eléctrico con energía renovable. Medir y certificar emisiones. Posicionarse ante los clientes europeos como proveedor de "acero verde" en 36 meses.
+        </div>
+        <div class="option-meta">
+          <span class="meta-pill risk-med">Riesgo regulatorio medio</span>
+          <span class="meta-pill inv-high">Inversión alta ($85M)</span>
+        </div>
+      </div>
+
+      <div class="option-card" onclick="selectOption('d1','C',this)">
+        <div class="selected-check">✓</div>
+        <div class="option-top">
+          <div class="option-icon">↗</div>
+          <div>
+            <div class="option-label">Pivotar hacia nuevos mercados</div>
+            <div class="option-tag">Estrategia de reposicionamiento geográfico</div>
+          </div>
+        </div>
+        <div class="option-body">
+          Reducir progresivamente la exposición al mercado europeo y redirigir exportaciones a mercados con menor presión regulatoria: EEUU, Asia, mercado interno latinoamericano. Mantener el modelo productivo actual.
+        </div>
+        <div class="option-meta">
+          <span class="meta-pill risk-med">Riesgo de mercado medio</span>
+          <span class="meta-pill inv-med">Inversión moderada</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-ghost" onclick="goToProfile()">← Atrás</button>
+      <button class="btn btn-primary" id="btn-d1" disabled onclick="goToDecision(2)">
+        Siguiente decisión →
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════ SCREEN 3: DECISION 2 ══════════ -->
+  <div class="screen" id="screen-d2">
+    <div class="decision-header">
+      <div class="decision-num">Decisión 2 de 3 · Respuesta al CBAM</div>
+      <h2 class="decision-title">El CBAM entra en vigor. ¿Cómo gestiona ACERLATAM su huella de carbono?</h2>
+      <div class="decision-context">
+        A partir de 2026, tus importadores europeos deben declarar las emisiones incorporadas en el acero que compran y pagar certificados de carbono por la diferencia con el precio del EU ETS (aprox. €65/tonelada CO₂). Con 42t CO₂ por tonelada de acero, el impacto en el precio de exportación es significativo.
+      </div>
+    </div>
+
+    <div class="options-grid">
+      <div class="option-card" onclick="selectOption('d2','A',this)">
+        <div class="selected-check">✓</div>
+        <div class="option-top">
+          <div class="option-icon">📋</div>
+          <div>
+            <div class="option-label">Medir, verificar y certificar las emisiones</div>
+            <div class="option-tag">Transparencia activa</div>
+          </div>
+        </div>
+        <div class="option-body">
+          Contratar una auditora internacional para medir y verificar las emisiones del proceso. Obtener certificación ISO 14064. Proporcionar a cada cliente europeo los datos exactos para su declaración CBAM. Absorber el coste de certificación (~$400K).
+        </div>
+        <div class="option-meta">
+          <span class="meta-pill risk-low">Cumplimiento garantizado</span>
+          <span class="meta-pill inv-med">$400K en certificación</span>
+        </div>
+      </div>
+
+      <div class="option-card" onclick="selectOption('d2','B',this)">
+        <div class="selected-check">✓</div>
+        <div class="option-top">
+          <div class="option-icon">⚡</div>
+          <div>
+            <div class="option-label">Reducir emisiones activamente antes de 2026</div>
+            <div class="option-tag">Inversión en descarbonización urgente</div>
+          </div>
+        </div>
+        <div class="option-body">
+          Adelantar parte de la transformación productiva: sustituir el 40% del mix energético por renovables en 18 meses. Reducir emisiones de 42t a 28t CO₂ por tonelada. Posicionarse como proveedor preferente ante la entrada del CBAM.
+        </div>
+        <div class="option-meta">
+          <span class="meta-pill risk-low">Riesgo CBAM reducido</span>
+          <span class="meta-pill inv-high">$32M en renovables</span>
+        </div>
+      </div>
+
+      <div class="option-card" onclick="selectOption('d2','C',this)">
+        <div class="selected-check">✓</div>
+        <div class="option-top">
+          <div class="option-icon">⏳</div>
+          <div>
+            <div class="option-label">Trasladar el coste CBAM al precio de venta</div>
+            <div class="option-tag">Ajuste de precios</div>
+          </div>
+        </div>
+        <div class="option-body">
+          No modificar el proceso productivo. Recalcular los precios de exportación incorporando el coste estimado de los certificados de carbono que pagarán los importadores europeos. Negociar la redistribución del coste en los contratos existentes.
+        </div>
+        <div class="option-meta">
+          <span class="meta-pill risk-high">Riesgo pérdida de clientes</span>
+          <span class="meta-pill inv-low">Sin inversión inmediata</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-ghost" onclick="goToDecision(1)">← Atrás</button>
+      <button class="btn btn-primary" id="btn-d2" disabled onclick="goToDecision(3)">
+        Última decisión →
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════ SCREEN 4: DECISION 3 ══════════ -->
+  <div class="screen" id="screen-d3">
+    <div class="decision-header">
+      <div class="decision-num">Decisión 3 de 3 · Respuesta a CSRD / Scope 3</div>
+      <h2 class="decision-title">Tus clientes necesitan tus datos de emisiones. ¿Cómo respondes?</h2>
+      <div class="decision-context">
+        Tres clientes europeos que representan €42M en contratos han enviado un cuestionario detallado de sostenibilidad para su informe CSRD anual. Incluye datos de emisiones Scope 1, 2 y 3, consumo de agua, gestión de residuos y política de derechos laborales. Tienen 60 días para responder.
+      </div>
+    </div>
+
+    <div class="options-grid">
+      <div class="option-card" onclick="selectOption('d3','A',this)">
+        <div class="selected-check">✓</div>
+        <div class="option-top">
+          <div class="option-icon">🌿</div>
+          <div>
+            <div class="option-label">Respuesta completa y verificada</div>
+            <div class="option-tag">Excelencia en reporte ESG</div>
+          </div>
+        </div>
+        <div class="option-body">
+          Contratar un consultor ESG para desarrollar el primer informe de sostenibilidad de ACERLATAM, responder el cuestionario con datos auditados y proponer a los clientes una reunión de seguimiento. Convertir el cumplimiento en una conversación estratégica.
+        </div>
+        <div class="option-meta">
+          <span class="meta-pill risk-low">Máxima retención de clientes</span>
+          <span class="meta-pill inv-med">$250K consultoría ESG</span>
+        </div>
+      </div>
+
+      <div class="option-card" onclick="selectOption('d3','B',this)">
+        <div class="selected-check">✓</div>
+        <div class="option-top">
+          <div class="option-icon">📊</div>
+          <div>
+            <div class="option-label">Respuesta parcial con datos disponibles</div>
+            <div class="option-tag">Cumplimiento mínimo viable</div>
+          </div>
+        </div>
+        <div class="option-body">
+          Responder el cuestionario con los datos que ya existen internamente — consumo energético, nómina, algunos datos de residuos — y comunicar que el sistema de medición completo estará disponible en el próximo ejercicio fiscal.
+        </div>
+        <div class="option-meta">
+          <span class="meta-pill risk-med">Riesgo moderado de pérdida</span>
+          <span class="meta-pill inv-low">Mínima inversión</span>
+        </div>
+      </div>
+
+      <div class="option-card" onclick="selectOption('d3','C',this)">
+        <div class="selected-check">✓</div>
+        <div class="option-top">
+          <div class="option-icon">🔗</div>
+          <div>
+            <div class="option-label">Alianza con certificadora local</div>
+            <div class="option-tag">Diferenciación sectorial</div>
+          </div>
+        </div>
+        <div class="option-body">
+          Liderar una iniciativa sectorial: proponer a la Asociación Colombiana del Acero desarrollar un estándar de reporte conjunto para toda la industria. Compartir costes de medición con competidores y posicionarse como empresa líder en sostenibilidad sectorial ante los reguladores.
+        </div>
+        <div class="option-meta">
+          <span class="meta-pill risk-med">Riesgo moderado · Horizonte largo</span>
+          <span class="meta-pill inv-med">$150K + tiempo directivo</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-ghost" onclick="goToDecision(2)">← Atrás</button>
+      <button class="btn btn-primary" id="btn-d3" disabled onclick="generateAnalysis()">
+        Generar análisis estratégico ✦
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════ SCREEN 5: LOADING ══════════ -->
+  <div class="screen" id="screen-loading">
+    <div class="loading-screen">
+      <div class="loader-ring"></div>
+      <div class="loading-text">Analizando tu estrategia<span class="dots"><span>.</span><span>.</span><span>.</span></span></div>
+      <div class="loading-sub" id="loading-status">Procesando las tres decisiones estratégicas</div>
+    </div>
+  </div>
+
+  <!-- ══════════ SCREEN 6: RESULTS ══════════ -->
+  <div class="screen" id="screen-results">
+
+    <div class="results-header">
+      <div class="results-badge">✦ Análisis completado · IA Estratégica</div>
+      <h2 class="results-title">Tu escenario estratégico<br>a 3 años</h2>
+      <div class="results-company">ACERLATAM S.A. · Colombia → Europa</div>
+    </div>
+
+    <div class="decisions-summary" id="decisions-summary"></div>
+
+    <div class="metrics-grid" id="metrics-grid"></div>
+
+    <div class="analysis-card">
+      <div class="analysis-label">Análisis estratégico · Claude AI</div>
+      <div class="analysis-content" id="analysis-content">
+        <span class="cursor-blink"></span>
+      </div>
+    </div>
+
+    <div class="reflection-box">
+      <div class="reflection-title">💬 Preguntas para el debate en clase</div>
+      <ul class="reflection-questions" id="reflection-questions">
+        <li>¿En qué se parece la situación de ACERLATAM a la de Tesla, VW o Toyota en el caso del automóvil?</li>
+        <li>¿Qué información adicional necesitarías para tomar estas decisiones con mayor confianza?</li>
+        <li>¿Cómo cambia el análisis si el precio del CO₂ en el EU ETS sube a €100/tonelada en 2027?</li>
+        <li>¿Qué haría diferente tu equipo con un mes más de tiempo para decidir?</li>
+      </ul>
+    </div>
+
+    <div style="text-align:center; display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+      <button class="btn btn-ghost" onclick="resetSimulator()">↺ Repetir con otras decisiones</button>
+      <button class="btn btn-primary" onclick="window.print()">Imprimir resultados</button>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-text">
+      <span>SimuLab-AI</span> · Prof. Jorge Matías-Pereda ·
+      Departamento de Administración y Economía de la Empresa ·
+      <span>Universidad de Salamanca</span> · 2026
+    </div>
+  </footer>
+
+</div><!-- /app -->
+
+<script>
+// ─── STATE ────────────────────────────────────────────────────────────────
+const state = {
+  decisions: { d1: null, d2: null, d3: null },
+  labels: {
+    d1: { A:'Defender posición', B:'Transformar modelo', C:'Pivotar mercados' },
+    d2: { A:'Medir y certificar', B:'Reducir emisiones activamente', C:'Trasladar coste al precio' },
+    d3: { A:'Respuesta completa ESG', B:'Cumplimiento mínimo viable', C:'Alianza sectorial' },
+  }
+};
+
+// ─── CANVAS BACKGROUND ────────────────────────────────────────────────────
+(function initCanvas() {
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function createParticles() {
+    particles = [];
+    const count = Math.floor((W * H) / 18000);
+    for (let i = 0; i < count; i++) {
+      particles.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: Math.random() * 1.2 + 0.3,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        alpha: Math.random() * 0.5 + 0.1,
+        color: Math.random() > 0.85 ? '#E8A020' : '#4488AA'
+      });
+    }
+  }
+
+  // Grid lines
+  function drawGrid() {
+    ctx.strokeStyle = 'rgba(42,90,138,0.07)';
+    ctx.lineWidth = 1;
+    const spacing = 60;
+    for (let x = 0; x < W; x += spacing) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    }
+    for (let y = 0; y < H; y += spacing) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    // Base gradient
+    const grd = ctx.createLinearGradient(0, 0, W, H);
+    grd.addColorStop(0, '#060E1A');
+    grd.addColorStop(0.5, '#0D1E35');
+    grd.addColorStop(1, '#060E1A');
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, W, H);
+
+    drawGrid();
+
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = W;
+      if (p.x > W) p.x = 0;
+      if (p.y < 0) p.y = H;
+      if (p.y > H) p.y = 0;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.color + Math.floor(p.alpha * 255).toString(16).padStart(2,'0');
+      ctx.fill();
+    });
+
+    // Glow orbs
+    [[W*0.15, H*0.2, 180, 'rgba(42,90,138,0.08)'],
+     [W*0.85, H*0.7, 220, 'rgba(232,160,32,0.05)'],
+     [W*0.5,  H*0.5, 300, 'rgba(13,60,100,0.06)']
+    ].forEach(([x,y,r,c]) => {
+      const g = ctx.createRadialGradient(x,y,0,x,y,r);
+      g.addColorStop(0, c); g.addColorStop(1, 'transparent');
+      ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+    });
+
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', () => { resize(); createParticles(); });
+  resize(); createParticles(); draw();
+})();
+
+// ─── NAVIGATION ───────────────────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateProgress(step) {
+  const wrap = document.getElementById('progress-wrap');
+  if (step === 0) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  document.getElementById('current-step').textContent = step;
+
+  for (let i = 1; i <= 4; i++) {
+    const dot = document.getElementById('dot-' + i);
+    dot.classList.remove('active','done');
+    if (i < step) dot.classList.add('done');
+    else if (i === step) dot.classList.add('active');
+  }
+  for (let i = 1; i <= 3; i++) {
+    const line = document.getElementById('line-' + i);
+    line.classList.remove('done');
+    if (i < step) line.classList.add('done');
+    const fill = line.querySelector('.step-line-fill');
+    fill.style.width = i < step ? '100%' : '0%';
+  }
+}
+
+function startSimulator() {
+  updateProgress(0);
+  showScreen('profile');
+}
+
+function goToProfile() {
+  updateProgress(0);
+  showScreen('profile');
+}
+
+function goToDecision(n) {
+  updateProgress(n);
+  showScreen('d' + n);
+}
+
+function resetSimulator() {
+  state.decisions = { d1: null, d2: null, d3: null };
+  document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.btn[id^="btn-d"]').forEach(b => b.disabled = true);
+  updateProgress(0);
+  showScreen('intro');
+}
+
+// ─── OPTION SELECTION ─────────────────────────────────────────────────────
+function selectOption(decision, value, el) {
+  // Deselect siblings
+  el.closest('.options-grid').querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  state.decisions[decision] = value;
+  // Enable next button
+  const btn = document.getElementById('btn-' + decision);
+  if (btn) btn.disabled = false;
+}
+
+// ─── BUILD DECISIONS SUMMARY ──────────────────────────────────────────────
+function buildSummary() {
+  const el = document.getElementById('decisions-summary');
+  const items = [
+    { num:'Decisión 1', label:'Posicionamiento', val:state.labels.d1[state.decisions.d1] },
+    { num:'Decisión 2', label:'CBAM', val:state.labels.d2[state.decisions.d2] },
+    { num:'Decisión 3', label:'CSRD / Scope 3', val:state.labels.d3[state.decisions.d3] },
+  ];
+  el.innerHTML = items.map(i => `
+    <div class="summary-item">
+      <div class="summary-num">${i.num} · ${i.label}</div>
+      <div class="summary-choice">${i.val}</div>
+    </div>
+  `).join('');
+}
+
+// ─── BUILD METRICS ────────────────────────────────────────────────────────
+function buildMetrics() {
+  const d1=state.decisions.d1, d2=state.decisions.d2, d3=state.decisions.d3;
+
+  // Score logic (simplified heuristic)
+  const scores = {
+    mercado:     { A:40, B:80, C:55 }[d1] + { A:10, B:15, C:-10 }[d2] + { A:15, B:0, C:5 }[d3],
+    rentabilidad:{ A:75, B:40, C:60 }[d1] + { A:-5, B:-20, C:5 }[d2] + { A:-5, B:0, C:-3 }[d3],
+    regulatorio: { A:20, B:80, C:50 }[d1] + { A:25, B:30, C:-20 }[d2] + { A:20, B:5, C:15 }[d3],
+    competitivo: { A:30, B:90, C:50 }[d1] + { A:15, B:20, C:-5 }[d2] + { A:20, B:5, C:20 }[d3],
+  };
+
+  // Clamp 0-100
+  Object.keys(scores).forEach(k => scores[k] = Math.min(100, Math.max(5, scores[k])));
+
+  const metrics = [
+    { label:'Cuota de mercado europeo', value: scores.mercado, type: scores.mercado > 60 ? 'positive' : scores.mercado > 35 ? 'warning' : 'negative', text: scores.mercado + '%', sub:'proyección a 3 años vs. situación actual' },
+    { label:'Rentabilidad operativa', value: scores.rentabilidad, type: scores.rentabilidad > 60 ? 'positive' : scores.rentabilidad > 40 ? 'warning' : 'negative', text: scores.rentabilidad + '%', sub:'sostenibilidad del margen actual' },
+    { label:'Cumplimiento regulatorio', value: scores.regulatorio, type: scores.regulatorio > 65 ? 'positive' : scores.regulatorio > 40 ? 'warning' : 'negative', text: scores.regulatorio + '%', sub:'probabilidad de cumplir CBAM + CSRD en 2026' },
+    { label:'Posicionamiento competitivo', value: scores.competitivo, type: scores.competitivo > 65 ? 'positive' : scores.competitivo > 40 ? 'warning' : 'negative', text: scores.competitivo + '%', sub:'vs. competidores que no actúan' },
+  ];
+
+  const el = document.getElementById('metrics-grid');
+  el.innerHTML = metrics.map(m => `
+    <div class="metric-card">
+      <div class="metric-label">${m.label}</div>
+      <div class="metric-bar-wrap">
+        <div class="metric-bar ${m.type}" data-width="${m.value}" style="width:0%"></div>
+      </div>
+      <div class="metric-value" style="color:${m.type==='positive'?'#44DD77':m.type==='warning'?'#E8A020':'#FF7777'}">${m.text}</div>
+      <div class="metric-sub">${m.sub}</div>
+    </div>
+  `).join('');
+
+  // Animate bars after paint
+  setTimeout(() => {
+    document.querySelectorAll('.metric-bar[data-width]').forEach(b => {
+      b.style.width = b.dataset.width + '%';
+    });
+  }, 200);
+}
+
+// ─── AI ANALYSIS ──────────────────────────────────────────────────────────
+async function generateAnalysis() {
+  buildSummary();
+  buildMetrics();
+  showScreen('loading');
+  updateProgress(4);
+
+  const d1 = state.decisions.d1, d2 = state.decisions.d2, d3 = state.decisions.d3;
+  const dl1 = state.labels.d1[d1], dl2 = state.labels.d2[d2], dl3 = state.labels.d3[d3];
+
+  const statusEl = document.getElementById('loading-status');
+  const statuses = [
+    'Procesando las tres decisiones estratégicas',
+    'Aplicando el modelo de las Cinco Fuerzas',
+    'Calculando impacto regulatorio CBAM y CSRD',
+    'Proyectando escenario competitivo a 3 años',
+    'Generando análisis estratégico...'
+  ];
+  let si = 0;
+  const statusInterval = setInterval(() => {
+    si = (si + 1) % statuses.length;
+    statusEl.textContent = statuses[si];
+  }, 1800);
+
+  const prompt = `Eres un consultor estratégico senior especializado en sostenibilidad empresarial y regulación europea. 
+Analizas la situación de ACERLATAM S.A., empresa colombiana de acero con $480M de facturación, 38% de exportaciones a Europa, emisiones de 42t CO₂/tonelada de acero, que enfrenta la entrada en vigor del CBAM europeo y exigencias CSRD de sus clientes.
+
+El equipo directivo ha tomado las siguientes tres decisiones estratégicas:
+1. POSICIONAMIENTO GENERAL: ${dl1}
+2. RESPUESTA AL CBAM: ${dl2}
+3. RESPUESTA A CSRD/SCOPE 3: ${dl3}
+
+Proporciona un análisis estratégico riguroso y directo en español con esta estructura exacta, usando los tags HTML indicados:
+
+<h3>🎯 Coherencia estratégica</h3>
+Analiza si las tres decisiones son coherentes entre sí o si hay tensiones y contradicciones. Sé específico y crítico.
+
+<h3>📈 Impacto sobre la posición competitiva</h3>
+Explica qué ocurrirá con la cuota de mercado europeo, la relación con clientes y la posición frente a competidores de Brasil y Europa del Este en los próximos 3 años.
+
+<h3>⚖️ Exposición regulatoria</h3>
+Evalúa el nivel de riesgo ante el CBAM y la CSRD con esta combinación de decisiones. Cuantifica el impacto en términos de coste cuando sea posible.
+
+<h3>💡 Lo que esta estrategia hace bien</h3>
+Identifica los aciertos genuinos de esta combinación de decisiones. Sin condescendencia.
+
+<h3>⚠️ El riesgo principal que no puede ignorarse</h3>
+Señala el riesgo más crítico de esta estrategia con argumentos concretos.
+
+<h3>🔭 Proyección a 3 años</h3>
+Un escenario concreto: ¿dónde estará ACERLATAM en 2028 si ejecuta perfectamente esta estrategia?
+
+Sé directo, usa datos concretos cuando sea posible, evita el lenguaje corporativo hueco. Máximo 550 palabras en total.`;
+
+  try {
+    const response = await fetch('https://broken-flower-ecde.mpereda.workers.dev', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    clearInterval(statusInterval);
+
+    if (!response.ok) throw new Error('Error en la respuesta del servidor: ' + response.status);
+
+    const data = await response.json();
+    const text = data.content?.[0]?.text || 'No se pudo obtener el análisis.';
+
+    showScreen('results');
+
+    // Stream the text character by character for effect
+    const contentEl = document.getElementById('analysis-content');
+    contentEl.innerHTML = '<span class="cursor-blink"></span>';
+
+    let i = 0;
+    const cursor = contentEl.querySelector('.cursor-blink');
+
+    function typeNext() {
+      if (i < text.length) {
+        const chunk = text.slice(i, i + 8);
+        cursor.insertAdjacentHTML('beforebegin', chunk);
+        i += 8;
+        // Parse HTML tags properly after streaming
+        if (i >= text.length) {
+          contentEl.innerHTML = text;
+        } else {
+          setTimeout(typeNext, 16);
+        }
+      }
+    }
+    typeNext();
+
+  } catch (err) {
+    clearInterval(statusInterval);
+    showScreen('results');
+    const fallback = getFallbackAnalysis(d1, d2, d3, dl1, dl2, dl3);
+    const contentEl = document.getElementById('analysis-content');
+    contentEl.innerHTML = '<span class="cursor-blink"></span>';
+    let i = 0;
+    function typeNextFallback() {
+      if (i < fallback.length) {
+        i += 10;
+        if (i >= fallback.length) { contentEl.innerHTML = fallback; }
+        else { setTimeout(typeNextFallback, 14); }
+      }
+    }
+    typeNextFallback();
+  }
+}
+
+// ─── OFFLINE FALLBACK ANALYSIS ────────────────────────────────────────────
+function getFallbackAnalysis(d1, d2, d3, dl1, dl2, dl3) {
+
+  // ── COHERENCIA POR COMBINACIÓN ──────────────────────────────────────────
+  const coherencia = {
+    'AAA': 'La combinación de <strong>Defender + Certificar + Respuesta ESG completa</strong> presenta una tensión notable: declaras que no vas a cambiar tu modelo productivo pero inviertes en medir y transparentar unas emisiones que son muy elevadas. Es una apuesta contradictoria: gastas en hacer visible un problema que no tienes intención de resolver.',
+    'AAB': 'Defender la posición mientras certificas emisiones y cumples mínimamente con CSRD genera una coherencia frágil. Compras tiempo, no soluciones. Tus clientes europeos recibirán datos de emisiones verificados y elegirán si eso es suficiente.',
+    'AAC': 'Defender + Certificar + Alianza sectorial tiene lógica política pero no estratégica. Liderarás la industria colombiana hacia un estándar, pero tu propia empresa no está transformándose. El riesgo es que seas percibido como actor que gestiona la narrativa más que los hechos.',
+    'ABA': 'Defender el modelo general pero invertir $32M en reducir emisiones y responder con excelencia ESG es incoherente: las acciones dicen transformar, el posicionamiento dice defender. Esta ambigüedad confunde a clientes e inversores y puede ser la peor de las opciones.',
+    'ABB': 'Defender globalmente mientras reduces emisiones activamente y cumples mínimo con CSRD tiene cierta lógica táctica: reduces el impacto CBAM sin proclamar una transformación que aún no puedes demostrar. Estrategia de perfil bajo con fundamento operativo.',
+    'ABC': 'La combinación más conservadora en declaraciones pero activa en inversión. Reduces emisiones, te alías sectorialmente, pero no cambias el discurso estratégico. Puede funcionar si el mercado valora los hechos más que las narrativas.',
+    'ACA': 'Defender + Trasladar coste CBAM + ESG completo es contradictorio: estás encareciendo el producto para el cliente europeo mientras le presentas un informe de sostenibilidad impecable. El cliente recibirá el mensaje correcto sobre el informe y el incorrecto sobre el precio.',
+    'ACB': 'Defender + Trasladar coste + Cumplimiento mínimo es la combinación de mayor riesgo a corto plazo. Encareces el producto y reduces la información que el cliente necesita. Los €42M de contratos bajo revisión tienen alta probabilidad de no renovarse.',
+    'ACC': 'Defender + Trasladar coste + Alianza sectorial es una apuesta colectiva: si toda la industria colombiana de acero actúa igual, el coste CBAM se redistribuye y ningún competidor local tiene ventaja. Pero si algún rival descarboniza, pierdes competitividad individualmente.',
+    'BAA': '<strong>Transformar + Certificar + ESG completo</strong> es la combinación más coherente del simulador. Cada decisión refuerza la anterior: transformas el proceso, lo certificas y lo comunicas con excelencia. Es cara ($85M + $400K + $250K) pero construye una ventaja competitiva real y duradera.',
+    'BAB': 'Transformar + Certificar + Cumplimiento mínimo pierde parte de la fuerza de la estrategia de transformación. Inviertes $85M en mejorar el proceso pero no lo comunicas con la profundidad que requieren los clientes europeos. El activo que estás construyendo no se monetiza completamente.',
+    'BAC': 'Transformar + Certificar + Alianza sectorial es potente: ACERLATAM lidera tanto en hechos (transformación propia) como en narrativa sectorial. Riesgo: la alianza puede ralentizarse por la falta de incentivos de competidores que no estén invirtiendo.',
+    'BBA': '<strong>Transformar + Reducir activamente + ESG completo</strong> es la estrategia más ambiciosa. Combinas transformación estructural ($85M), acción urgente en renovables ($32M) y máxima transparencia ESG. El coste total supera $117M pero el posicionamiento resultante es el más sólido de todos.',
+    'BBB': 'Transformar + Reducir + Cumplimiento mínimo deja dinero sobre la mesa: inviertes en lo operativo pero no lo comunicas bien. En los mercados europeos la percepción es tan importante como los hechos cuando hablamos de sostenibilidad.',
+    'BBC': 'Transformar + Reducir emisiones + Alianza sectorial tiene buena coherencia. La inversión propia ($117M) aporta credibilidad a tu liderazgo sectorial. Riesgo principal: complejidad de gestión simultánea de transformación interna y coordinación externa.',
+    'BCA': 'Transformar + Trasladar coste + ESG completo es contradictorio. Declaras transformación pero trasladas el coste CBAM al cliente en la fase de transición. El informe ESG excelente convive con una señal de precio que dice "no hemos cambiado lo suficiente todavía".',
+    'BCB': 'Transformar + Trasladar coste + Cumplimiento mínimo es la peor combinación dentro de la estrategia de transformación. Mandas señales contradictorias en precio, en información y en posicionamiento. Alta probabilidad de pérdida de clientes europeos.',
+    'BCC': 'Transformar + Trasladar coste + Alianza sectorial tiene lógica si la alianza incluye un mecanismo colectivo de gestión del CBAM. Si no es así, sigues siendo el proveedor que encarece el producto mientras proclama su transformación verde.',
+    'CAA': 'Pivotar + Certificar + ESG completo es internamente contradictorio: estás midiendo y comunicando tus emisiones con excelencia a clientes europeos de los que te estás alejando. La inversión en certificación y ESG tiene poco sentido si reduces tu presencia en el mercado que la exige.',
+    'CAB': '<strong>Pivotar + Certificar + Cumplimiento mínimo</strong> tiene cierta lógica de salida ordenada: reduces tu exposición europea, certificas lo mínimo para mantener los contratos que quedan, y te reposicionas en mercados con menor presión regulatoria. Estrategia de transición creíble.',
+    'CAC': 'Pivotar + Certificar + Alianza sectorial presenta una paradoja interesante: lideras la sostenibilidad sectorial colombiana mientras reduces tu exposición al mercado que la demanda. Puede tener sentido si el objetivo es vender la empresa o atraer inversión.',
+    'CBA': 'Pivotar + Reducir emisiones + ESG completo es costoso para una estrategia de salida del mercado europeo. Inviertes $32M más $250K en activos cuyo retorno depende de seguir en Europa. Revisa si realmente quieres pivotar o solo lo estás diciendo.',
+    'CBB': 'Pivotar + Reducir + Cumplimiento mínimo tiene coherencia táctica: reduces el impacto CBAM en la fase de salida, cumples lo mínimo con los clientes que mantienes y construyes un activo de menor huella que puede servir para nuevos mercados.',
+    'CBC': 'Pivotar + Reducir + Alianza sectorial tiene buena coherencia si el pivote es parcial. Reduces presión regulatoria, construyes capacidad sectorial y mantienes opcionalidad para volver a Europa cuando el proceso esté más maduro.',
+    'CCA': 'Pivotar + Trasladar coste + ESG completo es la combinación más contradictoria del simulador. Te vas de Europa, encareces el producto para los pocos clientes que quedan y les mandas un informe de sostenibilidad ejemplar. Ninguna de las tres decisiones refuerza a las otras.',
+    'CCB': 'Pivotar + Trasladar coste + Cumplimiento mínimo es la estrategia de salida más limpia: reduces exposición, trasladas el coste regulatorio, cumples lo mínimo. Alta probabilidad de perder todos los contratos europeos en 12-18 meses, que es consistente con el pivote declarado.',
+    'CCC': 'Pivotar + Trasladar coste + Alianza sectorial es coherente solo si el pivote es una decisión firme. La alianza sectorial puede generar valor en mercados latinoamericanos no europeos si se orienta a estándares de sostenibilidad distintos del CSRD.',
+  };
+
+  // ── IMPACTO COMPETITIVO POR D1 ───────────────────────────────────────────
+  const impactoD1 = {
+    A: 'Al mantener la posición actual, ACERLATAM conserva su estructura de costes pero pierde capacidad de respuesta ante la presión competitiva creciente. Los productores brasileños de acero — particularmente los integrados en cadenas de valor sostenibles — y los europeos con menor huella están ganando terreno en las licitaciones que tus clientes tienen previstas para 2026-2027. En un horizonte de 3 años, la cuota de mercado europeo se reduce por deserción natural de clientes más que por una decisión activa tuya.',
+    B: 'La transformación del modelo productivo coloca a ACERLATAM en la categoría de proveedores estratégicos que sus clientes europeos querrán mantener. El concepto de "acero verde" está emergiendo como criterio de selección en la industria de la construcción y la manufactura europea. Si ejecutas bien, en 2028 puedes negociar precios premium del 8-12% sobre acero convencional y fortalecer contratos de largo plazo con los clientes actuales.',
+    C: 'El pivote geográfico reduce el riesgo regulatorio europeo a corto plazo pero expone a ACERLATAM a dinámicas de mercado diferentes. EEUU está avanzando hacia regulaciones similares al CBAM. Los mercados latinoamericanos son más competitivos en precio. En 3 años, la empresa puede estar más diversificada geográficamente pero con márgenes más ajustados y mayor dependencia del mercado interno.',
+  };
+
+  // ── EXPOSICIÓN REGULATORIA POR D2 ───────────────────────────────────────
+  const expRegD2 = {
+    A: 'Certificar las emisiones con ISO 14064 proporciona exactamente lo que el marco CBAM necesita: datos verificados por tercero. Tu importador europeo puede calcular con precisión los certificados que debe comprar. Con 42t CO₂/tonelada al precio actual del EU ETS (~€65), el coste adicional por tonelada de acero exportado es aproximadamente <strong>€2.730</strong>. Ese coste existe independientemente de si lo mides: la diferencia es que al medirlo puedes negociarlo, planificarlo y diferenciarte de competidores que no lo hacen.',
+    B: 'Reducir emisiones de 42t a 28t CO₂/tonelada recorta el impacto CBAM en un 33%. Al precio actual del EU ETS, el coste por tonelada baja de ~€2.730 a ~€1.820. Una diferencia de €910 por tonelada que se convierte directamente en ventaja competitiva frente a proveedores con mayor huella. Si el precio del CO₂ sube a €100/t en 2027 — escenario contemplado por la Comisión Europea — la ventaja se amplía a €1.400 por tonelada.',
+    C: 'Trasladar el coste CBAM al precio de venta es un mecanismo legítimo pero tiene un límite competitivo claro: si un proveedor alternativo tiene menores emisiones, su precio no necesita incluir ese coste adicional. En un mercado donde la competencia de acero con menor huella está creciendo, subir precios por CBAM es la señal menos atractiva que puedes mandar.',
+  };
+
+  // ── ACIERTOS POR COMBINACIÓN SIMPLIFICADA ───────────────────────────────
+  const aciertos = {
+    A: 'La estrategia de defensa conserva el capital para una eventual inversión cuando la regulación haga inevitable el cambio. No quema recursos en una transformación antes de tener claridad sobre los plazos reales de implementación.',
+    B: 'Invertir en transformación cuando la presión regulatoria es visible pero aún no máxima es exactamente el momento óptimo. Los costes de conversión son más bajos, los incentivos financieros (bonos verdes, préstamos ligados a sostenibilidad) están más accesibles y la ventana de diferenciación ante clientes es real.',
+    C: 'La diversificación geográfica reduce la dependencia de un único marco regulatorio y puede revelar oportunidades de mercado con mejores estructuras de márgenes en el corto plazo.',
+  };
+
+  // ── RIESGO PRINCIPAL POR COMBINACIÓN SIMPLIFICADA ───────────────────────
+  const riesgo = {
+    'AA': 'El riesgo principal es la velocidad de la regulación. Si el CBAM se amplía a sectores adyacentes antes de 2027 — que está previsto — y el precio del EU ETS supera €80/tonelada, el impacto sobre el margen de exportación europeo puede ser suficiente para que tus clientes te sustituyan antes de que puedas reaccionar.',
+    'AB': 'El riesgo es la incoherencia de señales: tu proceso no cambia pero tus clientes reciben informes detallados de lo que no estás haciendo. En ESG, la transparencia sin mejora puede acelerar la pérdida de contratos en lugar de prevenirla.',
+    'AC': 'El riesgo es la velocidad de la alianza sectorial. Si tus competidores locales no tienen los mismos incentivos para moverse, la iniciativa se ralentiza y tú habrás invertido tiempo directivo sin resultado operativo.',
+    'BA': 'El riesgo es financiero: $85M+ de inversión en un entorno de tipos altos requiere acceso a financiación verde con condiciones favorables. Si el proceso de obtención de certificación se retrasa o el precio del acero verde no alcanza el diferencial esperado, el retorno de la inversión se compromete.',
+    'BB': 'El riesgo es la ejecución simultánea: transformar el proceso productivo, reducir emisiones activamente y gestionar los contratos europeos existentes en paralelo requiere capacidad directiva y operativa que puede desbordarse.',
+    'BC': 'El riesgo es la coordinación: una alianza sectorial avanza a la velocidad del miembro más lento. Si dependes de ella para cumplir compromisos con clientes europeos en plazos concretos, tienes un riesgo de incumplimiento que no controlas.',
+    'CA': 'El riesgo es que el pivote sea una retirada encubierta. Si los nuevos mercados no absorben el volumen que pierdes en Europa con márgenes equivalentes, la empresa tiene un problema estructural de ingresos en 2027.',
+    'CB': 'El riesgo es temporal: la ventana de pivote tiene que ejecutarse antes de que la pérdida de clientes europeos sea desordenada. Un pivote planificado es muy distinto de una pérdida de mercado forzada.',
+    'CC': 'El riesgo es la pérdida de opcionalidad. Si pivotas completamente y el mercado latinoamericano o estadounidense no responde como esperas, volver al mercado europeo — donde ya habrás perdido posición y relaciones — será extremadamente costoso.',
+  };
+
+  // ── PROYECCIÓN A 3 AÑOS ──────────────────────────────────────────────────
+  const proyeccion = {
+    'BAA': 'En 2028, ACERLATAM es reconocida en Colombia y en Europa como el primer productor latinoamericano de acero verde certificado. Sus contratos europeos se han renovado y ampliado. Cotiza a precio premium. Es caso de estudio en la Asociación Colombiana del Acero y ha recibido financiación del BID para ampliar la planta.',
+    'BBA': 'En 2028, ACERLATAM ha completado la mitad de su transformación productiva, ha reducido emisiones en un 35% y mantiene sus contratos europeos. La inversión total supera $130M pero el retorno empieza a ser visible en los márgenes de exportación.',
+    'ACB': 'En 2028, ACERLATAM ha perdido los €12M de contratos bajo revisión y opera con un 22% menos de facturación europea. Ha ganado posición en mercados latinoamericanos pero los márgenes son 8 puntos más bajos. La Junta evalúa si retomar la transformación.',
+    'CCB': 'En 2028, ACERLATAM es esencialmente una empresa doméstica y latinoamericana. Ha perdido toda su presencia europea de forma ordenada. El mercado interno representa el 85% de la facturación. Los márgenes son estables pero inferiores.',
+  };
+
+  // Construir el análisis con las partes relevantes
+  const key = d1 + d2 + d3;
+  const riesgoKey = d1 + d2;
+  const proyeccionKey = key;
+
+  const coherenciaText = coherencia[key] || coherencia['BAA'];
+
+  // Proyección: buscar clave exacta o generar según patrón
+  let proyText;
+  if (proyeccion[proyeccionKey]) {
+    proyText = proyeccion[proyeccionKey];
+  } else if (d1 === 'B' && d2 !== 'C') {
+    proyText = 'En 2028, ACERLATAM ha completado los primeros dos años de transformación productiva. Los contratos europeos se mantienen aunque con presión de precio. La inversión total supera $100M y el punto de equilibrio se proyecta para 2029. La empresa es más resiliente ante el CBAM que sus competidores colombianos que no actuaron.';
+  } else if (d1 === 'A') {
+    proyText = 'En 2028, ACERLATAM opera con un 15-25% menos de ingresos europeos. Los clientes que exigían datos CSRD han encontrado alternativas. Los márgenes domésticos sostienen la empresa pero la Junta afronta la decisión que evitó en 2025: transformar o reducir tamaño.';
+  } else {
+    proyText = 'En 2028, ACERLATAM ha reorientado su mix de mercados. La presencia europea es marginal pero controlada. La empresa es más pequeña en exportaciones, más estable en riesgo regulatorio y está evaluando si la ventana de retorno a Europa sigue abierta.';
+  }
+
+  return `
+<h3>🎯 Coherencia estratégica</h3>
+<p>${coherenciaText}</p>
+
+<h3>📈 Impacto sobre la posición competitiva</h3>
+<p>${impactoD1[d1]}</p>
+
+<h3>⚖️ Exposición regulatoria</h3>
+<p>${expRegD2[d2]}</p>
+
+<h3>💡 Lo que esta estrategia hace bien</h3>
+<p>${aciertos[d1]}</p>
+
+<h3>⚠️ El riesgo principal que no puede ignorarse</h3>
+<p>${riesgo[riesgoKey] || 'El riesgo central es la velocidad del cambio regulatorio europeo versus la velocidad de adaptación de ACERLATAM. La ventana para actuar de forma proactiva se estrecha cada año que se pospone la decisión.'}</p>
+
+<h3>🔭 Proyección a 3 años</h3>
+<p>${proyText}</p>
+
+<p style="margin-top:1.2rem; font-size:0.78rem; color:var(--gray); border-top:1px solid rgba(255,255,255,0.07); padding-top:0.8rem;">
+  <em>Análisis generado en modo offline · Decisiones: <strong style="color:var(--white)">${dl1}</strong> / <strong style="color:var(--white)">${dl2}</strong> / <strong style="color:var(--white)">${dl3}</strong></em>
+</p>`;
+}
+
+</script>
+</body>
+</html>
