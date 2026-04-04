@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SimuLab · Estrategia Empresarial y Sostenibilidad · USAL 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700;1,800&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --cream:#FAF8F4;--white:#FFFFFF;
+  --or:#C94A1A;--orL:#E05A28;--orD:#A03810;
+  --teal:#1B5E52;--tealL:#2D8070;
+  --ink:#1A1714;--ink2:#3D3830;--mu:#8A8278;
+  --bd:#E4DFD8;--bd2:#D4CECC;
+  --sh:0 4px 24px rgba(26,23,20,0.08);
+  --shL:0 16px 48px rgba(26,23,20,0.14);
+  --shXL:0 32px 80px rgba(26,23,20,0.2);
+}
+html{font-size:16px;scroll-behavior:smooth;}
+body{font-family:'Inter',sans-serif;background:var(--cream);color:var(--ink);overflow-x:hidden;}
+#bg{position:fixed;inset:0;z-index:0;pointer-events:none;}
+.wrap{position:relative;z-index:2;}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1rem 2.5rem;
+  background:rgba(250,248,244,0.9);
+  backdrop-filter:blur(24px);
+  border-bottom:1px solid rgba(228,223,216,0.6);
+}
+.nav-brand{font-family:'Space Grotesk',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:0.22em;color:var(--or);text-transform:uppercase;}
+.nav-links{display:flex;gap:2rem;}
+.nav-links a{font-size:0.8rem;font-weight:500;color:var(--mu);text-decoration:none;transition:color 0.2s;}
+.nav-links a:hover{color:var(--or);}
+.nav-cta{font-family:'Space Grotesk',sans-serif;font-size:0.75rem;font-weight:700;padding:0.5rem 1.2rem;border-radius:9px;background:var(--or);color:white;text-decoration:none;transition:all 0.2s;box-shadow:0 4px 12px rgba(201,74,26,0.3);}
+.nav-cta:hover{background:var(--orL);transform:translateY(-1px);}
+@media(max-width:700px){.nav-links{display:none;}.nav-cta{display:none;}}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;display:grid;
+  grid-template-columns:52% 48%;
+  gap:0;align-items:stretch;
+  padding-top:62px;
+}
+@media(max-width:900px){.hero{grid-template-columns:1fr;min-height:auto;}}
+
+.hero-left{
+  display:flex;flex-direction:column;justify-content:center;
+  padding:4rem 3.5rem 4rem 2.5rem;
+  max-width:620px;
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:0.6rem;
+  font-family:'Space Grotesk',sans-serif;font-size:0.65rem;font-weight:700;
+  letter-spacing:0.2em;color:var(--or);text-transform:uppercase;
+  margin-bottom:1.2rem;
+}
+.hero-eyebrow::before{content:'';width:28px;height:1.5px;background:var(--or);}
+
+.hero-statement{margin-bottom:1.5rem;}
+.hero-statement p{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.5rem,2.8vw,2.1rem);
+  font-weight:700;color:var(--ink);
+  line-height:1.5;letter-spacing:-0.01em;
+}
+.hero-statement em{font-style:italic;color:var(--or);}
+
+.hero-rule{width:80px;height:2px;background:var(--or);margin:1.8rem 0;}
+
+.hero-sub{
+  font-size:0.88rem;color:var(--mu);line-height:1.75;
+  font-weight:300;margin-bottom:1.6rem;
+}
+.hero-sub strong{color:var(--ink);font-weight:600;}
+
+.hero-pills{display:flex;flex-wrap:wrap;gap:0.45rem;margin-bottom:1.8rem;}
+.hpill{
+  display:inline-flex;align-items:center;gap:0.35rem;
+  font-size:0.7rem;font-weight:500;padding:0.32rem 0.8rem;
+  background:var(--white);border:1.5px solid var(--bd);
+  border-radius:20px;color:var(--ink2);box-shadow:var(--sh);
+}
+
+.hero-meta{display:flex;gap:2rem;flex-wrap:wrap;}
+.hm{display:flex;flex-direction:column;gap:0.1rem;}
+.hm-l{font-family:'Space Grotesk',sans-serif;font-size:0.58rem;font-weight:700;letter-spacing:0.14em;color:var(--mu);text-transform:uppercase;}
+.hm-v{font-family:'Playfair Display',serif;font-size:0.95rem;font-weight:700;color:var(--ink);}
+.vline{width:1px;height:32px;background:var(--bd);}
+
+/* ── HERO RIGHT: IMAGE COLLAGE ── */
+.hero-right{
+  position:relative;overflow:hidden;
+  background:var(--ink);
+  min-height:500px;
+}
+@media(max-width:900px){.hero-right{height:60vw;min-height:300px;}}
+.hero-imgs{
+  display:grid;
+  grid-template-columns:52% 48%;
+  grid-template-rows:1fr 1fr;
+  height:100%;gap:3px;
+}
+.hi{overflow:hidden;position:relative;}
+.hi img{width:100%;height:100%;object-fit:cover;transition:transform 0.6s ease;filter:brightness(0.82) saturate(1.1);}
+.hi:hover img{transform:scale(1.04);filter:brightness(0.9) saturate(1.2);}
+.hi-1{grid-column:1;grid-row:1/3;}/* acero - full left column */
+.hi-2{grid-column:2;grid-row:1;}/* europa - top right */
+.hi-3{grid-column:2;grid-row:2;}/* cafe - bottom right */
+.hi-label{
+  position:absolute;bottom:0.8rem;left:0.8rem;
+  font-family:'Space Grotesk',sans-serif;font-size:0.6rem;font-weight:700;
+  letter-spacing:0.14em;color:rgba(255,255,255,0.7);text-transform:uppercase;
+  background:rgba(26,23,20,0.5);backdrop-filter:blur(6px);
+  padding:0.2rem 0.6rem;border-radius:4px;
+}
+
+/* ── SECTIONS ── */
+.section{padding:6rem 2.5rem;max-width:1200px;margin:0 auto;}
+.sec-label{display:flex;align-items:center;gap:0.6rem;font-family:'Space Grotesk',sans-serif;font-size:0.67rem;font-weight:700;letter-spacing:0.2em;color:var(--or);text-transform:uppercase;margin-bottom:0.7rem;}
+.sec-label::before{content:'';width:22px;height:1.5px;background:var(--or);}
+.sec-h{font-family:'Playfair Display',serif;font-size:clamp(2rem,3.8vw,3.2rem);font-weight:900;color:var(--ink);line-height:1.1;margin-bottom:1rem;}
+.sec-h em{font-style:italic;color:var(--or);}
+.sec-sub{font-size:0.97rem;color:var(--mu);line-height:1.78;max-width:520px;margin-bottom:3.5rem;}
+
+/* ── SIM GRID ── */
+.sg{display:grid;grid-template-columns:repeat(2,1fr);gap:1.4rem;}
+@media(max-width:800px){.sg{grid-template-columns:1fr;}}
+
+.sc{
+  background:var(--white);border:1.5px solid var(--bd);
+  border-radius:22px;overflow:hidden;box-shadow:var(--sh);
+  display:flex;flex-direction:column;
+  text-decoration:none;color:inherit;
+  transition:all 0.4s cubic-bezier(.16,1,.3,1);
+}
+.sc:hover{transform:translateY(-8px);box-shadow:var(--shXL);border-color:rgba(201,74,26,0.3);}
+.sc-top{padding:2.2rem;flex:1;position:relative;}
+.sc-bar{position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--or),var(--tealL));}
+.sc-n{font-family:'Playfair Display',serif;font-size:4.5rem;font-weight:900;color:rgba(201,74,26,0.07);line-height:1;margin-bottom:0.8rem;}
+.sc-ico{font-size:2rem;margin-bottom:0.7rem;display:block;}
+.sc-phase{font-family:'Space Grotesk',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.16em;color:var(--or);text-transform:uppercase;margin-bottom:0.4rem;}
+.sc-title{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:800;color:var(--ink);line-height:1.2;margin-bottom:0.75rem;}
+.sc-desc{font-size:0.82rem;color:var(--mu);line-height:1.7;}
+.sc-tags{display:flex;flex-wrap:wrap;gap:0.38rem;padding:0 2.2rem 1.2rem;}
+.sc-tag{font-size:0.63rem;padding:0.18rem 0.6rem;background:var(--cream);border:1.5px solid var(--bd);border-radius:20px;color:var(--mu);font-weight:500;}
+.sc-foot{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 2.2rem;border-top:1.5px solid var(--bd);background:var(--cream);}
+.sc-cta-t{font-family:'Space Grotesk',sans-serif;font-size:0.76rem;font-weight:700;color:var(--or);}
+.sc-arr{width:36px;height:36px;border-radius:50%;background:var(--or);color:white;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(201,74,26,0.35);transition:all 0.3s;font-size:0.9rem;}
+.sc:hover .sc-arr{transform:translateX(5px);background:var(--orL);}
+
+.sc-wide{grid-column:1/-1;flex-direction:row;min-height:280px;}
+@media(max-width:800px){.sc-wide{flex-direction:column;}}
+.sc-wide .sc-top{padding:2.5rem;}
+.sc-wide .sc-n{font-size:5.5rem;}
+.sc-wide .sc-title{font-size:1.55rem;}
+.sc-wide .sc-tags{padding:0 2.5rem 2rem;}
+.sc-wide .sc-foot{padding:1.2rem 2.5rem;}
+.sc-panel{
+  min-width:300px;flex-shrink:0;
+  border-left:1.5px solid var(--bd);
+  padding:2.5rem 2rem;
+  display:flex;flex-direction:column;justify-content:center;
+  background:rgba(201,74,26,0.025);
+}
+@media(max-width:800px){.sc-panel{border-left:none;border-top:1.5px solid var(--bd);}}
+.wp-head{font-family:'Space Grotesk',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.16em;color:var(--or);text-transform:uppercase;margin-bottom:1rem;}
+.wp-list{display:flex;flex-direction:column;gap:0.65rem;}
+.wp-item{display:flex;align-items:flex-start;gap:0.75rem;padding:0.8rem 0.9rem;background:var(--white);border:1.5px solid var(--bd);border-radius:11px;}
+.wp-num{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900;color:rgba(201,74,26,0.2);flex-shrink:0;width:18px;line-height:1.3;}
+.wp-t{font-size:0.78rem;font-weight:600;color:var(--ink);}
+.wp-s{font-size:0.68rem;color:var(--mu);}
+
+/* ── MATERIAL ── */
+.mg{display:grid;grid-template-columns:52% 48%;gap:1.4rem;}
+@media(max-width:700px){.mg{grid-template-columns:1fr;}}
+.mc{
+  background:var(--white);border:1.5px solid var(--bd);
+  border-radius:22px;padding:2.2rem;box-shadow:var(--sh);
+  display:flex;flex-direction:column;gap:1.2rem;
+  text-decoration:none;color:inherit;
+  transition:all 0.35s cubic-bezier(.16,1,.3,1);
+}
+.mc:hover{transform:translateY(-6px);box-shadow:var(--shXL);}
+.mc-ico{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;}
+.mc-ico.p{background:rgba(201,74,26,0.08);}
+.mc-ico.d{background:rgba(27,94,82,0.08);}
+.mc-type{font-family:'Space Grotesk',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;}
+.mc-type.p{color:var(--or);}
+.mc-type.d{color:var(--tealL);}
+.mc-title{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:800;color:var(--ink);line-height:1.25;}
+.mc-desc{font-size:0.81rem;color:var(--mu);line-height:1.68;flex:1;}
+.mc-foot{display:flex;align-items:center;justify-content:space-between;padding-top:1.1rem;border-top:1.5px solid var(--bd);margin-top:auto;}
+.mc-btn{display:inline-flex;align-items:center;gap:0.45rem;font-family:'Space Grotesk',sans-serif;font-size:0.76rem;font-weight:700;padding:0.6rem 1.2rem;border-radius:9px;text-decoration:none;transition:all 0.25s;}
+.mc-btn.p{background:var(--or);color:white;box-shadow:0 4px 12px rgba(201,74,26,0.3);}
+.mc-btn.p:hover{background:var(--orL);transform:translateY(-2px);}
+.mc-btn.d{background:var(--teal);color:white;box-shadow:0 4px 12px rgba(27,94,82,0.25);}
+.mc-btn.d:hover{background:var(--tealL);transform:translateY(-2px);}
+.mc-meta{font-family:'Space Grotesk',sans-serif;font-size:0.67rem;color:var(--mu);}
+
+/* ── ABOUT STRIP ── */
+.about{background:var(--ink);padding:6rem 2.5rem;position:relative;overflow:hidden;}
+.about::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--or) 0%,rgba(45,128,112,0.8) 50%,var(--or) 100%);}
+.about-in{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:52% 48%;gap:5rem;align-items:center;}
+@media(max-width:800px){.about-in{grid-template-columns:1fr;gap:3rem;}}
+.a-ey{font-family:'Space Grotesk',sans-serif;font-size:0.67rem;font-weight:700;letter-spacing:0.2em;color:rgba(240,180,41,0.75);text-transform:uppercase;margin-bottom:0.8rem;}
+.a-h{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3vw,2.8rem);font-weight:900;color:white;line-height:1.15;margin-bottom:1.2rem;}
+.a-h em{font-style:italic;color:rgba(240,180,41,0.9);}
+.a-p{font-size:0.9rem;color:rgba(255,255,255,0.52);line-height:1.85;}
+.a-stats{display:flex;flex-direction:column;gap:0.9rem;}
+.a-stat{display:flex;align-items:center;gap:1.2rem;padding:1.1rem 1.3rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:14px;transition:background 0.3s;}
+.a-stat:hover{background:rgba(255,255,255,0.09);}
+.a-sv{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:900;color:rgba(240,180,41,0.9);flex-shrink:0;min-width:54px;}
+.a-sl{font-size:0.8rem;color:rgba(255,255,255,0.5);line-height:1.45;}
+.a-sl strong{display:block;color:rgba(255,255,255,0.88);font-weight:600;font-size:0.85rem;margin-bottom:0.1rem;}
+
+/* ── FOOTER ── */
+footer{padding:2.5rem 2.5rem;border-top:1.5px solid var(--bd);max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+.ft-brand{font-family:'Playfair Display',serif;font-size:1rem;font-weight:800;color:var(--ink);}
+.ft-sub{font-size:0.77rem;color:var(--mu);}
+.ft-email{font-family:'Space Grotesk',sans-serif;font-size:0.82rem;font-weight:600;color:var(--or);text-decoration:none;border-bottom:1.5px solid rgba(201,74,26,0.25);padding-bottom:1px;transition:border-color 0.2s;}
+.ft-email:hover{border-color:var(--or);}
+.ft-usal{font-family:'Space Grotesk',sans-serif;font-size:0.67rem;font-weight:700;letter-spacing:0.12em;color:var(--or);text-transform:uppercase;}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="wrap">
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">SimuLab · USAL 2026</div>
+  <div class="nav-links">
+    <a href="#simuladores">Simuladores</a>
+    <a href="#material">Material</a>
+    <a href="#sobre">Jornada</a>
+  </div>
+  <a class="nav-cta" href="estrategico.html">Iniciar taller →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">18 · Mayo · 2026 · Universidad de Salamanca</div>
+    <h1 style="font-family:'Playfair Display',serif;font-size:clamp(2.8rem,5.8vw,5.8rem);font-weight:900;line-height:1.05;letter-spacing:-0.03em;color:var(--ink);margin:0;">Estrategia Empresarial</h1>
+    <h1 style="font-family:'Playfair Display',serif;font-size:clamp(2.8rem,5.8vw,5.8rem);font-weight:800;line-height:1.05;letter-spacing:-0.03em;font-style:italic;color:var(--or);margin:0 0 1.2rem 0;">Sostenibilidad.</h1>
+    <div class="hero-rule" style="margin:1rem 0;"></div>
+    <p class="hero-sub" style="margin-bottom:1.2rem;">
+      Material completo para la jornada del 18 de mayo.
+      <strong>Tres simuladores interactivos</strong>, documentación académica y presentación.
+    </p>
+    <div class="hero-pills">
+      <span class="hpill">🏭 CBAM · CSRD · Taxonomía UE</span>
+      <span class="hpill">📊 Cinco Fuerzas · Canvas</span>
+      <span class="hpill">🌿 Colombia → Europa</span>
+      <span class="hpill">⚖ Decisión estratégica</span>
+    </div>
+
+    <div class="hero-meta">
+      <div class="hm">
+        <span class="hm-l">Profesor</span>
+        <span class="hm-v">Prof. Jorge Matías-Pereda</span>
+      </div>
+      <div class="vline"></div>
+      <div class="hm">
+        <span class="hm-l">Institución</span>
+        <span class="hm-v">Universidad de Salamanca</span>
+      </div>
+      <div class="vline"></div>
+      <div class="hm">
+        <span class="hm-l">Formato</span>
+        <span class="hm-v">6h · 4 bloques</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="hero-imgs">
+      <div class="hi hi-1">
+        <img src="img-acero.png" alt="Fábrica de acero Colombia">
+        <div class="hi-label">ACERLATAM · Colombia</div>
+      </div>
+      <div class="hi hi-2">
+        <img src="img-europa.png" alt="Parlamento Europeo">
+        <div class="hi-label">Regulación UE · Bruselas</div>
+      </div>
+      <div class="hi hi-3">
+        <img src="img-cafe.png" alt="Cosecha de café en los Andes">
+        <div class="hi-label">CAFECOL · Andes colombianos</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SIMULADORES -->
+<section class="section" id="simuladores">
+  <div class="sec-label">Herramientas interactivas</div>
+  <h2 class="sec-h">Tres simuladores.<br><em>Un análisis completo.</em></h2>
+  <p class="sec-sub">Cada simulador corresponde a un bloque de la jornada. Funcionan en el navegador sin instalación, en cualquier dispositivo.</p>
+
+  <div class="sg">
+
+    <a class="sc" href="posicionamiento1.html">
+      <div class="sc-top">
+        <div class="sc-bar"></div>
+        <div class="sc-n">01</div>
+        <span class="sc-ico">🏭</span>
+        <div class="sc-phase">Bloque 1 · 9:00 – 10:40</div>
+        <div class="sc-title">Posicionamiento Estratégico</div>
+        <p class="sc-desc">Tomas el control de ACERLATAM S.A. Tres decisiones secuenciales ante el CBAM, el CSRD y la presión de clientes europeos. Análisis de consecuencias proyectadas a 3 años.</p>
+      </div>
+      <div class="sc-tags">
+        <span class="sc-tag">CBAM</span><span class="sc-tag">CSRD</span><span class="sc-tag">Acero · Colombia</span><span class="sc-tag">Proyección 3 años</span>
+      </div>
+      <div class="sc-foot">
+        <span class="sc-cta-t">Abrir simulador</span>
+        <div class="sc-arr">→</div>
+      </div>
+    </a>
+
+    <a class="sc" href="calculadora.html">
+      <div class="sc-top">
+        <div class="sc-bar"></div>
+        <div class="sc-n">02</div>
+        <span class="sc-ico">📊</span>
+        <div class="sc-phase">Bloque 3 · 14:00 – 15:15</div>
+        <div class="sc-title">Calculadora de ROI Sostenible</div>
+        <p class="sc-desc">Ajusta los parámetros en tiempo real: precio del CO₂, horizonte temporal, retorno de mercado, intangibles. Calcula ROI, VAN, payback y el coste de la inacción.</p>
+      </div>
+      <div class="sc-tags">
+        <span class="sc-tag">ROI · VAN · Payback</span><span class="sc-tag">EU ETS</span><span class="sc-tag">Coste de inacción</span>
+      </div>
+      <div class="sc-foot">
+        <span class="sc-cta-t">Abrir calculadora</span>
+        <div class="sc-arr">→</div>
+      </div>
+    </a>
+
+    <a class="sc sc-wide" href="estrategico.html">
+      <div style="display:flex;flex-direction:column;flex:1;">
+        <div class="sc-top">
+          <div class="sc-bar"></div>
+          <div class="sc-n">03</div>
+          <span class="sc-ico">🎯</span>
+          <div class="sc-phase">Bloque 4 · 15:30 – 16:30 · Taller integrador</div>
+          <div class="sc-title">Análisis Estratégico Aplicado</div>
+          <p class="sc-desc">El simulador completo. Analizáis el entorno con las Cinco Fuerzas, diagnosticáis el Canvas, tomáis una decisión estratégica y recibís el feedback del consejo sobre la coherencia y calidad de todo el análisis.</p>
+        </div>
+        <div class="sc-tags">
+          <span class="sc-tag">Cinco Fuerzas</span><span class="sc-tag">Canvas</span><span class="sc-tag">Decisión</span><span class="sc-tag">Feedback consejo</span><span class="sc-tag">PDF exportable</span>
+        </div>
+        <div class="sc-foot">
+          <span class="sc-cta-t">Iniciar taller completo</span>
+          <div class="sc-arr">→</div>
+        </div>
+      </div>
+      <div class="sc-panel">
+        <div class="wp-head">Cuatro fases estructuradas</div>
+        <div class="wp-list">
+          <div class="wp-item"><div class="wp-num">1</div><div><div class="wp-t">Porter sostenible</div><div class="wp-s">25 variables · Con información de ayuda</div></div></div>
+          <div class="wp-item"><div class="wp-num">2</div><div><div class="wp-t">Business Model Canvas</div><div class="wp-s">9 bloques · Pistas contextualizadas</div></div></div>
+          <div class="wp-item"><div class="wp-num">3</div><div><div class="wp-t">Decisión estratégica</div><div class="wp-s">Defender · Transformar · Pivotar</div></div></div>
+          <div class="wp-item"><div class="wp-num">4</div><div><div class="wp-t">Feedback del consejo</div><div class="wp-s">Veredicto · PDF exportable</div></div></div>
+        </div>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<!-- MATERIAL -->
+<section class="section" id="material" style="padding-top:1rem;">
+  <div class="sec-label">Documentación</div>
+  <h2 class="sec-h">Presentación<br><em>y referencia académica.</em></h2>
+  <p class="sec-sub">El capítulo tiene autonomía total — puedes estudiarlo sin haber asistido. La presentación cubre la jornada completa.</p>
+  <div class="mg">
+    <a class="mc" href="presentacion.pptx" download>
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <div class="mc-ico p">📐</div>
+        <div><div class="mc-type p">Presentación · PowerPoint</div><div class="mc-title">Estrategia Empresarial y Sostenibilidad</div></div>
+      </div>
+      <p class="mc-desc">35 diapositivas. Cuatro bloques con diagramas, caso Tesla/VW/Toyota, marco regulatorio europeo, Canvas de Philips, ROI sostenible e instrucciones de los talleres.</p>
+      <div class="mc-foot">
+        <a class="mc-btn p" href="presentacion.pptx" download>⬇ Descargar PPTX</a>
+        <span class="mc-meta">35 slides · USAL 2026</span>
+      </div>
+    </a>
+    <a class="mc" href="documento.docx" download>
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <div class="mc-ico d">📖</div>
+        <div><div class="mc-type d">Capítulo académico · Word</div><div class="mc-title">Manual de Estudio Autónomo</div></div>
+      </div>
+      <p class="mc-desc">Desarrollo completo de los cuatro bloques, casos de análisis, glosario de 16 términos clave y bibliografía. Diseñado para retomarlo con calma después de la jornada.</p>
+      <div class="mc-foot">
+        <a class="mc-btn d" href="documento.docx" download>⬇ Descargar DOCX</a>
+        <span class="mc-meta">Capítulo completo · USAL 2026</span>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<div class="about" id="sobre">
+  <div class="about-in">
+    <div>
+      <div class="a-ey">Sobre la jornada</div>
+      <h2 class="a-h">6 horas.<br><em>Una decisión real.</em></h2>
+      <p class="a-p">La sostenibilidad ha dejado de ser una capa añadida a la estrategia empresarial. Es la fuerza que está rediseñando los mercados, la regulación y la competencia desde dentro. Esta jornada proporciona las herramientas para leer ese cambio con rigor.</p>
+      <br>
+      <p class="a-p">El ratio teoría / práctica es 35% / 65%. Cada bloque cierra con algo concreto que los participantes han producido o decidido.</p>
+    </div>
+    <div class="a-stats">
+      <div class="a-stat"><div class="a-sv">6h</div><div class="a-sl"><strong>Jornada completa</strong>Mañana y tarde · 4 bloques temáticos</div></div>
+      <div class="a-stat"><div class="a-sv">3</div><div class="a-sl"><strong>Simuladores interactivos</strong>Posicionamiento · ROI · Taller integrador</div></div>
+      <div class="a-stat"><div class="a-sv">65%</div><div class="a-sl"><strong>Componente práctico</strong>Casos reales · Workshops · Simulación ejecutiva</div></div>
+      <div class="a-stat"><div class="a-sv">4</div><div class="a-sl"><strong>Empresas analizadas</strong>ACERLATAM · TEXTILANDES · CAFECOL · FLORESTEC</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="ft-brand">Prof. Jorge Matías-Pereda</div>
+    <div class="ft-sub">Departamento de Administración y Economía de la Empresa</div>
+  </div>
+  <a class="ft-email" href="mailto:mpereda@usal.es">mpereda@usal.es</a>
+  <div class="ft-usal">Universidad de Salamanca · Mayo 2026</div>
+</footer>
+
+</div>
+
+<script>
+// ── GEOMETRIC ANIMATED BACKGROUND ─────────────────────────────────────
+(function(){
+  const cv = document.getElementById('bg');
+  const ctx = cv.getContext('2d');
+  let W, H, t = 0, shapes = [];
+
+  function resize(){
+    W = cv.width = window.innerWidth;
+    H = cv.height = window.innerHeight;
+    buildShapes();
+  }
+
+  function buildShapes(){
+    shapes = [];
+    const n = Math.floor(W * H / 40000) + 8;
+    const types = ['tri','rect','hex','line','cross'];
+    const palette = [
+      [201,74,26],   // orange
+      [27,94,82],    // teal
+      [61,56,48],    // ink
+      [228,180,120], // warm gold
+      [160,200,180], // mint
+    ];
+    for(let i=0;i<n;i++){
+      const col = palette[Math.floor(Math.random()*palette.length)];
+      shapes.push({
+        type: types[Math.floor(Math.random()*types.length)],
+        x: Math.random(),
+        y: Math.random(),
+        size: 20 + Math.random()*60,
+        angle: Math.random()*Math.PI*2,
+        rotSpeed: (Math.random()-0.5)*0.004,
+        speed: 0.0002 + Math.random()*0.0003,
+        phase: Math.random()*Math.PI*2,
+        opacity: 0.04 + Math.random()*0.07,
+        col: col,
+        filled: Math.random()>0.7,
+      });
+    }
+  }
+
+  function drawTri(ctx, s){
+    ctx.beginPath();
+    ctx.moveTo(0,-s);
+    ctx.lineTo(s*0.866,s*0.5);
+    ctx.lineTo(-s*0.866,s*0.5);
+    ctx.closePath();
+  }
+  function drawRect(ctx, s){
+    const w = s*(0.8+Math.random()*0.8);
+    const h = s*(0.4+Math.random()*0.4);
+    ctx.beginPath();
+    ctx.rect(-w/2,-h/2,w,h);
+  }
+  function drawHex(ctx, s){
+    ctx.beginPath();
+    for(let i=0;i<6;i++){
+      const a = i*Math.PI/3;
+      i===0 ? ctx.moveTo(Math.cos(a)*s,Math.sin(a)*s)
+             : ctx.lineTo(Math.cos(a)*s,Math.sin(a)*s);
+    }
+    ctx.closePath();
+  }
+  function drawCross(ctx, s){
+    const t = s*0.25;
+    ctx.beginPath();
+    ctx.rect(-t,-s,t*2,s*2);
+    ctx.rect(-s,-t,s*2,t*2);
+  }
+
+  function draw(){
+    t++;
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#FAF8F4';
+    ctx.fillRect(0,0,W,H);
+
+    // Subtle diagonal lines in background
+    ctx.strokeStyle='rgba(228,223,216,0.4)';
+    ctx.lineWidth=1;
+    const spacing = 80;
+    for(let x=-H;x<W+H;x+=spacing){
+      ctx.beginPath();
+      ctx.moveTo(x,0);
+      ctx.lineTo(x+H,H);
+      ctx.stroke();
+    }
+
+    // Animated geometric shapes
+    shapes.forEach(sh=>{
+      const ox = sh.x*W + Math.sin(t*sh.speed+sh.phase)*W*0.05;
+      const oy = sh.y*H + Math.cos(t*sh.speed*0.7+sh.phase+1)*H*0.04;
+      sh.angle += sh.rotSpeed;
+
+      ctx.save();
+      ctx.translate(ox,oy);
+      ctx.rotate(sh.angle);
+      ctx.globalAlpha = sh.opacity;
+      ctx.strokeStyle = `rgb(${sh.col.join(',')})`;
+      ctx.fillStyle   = `rgb(${sh.col.join(',')})`;
+      ctx.lineWidth = 1.5;
+
+      if(sh.type==='tri') drawTri(ctx,sh.size);
+      else if(sh.type==='rect') drawRect(ctx,sh.size);
+      else if(sh.type==='hex') drawHex(ctx,sh.size);
+      else if(sh.type==='cross') drawCross(ctx,sh.size);
+      else {
+        // line
+        ctx.beginPath();
+        ctx.moveTo(-sh.size,0);
+        ctx.lineTo(sh.size,0);
+      }
+
+      if(sh.type==='line') ctx.stroke();
+      else if(sh.filled) ctx.fill();
+      else ctx.stroke();
+
+      ctx.restore();
+    });
+
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  draw();
+})();
+
+// ── SCROLL REVEAL ─────────────────────────────────────────────────────
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.style.opacity='1';
+      e.target.style.transform='translateY(0)';
+    }
+  });
+},{threshold:0.08});
+
+document.querySelectorAll('.sc,.mc,.a-stat').forEach(el=>{
+  el.style.opacity='0';
+  el.style.transform='translateY(24px)';
+  el.style.transition='opacity 0.6s ease, transform 0.6s cubic-bezier(.16,1,.3,1)';
+  obs.observe(el);
+});
+</script>
+</body>
+</html>
