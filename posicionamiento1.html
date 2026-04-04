@@ -1213,7 +1213,7 @@ body {
 
     <div style="text-align:center; display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
       <button class="btn btn-ghost" onclick="resetSimulator()">↺ Repetir con otras decisiones</button>
-      <button class="btn btn-primary" onclick="window.print()">Imprimir resultados</button>
+      <button class="btn btn-primary" id="btn-pdf" onclick="exportPDF()">⬇ Guardar PDF</button>
     </div>
 
   </div>
@@ -1673,6 +1673,210 @@ function getFallbackAnalysis(d1, d2, d3, dl1, dl2, dl3) {
   <em>Análisis generado en modo offline · Decisiones: <strong style="color:var(--white)">${dl1}</strong> / <strong style="color:var(--white)">${dl2}</strong> / <strong style="color:var(--white)">${dl3}</strong></em>
 </p>`;
 }
+
+// ─── PDF EXPORT ───────────────────────────────────────────────────────────
+async function exportPDF() {
+  const btn = document.getElementById('btn-pdf');
+  btn.disabled = true;
+  btn.textContent = 'Generando PDF...';
+
+  const d1 = state.decisions.d1, d2 = state.decisions.d2, d3 = state.decisions.d3;
+  const dl1 = state.labels.d1[d1], dl2 = state.labels.d2[d2], dl3 = state.labels.d3[d3];
+  const analysisHTML = document.getElementById('analysis-content').innerHTML;
+  const metricsHTML  = document.getElementById('metrics-grid').innerHTML;
+  const summaryHTML  = document.getElementById('decisions-summary').innerHTML;
+
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('es-ES', { year:'numeric', month:'long', day:'numeric' });
+
+  // Build a clean self-contained HTML document for printing
+  const printDoc = `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Análisis Estratégico · ACERLATAM · SimuLab</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #fff; color: #1a1a2e; font-size: 11pt; line-height: 1.6; }
+  .page { max-width: 210mm; margin: 0 auto; padding: 18mm 16mm 14mm; }
+
+  /* Header */
+  .pdf-header { display: flex; justify-content: space-between; align-items: flex-start;
+    border-bottom: 3px solid #E8A020; padding-bottom: 12px; margin-bottom: 20px; }
+  .pdf-logo { font-family: 'Space Grotesk', sans-serif; font-size: 9pt; font-weight: 700;
+    letter-spacing: 0.15em; color: #E8A020; text-transform: uppercase; margin-bottom: 3px; }
+  .pdf-title { font-family: 'Space Grotesk', sans-serif; font-size: 20pt; font-weight: 700;
+    color: #0D1E35; line-height: 1.2; }
+  .pdf-subtitle { font-size: 10pt; color: #666; margin-top: 4px; }
+  .pdf-date { font-size: 8.5pt; color: #999; text-align: right; }
+
+  /* Company badge */
+  .company-badge { background: #0D1E35; color: #fff; border-radius: 8px;
+    padding: 10px 14px; margin-bottom: 18px; display: flex; gap: 12px; align-items: center; }
+  .company-badge .name { font-family: 'Space Grotesk', sans-serif; font-size: 13pt;
+    font-weight: 700; color: #E8A020; }
+  .company-badge .sector { font-size: 9pt; color: #AABBCC; margin-top: 2px; }
+
+  /* Decisions summary */
+  .decisions-row { display: flex; gap: 8px; margin-bottom: 18px; }
+  .decision-pill { flex: 1; background: #f8f6f0; border: 1.5px solid #E8A020;
+    border-radius: 8px; padding: 8px 10px; }
+  .decision-pill .num { font-size: 7.5pt; font-weight: 700; color: #E8A020;
+    text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 3px; }
+  .decision-pill .val { font-size: 9pt; font-weight: 600; color: #0D1E35; }
+
+  /* Metrics */
+  .metrics-section { margin-bottom: 18px; }
+  .section-title { font-family: 'Space Grotesk', sans-serif; font-size: 9pt; font-weight: 700;
+    letter-spacing: 0.12em; color: #E8A020; text-transform: uppercase;
+    border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px; }
+  .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .metric-item { background: #f4f6f9; border-radius: 6px; padding: 8px 10px; }
+  .metric-item .label { font-size: 7.5pt; color: #888; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+  .metric-item .bar-bg { background: #e0e4ea; border-radius: 3px; height: 6px; margin-bottom: 4px; overflow: hidden; }
+  .metric-item .bar-fill { height: 100%; border-radius: 3px; }
+  .metric-item .val { font-size: 12pt; font-weight: 700; }
+
+  /* Analysis */
+  .analysis-section { margin-bottom: 18px; }
+  .analysis-content { font-size: 10pt; line-height: 1.75; color: #222; }
+  .analysis-content h3 { font-family: 'Space Grotesk', sans-serif; font-size: 11pt;
+    font-weight: 700; color: #0D1E35; margin: 14px 0 5px;
+    border-left: 3px solid #E8A020; padding-left: 8px; }
+  .analysis-content h3:first-child { margin-top: 0; }
+  .analysis-content p { margin-bottom: 7px; }
+  .analysis-content strong { color: #0D1E35; font-weight: 600; }
+  .analysis-content ul { padding-left: 16px; margin-bottom: 7px; }
+  .analysis-content li { margin-bottom: 3px; }
+
+  /* Reflection */
+  .reflection-section { background: #fffbf0; border: 1.5px solid #E8A020;
+    border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; }
+  .reflection-section .title { font-size: 8pt; font-weight: 700; color: #E8A020;
+    text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+  .reflection-section li { font-size: 9.5pt; color: #333; margin-bottom: 5px;
+    list-style: none; padding-left: 14px; position: relative; }
+  .reflection-section li::before { content: '→'; position: absolute; left: 0;
+    color: #E8A020; font-weight: 700; }
+
+  /* Footer */
+  .pdf-footer { border-top: 1px solid #eee; padding-top: 8px; margin-top: 14px;
+    font-size: 7.5pt; color: #aaa; display: flex; justify-content: space-between; }
+
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .page { padding: 12mm 14mm; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="pdf-header">
+    <div>
+      <div class="pdf-logo">SimuLab-AI · Universidad de Salamanca</div>
+      <div class="pdf-title">Análisis Estratégico</div>
+      <div class="pdf-subtitle">Simulador de Posicionamiento · Bloque 1 · Estrategia Empresarial y Sostenibilidad</div>
+    </div>
+    <div class="pdf-date">${dateStr}<br>Prof. Jorge Matías-Pereda</div>
+  </div>
+
+  <div class="company-badge">
+    <div style="font-size:24px;">🏭</div>
+    <div>
+      <div class="name">ACERLATAM S.A.</div>
+      <div class="sector">Siderurgia · Bogotá, Colombia · Exportador a Europa</div>
+    </div>
+  </div>
+
+  <div class="section-title">Decisiones tomadas</div>
+  <div class="decisions-row">
+    <div class="decision-pill">
+      <div class="num">Decisión 1 · Posicionamiento</div>
+      <div class="val">${dl1}</div>
+    </div>
+    <div class="decision-pill">
+      <div class="num">Decisión 2 · CBAM</div>
+      <div class="val">${dl2}</div>
+    </div>
+    <div class="decision-pill">
+      <div class="num">Decisión 3 · CSRD/Scope 3</div>
+      <div class="val">${dl3}</div>
+    </div>
+  </div>
+
+  <div class="metrics-section">
+    <div class="section-title">Proyección de impacto · 3 años</div>
+    <div class="metrics-grid" id="pdf-metrics"></div>
+  </div>
+
+  <div class="analysis-section">
+    <div class="section-title">Análisis estratégico</div>
+    <div class="analysis-content">${analysisHTML}</div>
+  </div>
+
+  <div class="reflection-section">
+    <div class="title">💬 Preguntas para el debate</div>
+    <ul>
+      <li>¿En qué se parece la situación de ACERLATAM a la de Tesla, VW o Toyota en el caso del automóvil?</li>
+      <li>¿Qué información adicional necesitarías para tomar estas decisiones con mayor confianza?</li>
+      <li>¿Cómo cambia el análisis si el precio del CO₂ en el EU ETS sube a €100/tonelada en 2027?</li>
+      <li>¿Qué haría diferente tu equipo con un mes más de tiempo para decidir?</li>
+    </ul>
+  </div>
+
+  <div class="pdf-footer">
+    <span>SimuLab-AI · Universidad de Salamanca · Prof. Jorge Matías-Pereda · 2026</span>
+    <span>Estrategia Empresarial y Sostenibilidad · Bloque 1</span>
+  </div>
+
+</div>
+<script>
+// Rebuild metric bars from data
+const metricLabels = [
+  'Cuota de mercado europeo',
+  'Rentabilidad operativa',
+  'Cumplimiento regulatorio',
+  'Posicionamiento competitivo'
+];
+const rawValues = [${buildMetricValues(d1,d2,d3)}];
+const colors = rawValues.map(v => v > 60 ? '#1A7B3A' : v > 35 ? '#E8A020' : '#CC3333');
+const textColors = rawValues.map(v => v > 60 ? '#1A7B3A' : v > 35 ? '#C07010' : '#CC3333');
+const grid = document.getElementById('pdf-metrics');
+rawValues.forEach((v, i) => {
+  grid.innerHTML += \`
+  <div class="metric-item">
+    <div class="label">\${metricLabels[i]}</div>
+    <div class="bar-bg"><div class="bar-fill" style="width:\${v}%;background:\${colors[i]}"></div></div>
+    <div class="val" style="color:\${textColors[i]}">\${v}%</div>
+  </div>\`;
+});
+window.onload = () => { window.print(); };
+<\/script>
+</body></html>`;
+
+  // Open in new window and trigger save as PDF
+  const win = window.open('', '_blank');
+  win.document.write(printDoc);
+  win.document.close();
+
+  btn.disabled = false;
+  btn.textContent = '⬇ Guardar PDF';
+}
+
+// Helper: return metric values as comma-separated string for PDF script
+function buildMetricValues(d1, d2, d3) {
+  const scores = {
+    mercado:      { A:40, B:80, C:55 }[d1] + { A:10, B:15, C:-10 }[d2] + { A:15, B:0, C:5 }[d3],
+    rentabilidad: { A:75, B:40, C:60 }[d1] + { A:-5, B:-20, C:5 }[d2] + { A:-5, B:0, C:-3 }[d3],
+    regulatorio:  { A:20, B:80, C:50 }[d1] + { A:25, B:30, C:-20 }[d2] + { A:20, B:5, C:15 }[d3],
+    competitivo:  { A:30, B:90, C:50 }[d1] + { A:15, B:20, C:-5 }[d2] + { A:20, B:5, C:20 }[d3],
+  };
+  return Object.values(scores).map(v => Math.min(100, Math.max(5, v))).join(',');
+}
+
 
 </script>
 </body>
