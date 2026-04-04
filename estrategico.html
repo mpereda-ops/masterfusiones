@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SimuLab · Taller de Estrategia Aplicada</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700;1,800&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --cream:#FAF8F4;
+  --cream2:#F3EFE8;
+  --white:#FFFFFF;
+  --orange:#C94A1A;
+  --orangeL:#E05A28;
+  --orangeD:#A03810;
+  --teal:#1B5E52;
+  --tealL:#2D8070;
+  --purple:#5B3FA6;
+  --ink:#1A1714;
+  --ink2:#3D3830;
+  --muted:#8A8278;
+  --border:#E4DFD8;
+  --border2:#D4CECC;
+  --shadow:0 4px 24px rgba(26,23,20,0.08);
+  --shadow-lg:0 16px 48px rgba(26,23,20,0.12);
+}
+html{font-size:16px;scroll-behavior:smooth;}
+body{font-family:'Inter',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;overflow-x:hidden;}
+#bg{position:fixed;inset:0;z-index:0;pointer-events:none;}
+.app{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:0 1.5rem 6rem;}
+
+/* ── HEADER ── */
+.hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.4rem 0 1.1rem;
+  border-bottom:1.5px solid var(--border);
+  margin-bottom:2.5rem;
+}
+.brand{
+  font-family:'Space Grotesk',sans-serif;font-size:0.7rem;font-weight:700;
+  letter-spacing:0.2em;color:var(--orange);text-transform:uppercase;
+}
+.hdr-right{display:flex;align-items:center;gap:0.8rem;}
+.team-pill{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:0.7rem;color:var(--muted);
+  background:var(--white);border:1.5px solid var(--border);
+  padding:0.3rem 0.9rem;border-radius:20px;
+}
+
+/* ── PROGRESS NAV ── */
+.progress-nav{
+  display:flex;align-items:stretch;
+  background:var(--white);border:1.5px solid var(--border);
+  border-radius:14px;overflow:hidden;margin-bottom:2.5rem;
+  box-shadow:var(--shadow);
+}
+.pnav-item{
+  flex:1;padding:0.75rem 0.5rem;text-align:center;cursor:default;
+  transition:all 0.3s;border-right:1.5px solid var(--border);
+  position:relative;
+}
+.pnav-item:last-child{border-right:none;}
+.pnav-item.done{cursor:pointer;}
+.pnav-item.done:hover{background:rgba(201,74,26,0.04);}
+.pnav-item.active{background:rgba(201,74,26,0.06);}
+.pnav-item.active::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:2.5px;
+  background:var(--orange);
+}
+.pnav-num{
+  font-family:'Space Grotesk',sans-serif;font-size:0.58rem;font-weight:700;
+  letter-spacing:0.14em;margin-bottom:3px;color:var(--muted);text-transform:uppercase;
+}
+.pnav-item.active .pnav-num{color:var(--orange);}
+.pnav-item.done .pnav-num{color:var(--tealL);}
+.pnav-name{font-size:0.72rem;font-weight:600;color:var(--muted);}
+.pnav-item.active .pnav-name{color:var(--ink);}
+.pnav-item.done .pnav-name{color:var(--ink2);}
+
+/* ── SCREENS ── */
+.screen{display:none;animation:fi 0.5s cubic-bezier(.16,1,.3,1);}
+.screen.active{display:block;}
+@keyframes fi{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── TYPOGRAPHY ── */
+.s-eyebrow{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:0.68rem;font-weight:700;letter-spacing:0.22em;
+  color:var(--orange);text-transform:uppercase;margin-bottom:0.55rem;
+}
+.s-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;
+  line-height:1.12;margin-bottom:0.75rem;color:var(--ink);
+}
+.s-title em{font-style:italic;color:var(--orange);}
+.s-sub{font-size:0.92rem;color:var(--muted);line-height:1.75;margin-bottom:2rem;}
+
+/* ── BRIEFING ── */
+.briefing{
+  background:var(--white);border:1.5px solid var(--border);
+  border-radius:16px;padding:1.6rem;margin-bottom:1.8rem;
+  position:relative;overflow:hidden;box-shadow:var(--shadow);
+}
+.briefing::before{
+  content:'';position:absolute;top:0;left:0;width:3.5px;height:100%;
+  background:linear-gradient(180deg,var(--orange),var(--tealL));
+}
+.briefing-title{
+  font-family:'Space Grotesk',sans-serif;font-size:0.67rem;font-weight:700;
+  letter-spacing:0.16em;color:var(--orange);text-transform:uppercase;margin-bottom:0.8rem;
+}
+.briefing p{font-size:0.88rem;color:var(--ink2);line-height:1.78;margin-bottom:0.6rem;}
+.briefing p:last-child{margin-bottom:0;}
+.briefing strong{color:var(--orange);font-weight:600;}
+
+/* ── PANEL ── */
+.panel{
+  background:var(--white);border:1.5px solid var(--border);
+  border-radius:16px;padding:1.5rem;margin-bottom:1.2rem;
+  box-shadow:var(--shadow);
+}
+.panel-title{
+  font-family:'Space Grotesk',sans-serif;font-size:0.67rem;font-weight:700;
+  letter-spacing:0.15em;color:var(--orange);text-transform:uppercase;
+  padding-bottom:0.65rem;border-bottom:1.5px solid var(--border);margin-bottom:1.1rem;
+}
+
+/* ── COMPANY CARDS ── */
+.co-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;margin-bottom:1.6rem;}
+@media(max-width:600px){.co-grid{grid-template-columns:1fr;}}
+.co-card{
+  background:var(--white);border:1.5px solid var(--border);border-radius:18px;
+  padding:1.5rem;cursor:pointer;transition:all 0.3s cubic-bezier(.16,1,.3,1);
+  position:relative;overflow:hidden;box-shadow:var(--shadow);
+}
+.co-card:hover{
+  border-color:var(--orange);transform:translateY(-4px);
+  box-shadow:0 20px 48px rgba(201,74,26,0.12);
+}
+.co-card.selected{
+  border-color:var(--orange);border-width:2px;
+  box-shadow:0 0 0 4px rgba(201,74,26,0.1),var(--shadow-lg);
+}
+.co-card.selected::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--orange),var(--tealL));
+}
+.co-check{
+  position:absolute;top:1rem;right:1rem;width:24px;height:24px;
+  border-radius:50%;background:var(--orange);
+  display:none;align-items:center;justify-content:center;
+  font-size:0.75rem;color:white;font-weight:800;
+  box-shadow:0 4px 10px rgba(201,74,26,0.4);
+}
+.co-card.selected .co-check{display:flex;}
+.co-emoji{font-size:2.4rem;margin-bottom:0.7rem;display:block;}
+.co-name{
+  font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:800;
+  margin-bottom:0.25rem;color:var(--ink);
+}
+.co-sector{
+  font-family:'Space Grotesk',sans-serif;font-size:0.67rem;font-weight:700;
+  color:var(--orange);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.75rem;
+}
+.co-tags{display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.7rem;}
+.co-tag{
+  font-size:0.65rem;padding:0.2rem 0.6rem;
+  background:var(--cream);border:1.5px solid var(--border);
+  border-radius:20px;color:var(--muted);font-weight:500;
+}
+.co-desc{font-size:0.8rem;color:var(--muted);line-height:1.58;}
+
+/* ── FORCE BLOCKS ── */
+.force-block{
+  background:var(--white);border:1.5px solid var(--border);
+  border-radius:14px;margin-bottom:0.8rem;overflow:hidden;
+  box-shadow:var(--shadow);transition:border-color 0.3s,box-shadow 0.3s;
+}
+.force-block.expanded{
+  border-color:rgba(201,74,26,0.35);
+  box-shadow:0 8px 28px rgba(201,74,26,0.08);
+}
+.force-header{
+  display:flex;align-items:center;gap:0.9rem;
+  padding:1.1rem 1.2rem;cursor:pointer;user-select:none;
+  transition:background 0.2s;
+}
+.force-header:hover{background:rgba(201,74,26,0.03);}
+.force-icon{
+  font-size:1.4rem;flex-shrink:0;width:44px;height:44px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--cream);border:1.5px solid var(--border);border-radius:11px;
+}
+.force-meta{flex:1;}
+.force-name{
+  font-family:'Playfair Display',serif;font-size:0.98rem;font-weight:700;
+  color:var(--ink);margin-bottom:0.18rem;
+}
+.force-desc{font-size:0.74rem;color:var(--muted);line-height:1.4;}
+.force-score-badge{
+  font-family:'Space Grotesk',sans-serif;font-size:1.05rem;font-weight:700;
+  padding:0.25rem 0.75rem;border-radius:10px;flex-shrink:0;
+  background:var(--cream);color:var(--muted);border:1.5px solid var(--border);
+  transition:all 0.4s;
+}
+.force-score-badge.low{background:#EEF9F5;color:#1B7A5C;border-color:#B8E8D6;}
+.force-score-badge.med{background:#FEF6EC;color:var(--orangeL);border-color:#FAD5B0;}
+.force-score-badge.high{background:#FEF0EE;color:#C0392B;border-color:#F5C6C2;}
+.force-chevron{font-size:0.72rem;color:var(--muted);transition:transform 0.3s;flex-shrink:0;}
+.force-block.expanded .force-chevron{transform:rotate(180deg);}
+.force-body{display:none;padding:0 1.2rem 1.2rem;border-top:1.5px solid var(--border);}
+.force-block.expanded .force-body{display:block;}
+
+/* ── VAR SLIDERS ── */
+.var-row{margin-bottom:1.1rem;padding-top:0.9rem;border-top:1px solid var(--cream2);}
+.var-row:first-child{border-top:none;}
+.var-header{display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;margin-bottom:0.45rem;}
+.var-name{font-size:0.83rem;font-weight:500;color:var(--ink2);line-height:1.4;flex:1;}
+.var-val{
+  font-family:'Space Grotesk',sans-serif;font-size:1.05rem;font-weight:700;
+  color:var(--orange);min-width:24px;text-align:right;
+}
+input[type="range"].var-slider{
+  -webkit-appearance:none;appearance:none;width:100%;height:5px;
+  border-radius:3px;outline:none;cursor:pointer;margin-bottom:0.3rem;
+  background:linear-gradient(to right,var(--orange) 0%,var(--orange) var(--pct,40%),var(--border2) var(--pct,40%));
+}
+input[type="range"].var-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;width:18px;height:18px;border-radius:50%;
+  background:var(--orange);border:2.5px solid var(--white);
+  box-shadow:0 2px 8px rgba(201,74,26,0.4);cursor:pointer;transition:transform 0.15s;
+}
+input[type="range"].var-slider::-webkit-slider-thumb:hover{transform:scale(1.25);}
+.var-labels{display:flex;justify-content:space-between;font-size:0.58rem;color:var(--border2);}
+
+/* ── INFO BOXES ── */
+.info-toggle{
+  display:inline-flex;align-items:center;gap:0.3rem;font-size:0.68rem;
+  color:var(--tealL);cursor:pointer;margin-bottom:0.45rem;
+  font-weight:500;opacity:0.8;transition:opacity 0.2s;
+}
+.info-toggle:hover{opacity:1;}
+.info-box{
+  background:rgba(27,94,82,0.05);border:1.5px solid rgba(45,128,112,0.2);
+  border-radius:10px;padding:0.75rem 0.95rem;margin-bottom:0.6rem;
+  font-size:0.78rem;color:var(--ink2);line-height:1.68;display:none;
+}
+.info-box.open{display:block;animation:fi 0.3s ease;}
+.info-box strong{color:var(--orangeL);font-weight:600;}
+
+/* ── CHART ── */
+.chart-wrap{
+  background:var(--white);border:1.5px solid var(--border);
+  border-radius:16px;padding:1.4rem;margin-bottom:1.3rem;
+  box-shadow:var(--shadow);
+}
+.chart-wrap canvas{max-height:320px;}
+
+/* ── ATTRACT VERDICT ── */
+.attract-bar{border-radius:14px;padding:1.2rem 1.4rem;margin-bottom:1.3rem;border:1.5px solid;box-shadow:var(--shadow);}
+.attract-bar.high{background:#EEF9F5;border-color:#B8E8D6;}
+.attract-bar.med{background:#FEF6EC;border-color:#FAD5B0;}
+.attract-bar.low{background:#FEF0EE;border-color:#F5C6C2;}
+.attract-title{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;margin-bottom:0.4rem;color:var(--ink);}
+.attract-body{font-size:0.85rem;color:var(--ink2);line-height:1.65;}
+
+/* ── CANVAS GRID ── */
+.canvas-grid{
+  display:grid;grid-template-columns:repeat(5,1fr);
+  grid-template-rows:auto auto auto;gap:0.55rem;margin-bottom:1.3rem;
+}
+.c-block{
+  background:var(--white);border:1.5px solid var(--border);border-radius:12px;
+  padding:0.8rem;transition:all 0.3s;position:relative;box-shadow:var(--shadow);
+}
+.c-block.vulnerable{
+  border-color:#F5A08A!important;background:#FEF5F3!important;
+  box-shadow:0 0 0 3px rgba(201,74,26,0.08),var(--shadow)!important;
+}
+.c-block.strong{border-color:#A8E6CF!important;background:#F0FAF6!important;}
+.c-block-title{
+  font-family:'Space Grotesk',sans-serif;font-size:0.6rem;font-weight:700;
+  color:var(--orange);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.4rem;
+}
+.c-block textarea{
+  width:100%;background:transparent;border:none;outline:none;
+  color:var(--ink2);font-size:0.73rem;font-family:'Inter',sans-serif;
+  line-height:1.55;resize:none;min-height:58px;
+}
+.c-block textarea::placeholder{color:rgba(138,130,120,0.5);font-style:italic;font-size:0.7rem;}
+.c-block-footer{display:flex;align-items:center;justify-content:space-between;margin-top:0.35rem;gap:0.3rem;}
+.vuln-toggle{
+  font-size:0.58rem;padding:0.15rem 0.45rem;border-radius:6px;
+  border:1.5px solid var(--border);background:transparent;color:var(--muted);
+  cursor:pointer;transition:all 0.2s;white-space:nowrap;
+}
+.vuln-toggle:hover{border-color:#F5A08A;color:var(--orange);}
+.c-block.vulnerable .vuln-toggle{border-color:#F5A08A;color:var(--orange);background:rgba(201,74,26,0.06);}
+.c-hint-btn{font-size:0.58rem;color:var(--tealL);cursor:pointer;text-decoration:underline;white-space:nowrap;}
+.c-hint-btn:hover{color:var(--teal);}
+.c-hint-box{
+  font-size:0.7rem;color:var(--ink2);line-height:1.5;
+  margin-top:0.35rem;padding:0.4rem 0.55rem;
+  background:rgba(27,94,82,0.05);border-radius:6px;
+  border:1px solid rgba(45,128,112,0.18);display:none;
+}
+.c-hint-box.open{display:block;}
+.c-kp{grid-column:1;grid-row:1/3;}
+.c-ka{grid-column:2;grid-row:1;}
+.c-kr{grid-column:2;grid-row:2;}
+.c-vp{
+  grid-column:3;grid-row:1/3;
+  border-color:rgba(201,74,26,0.3)!important;
+  background:rgba(201,74,26,0.03)!important;
+}
+.c-vp .c-block-title{color:var(--orange);}
+.c-vp textarea,.c-kp textarea,.c-cs textarea{min-height:72px;}
+.c-cr{grid-column:4;grid-row:1;}
+.c-ch{grid-column:4;grid-row:2;}
+.c-cs{grid-column:5;grid-row:1/3;}
+.c-cost{grid-column:1/4;grid-row:3;}
+.c-rev{grid-column:4/6;grid-row:3;}
+
+/* ── DECISION CARDS ── */
+.dec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.3rem;}
+@media(max-width:640px){.dec-grid{grid-template-columns:1fr;}}
+.dec-card{
+  background:var(--white);border:1.5px solid var(--border);border-radius:16px;
+  padding:1.3rem 1.1rem;cursor:pointer;box-shadow:var(--shadow);
+  transition:all 0.3s cubic-bezier(.16,1,.3,1);
+}
+.dec-card:hover{border-color:var(--orange);transform:translateY(-4px);box-shadow:0 16px 40px rgba(201,74,26,0.1);}
+.dec-card.chosen{
+  border-color:var(--orange);border-width:2px;
+  box-shadow:0 0 0 4px rgba(201,74,26,0.1),var(--shadow-lg);
+}
+.dec-icon{font-size:2rem;margin-bottom:0.7rem;display:block;}
+.dec-label{font-family:'Playfair Display',serif;font-size:1rem;font-weight:800;color:var(--ink);margin-bottom:0.5rem;}
+.dec-desc{font-size:0.78rem;color:var(--muted);line-height:1.55;}
+
+/* ── SCAFFOLD ── */
+.scaffold-block{margin-bottom:1.1rem;}
+.scaffold-block label{
+  display:block;font-family:'Space Grotesk',sans-serif;
+  font-size:0.67rem;font-weight:700;color:var(--orange);
+  text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.35rem;
+}
+.scaffold-block .hint{font-size:0.75rem;color:var(--muted);margin-bottom:0.4rem;line-height:1.55;}
+.scaffold-ta{
+  width:100%;background:var(--cream);border:1.5px solid var(--border);
+  border-radius:10px;padding:0.7rem 0.95rem;color:var(--ink2);
+  font-size:0.84rem;font-family:'Inter',sans-serif;outline:none;
+  resize:vertical;min-height:70px;transition:all 0.25s;line-height:1.6;
+}
+.scaffold-ta:focus{border-color:var(--orange);background:var(--white);box-shadow:0 0 0 3px rgba(201,74,26,0.07);}
+.scaffold-ta::placeholder{color:rgba(138,130,120,0.5);font-style:italic;}
+
+/* ── AI CARD ── */
+.ai-card{
+  background:var(--ink);border-radius:20px;padding:2rem;
+  margin-bottom:1.5rem;position:relative;overflow:hidden;
+  box-shadow:0 24px 64px rgba(26,23,20,0.2);
+}
+.ai-card::before{
+  content:'';position:absolute;top:-30%;right:-10%;
+  width:300px;height:300px;
+  background:radial-gradient(circle,rgba(201,74,26,0.2) 0%,transparent 65%);
+  pointer-events:none;
+}
+.ai-label{
+  display:flex;align-items:center;gap:0.6rem;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:0.67rem;font-weight:700;letter-spacing:0.18em;
+  color:rgba(240,180,41,0.9);text-transform:uppercase;margin-bottom:1.2rem;
+}
+.ai-pulse{
+  width:8px;height:8px;border-radius:50%;
+  background:rgba(240,180,41,0.9);flex-shrink:0;
+  animation:pulse-d 2s infinite;
+  box-shadow:0 0 10px rgba(240,180,41,0.5);
+}
+@keyframes pulse-d{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:0.7}}
+.ai-content{font-size:0.9rem;line-height:1.82;color:rgba(250,248,244,0.88);}
+.ai-content h3{
+  font-family:'Playfair Display',serif;font-size:1.02rem;font-weight:700;
+  color:rgba(240,180,41,0.95);margin:1.3rem 0 0.45rem;
+}
+.ai-content h3:first-child{margin-top:0;}
+.ai-content p{margin-bottom:0.75rem;}
+.ai-content strong{color:rgba(240,220,150,0.95);font-weight:600;}
+.ai-content ul{padding-left:1.1rem;margin-bottom:0.75rem;}
+.ai-content li{margin-bottom:0.35rem;}
+.ai-loading{text-align:center;padding:2.5rem;}
+.ai-loader{
+  width:44px;height:44px;border:3px solid rgba(240,180,41,0.2);
+  border-top-color:rgba(240,180,41,0.8);border-radius:50%;
+  animation:spin 0.85s linear infinite;margin:0 auto 1rem;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ai-loading p{color:rgba(250,248,244,0.5);font-size:0.85rem;}
+
+/* ── BUTTONS ── */
+.btn{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  font-family:'Space Grotesk',sans-serif;font-size:0.88rem;font-weight:700;
+  padding:0.85rem 2rem;border-radius:12px;border:none;cursor:pointer;
+  transition:all 0.3s cubic-bezier(.16,1,.3,1);letter-spacing:0.03em;
+}
+.btn-primary{
+  background:var(--orange);color:white;
+  box-shadow:0 4px 16px rgba(201,74,26,0.35);
+}
+.btn-primary:hover{
+  background:var(--orangeL);transform:translateY(-2px);
+  box-shadow:0 12px 32px rgba(201,74,26,0.4);
+}
+.btn-primary:disabled{opacity:0.35;cursor:not-allowed;transform:none;box-shadow:none;}
+.btn-ghost{
+  background:var(--white);color:var(--ink2);
+  border:1.5px solid var(--border);box-shadow:var(--shadow);
+}
+.btn-ghost:hover{border-color:var(--orange);color:var(--orange);}
+.btn-green{
+  background:var(--teal);color:white;
+  box-shadow:0 4px 16px rgba(27,94,82,0.3);
+}
+.btn-green:hover{background:var(--tealL);transform:translateY(-2px);}
+.actions{display:flex;gap:0.8rem;align-items:center;flex-wrap:wrap;margin-top:1.5rem;}
+
+/* ── CONFIRM ── */
+.confirm-box{
+  background:linear-gradient(135deg,#EEF9F5,#F0FAF8);
+  border:2px solid #A8E6CF;border-radius:20px;padding:2.5rem;
+  text-align:center;box-shadow:var(--shadow-lg);
+}
+.confirm-icon{font-size:3.5rem;margin-bottom:0.9rem;display:block;}
+.confirm-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:800;color:var(--teal);margin-bottom:0.5rem;}
+.confirm-sub{font-size:0.9rem;color:var(--muted);line-height:1.65;}
+
+/* ── TEAM INPUT ── */
+.team-input-wrap{max-width:400px;margin:0 auto 2rem;}
+.team-input-wrap label{
+  display:block;font-family:'Space Grotesk',sans-serif;
+  font-size:0.67rem;font-weight:700;letter-spacing:0.12em;
+  color:var(--orange);text-transform:uppercase;margin-bottom:0.45rem;
+}
+.team-input{
+  width:100%;background:var(--white);border:1.5px solid var(--border);
+  border-radius:12px;padding:0.8rem 1.1rem;color:var(--ink);
+  font-family:'Inter',sans-serif;font-size:0.92rem;outline:none;
+  transition:all 0.25s;box-shadow:var(--shadow);
+}
+.team-input:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(201,74,26,0.08);}
+.team-input::placeholder{color:var(--muted);}
+
+/* ── INTRO STATS ── */
+.intro-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2.5rem;}
+.istat{
+  background:var(--white);border:1.5px solid var(--border);
+  border-radius:16px;padding:1.4rem;text-align:center;
+  box-shadow:var(--shadow);transition:all 0.3s;
+}
+.istat:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:rgba(201,74,26,0.2);}
+.istat-val{
+  font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:900;
+  color:var(--orange);margin-bottom:0.3rem;line-height:1;
+}
+.istat-label{font-family:'Space Grotesk',sans-serif;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink);margin-bottom:0.15rem;}
+.istat-sub{font-size:0.7rem;color:var(--muted);}
+
+/* ── TOPIC PILLS ── */
+.topic-pills{display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:2.5rem;}
+.tpill{
+  display:inline-flex;align-items:center;gap:0.4rem;
+  font-size:0.75rem;font-weight:500;padding:0.35rem 0.9rem;
+  background:var(--white);border:1.5px solid var(--border);
+  border-radius:20px;color:var(--ink2);box-shadow:var(--shadow);
+}
+.tpill:hover{border-color:var(--orange);color:var(--orange);cursor:default;}
+
+/* ── DIVIDER ── */
+.divider{height:1.5px;background:linear-gradient(90deg,var(--orange),var(--cream));margin:1.8rem 0;}
+
+/* ── FOOTER ── */
+.site-footer{
+  text-align:center;padding:2rem 0 0;border-top:1.5px solid var(--border);
+  margin-top:3rem;font-size:0.75rem;color:var(--muted);
+}
+.site-footer span{color:var(--orange);}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="app">
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="brand">SimuLab · Universidad de Salamanca</div>
+  <div class="hdr-right">
+    <div class="team-pill" id="team-pill">Bloque 4 · Taller de Estrategia</div>
+  </div>
+</header>
+
+<!-- PROGRESS NAV -->
+<div class="progress-nav" id="progress-nav" style="display:none">
+  <div class="pnav-item active" id="pn1"><div class="pnav-num">FASE 01</div><div class="pnav-name">Entorno · Porter</div></div>
+  <div class="pnav-item" id="pn2"><div class="pnav-num">FASE 02</div><div class="pnav-name">Modelo · Canvas</div></div>
+  <div class="pnav-item" id="pn3"><div class="pnav-num">FASE 03</div><div class="pnav-name">Decisión</div></div>
+  <div class="pnav-item" id="pn4"><div class="pnav-num">FASE 04</div><div class="pnav-name">Feedback consejo</div></div>
+</div>
+
+<!-- ══ SCREEN 0: SELECCIÓN ══ -->
+<div class="screen active" id="s0">
+  <div style="padding:2rem 0 1.5rem;">
+    <div class="s-eyebrow">Bloque 4 · Taller de Estrategia Aplicada</div>
+    <h1 class="s-title">Análisis estratégico<br><em>bajo presión sostenible</em></h1>
+    <div class="divider"></div>
+    <p class="s-sub">Analizaréis el entorno competitivo y el modelo de negocio de una empresa real colombiana que enfrenta la regulación europea de sostenibilidad. Tomaréis una decisión estratégica y recibiréis el feedback del consejo de administración.</p>
+  </div>
+
+  <div class="briefing">
+    <div class="briefing-title">¿Qué vais a hacer exactamente?</div>
+    <p><strong>Fase 1 — Análisis del entorno (Porter):</strong> Evaluaréis las cinco fuerzas competitivas de vuestro sector con variables específicas de sostenibilidad. El simulador calculará el atractivo del sector y la rentabilidad esperada.</p>
+    <p><strong>Fase 2 — Modelo de negocio (Canvas):</strong> Describiréis el modelo actual de la empresa y marcaréis qué bloques son más vulnerables ante la transición sostenible.</p>
+    <p><strong>Fase 3 — Decisión estratégica:</strong> Elegiréis entre Defender, Transformar o Pivotar, y construiréis el argumento con preguntas guiadas.</p>
+    <p><strong>Fase 4 — Feedback del consejo:</strong> La IA evaluará todo vuestro análisis como si fuera el consejo de administración y os dará retroalimentación sobre la calidad y coherencia de vuestro trabajo.</p>
+  </div>
+
+  <!-- Concept pills -->
+  <div class="topic-pills">
+    <span class="tpill">📊 Cinco Fuerzas Porter</span>
+    <span class="tpill">🗺 Business Model Canvas</span>
+    <span class="tpill">⚖ Decisión estratégica</span>
+    <span class="tpill">🌿 Regulación UE · CBAM · CSRD</span>
+    <span class="tpill">🤖 Feedback IA del Consejo</span>
+  </div>
+
+  <!-- Stats row -->
+  <div class="intro-stats">
+    <div class="istat">
+      <div class="istat-val">25+</div>
+      <div class="istat-label">Variables analizadas</div>
+      <div class="istat-sub">Orientadas a sostenibilidad</div>
+    </div>
+    <div class="istat">
+      <div class="istat-val">4</div>
+      <div class="istat-label">Fases estructuradas</div>
+      <div class="istat-sub">Porter · Canvas · Decisión · Feedback</div>
+    </div>
+    <div class="istat">
+      <div class="istat-val">IA</div>
+      <div class="istat-label">Feedback del consejo</div>
+      <div class="istat-sub">Análisis generado en tiempo real</div>
+    </div>
+  </div>
+
+  <div class="team-input-wrap">
+    <label>Nombre del equipo</label>
+    <input class="team-input" id="team-name" type="text" placeholder="Ej: Equipo A — Ingeniería + Comercio" maxlength="60">
+  </div>
+
+  <div style="margin-bottom:1.5rem;">
+    <div class="s-eyebrow" style="text-align:center;margin-bottom:1rem;">Selecciona la empresa asignada</div>
+    <div class="co-grid">
+      <div class="co-card" onclick="selectCo('acerlatam',this)">
+        <div class="co-check">✓</div>
+        <div class="co-emoji">🏭</div>
+        <div class="co-name">ACERLATAM S.A.</div>
+        <div class="co-sector">Siderurgia · Colombia → Europa</div>
+        <div class="co-tags">
+          <span class="co-tag">$480M facturación</span>
+          <span class="co-tag">38% exporta a UE</span>
+          <span class="co-tag">42t CO₂/t acero</span>
+          <span class="co-tag">CBAM + CSRD</span>
+        </div>
+        <div class="co-desc">Tercer productor de acero de Colombia. Exporta acero estructural a constructoras en España, Alemania y Francia. Proceso intensivo en carbono. Tres clientes europeos han abierto evaluación de proveedores alternativos.</div>
+      </div>
+      <div class="co-card" onclick="selectCo('cafecol',this)">
+        <div class="co-check">✓</div>
+        <div class="co-emoji">☕</div>
+        <div class="co-name">CAFECOL EXPORT S.A.</div>
+        <div class="co-sector">Agroindustria · Colombia → Europa</div>
+        <div class="co-tags">
+          <span class="co-tag">$180M facturación</span>
+          <span class="co-tag">72% exporta a UE</span>
+          <span class="co-tag">12.000 fincas</span>
+          <span class="co-tag">EUDR</span>
+        </div>
+        <div class="co-desc">Exportador de café premium colombiano. La Regulación Europea de Deforestación (EUDR) exige trazabilidad GPS de cada lote desde enero 2025. Plazo de seis meses para certificar 12.000 fincas cafeteras.</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;">
+    <button class="btn btn-primary" id="btn-start" disabled onclick="startTaller()" style="font-size:1rem;padding:1.1rem 3rem;border-radius:14px;">
+      Comenzar análisis →
+    </button>
+  </div>
+</div>
+
+<!-- ══ SCREEN 1: PORTER ══ -->
+<div class="screen" id="s1">
+  <div class="s-eyebrow">Fase 1 de 4</div>
+  <h2 class="s-title">Análisis de las Cinco Fuerzas</h2>
+
+  <div class="briefing" id="porter-briefing">
+    <div class="briefing-title">Instrucciones — Porter sostenible</div>
+    <p>Para cada fuerza encontraréis entre 4 y 5 variables específicas orientadas al contexto de sostenibilidad de vuestro sector. Puntuad cada variable de <strong>1 (intensidad muy baja)</strong> a <strong>5 (intensidad muy alta)</strong>. Podéis desplegar información de ayuda en cada variable si tenéis dudas.</p>
+    <p>Al terminar veréis el diagrama de radar con las cinco fuerzas y la conclusión sobre el <strong>atractivo del sector</strong> y la <strong>rentabilidad esperada</strong> bajo presión sostenible.</p>
+  </div>
+
+  <div id="porter-forces"></div>
+
+  <div class="chart-wrap" id="radar-wrap" style="display:none">
+    <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.12em;color:var(--orange);text-transform:uppercase;margin-bottom:0.8rem;">Diagrama de Cinco Fuerzas — Intensidad competitiva</div>
+    <canvas id="radar-chart"></canvas>
+  </div>
+
+  <div class="attract-bar" id="attract-bar" style="display:none">
+    <div class="attract-title" id="attract-title">—</div>
+    <div class="attract-body" id="attract-body">—</div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-ghost" onclick="goScreen('s0')">← Atrás</button>
+    <button class="btn btn-primary" onclick="completePorter()">Continuar al Canvas →</button>
+  </div>
+</div>
+
+<!-- ══ SCREEN 2: CANVAS ══ -->
+<div class="screen" id="s2">
+  <div class="s-eyebrow">Fase 2 de 4</div>
+  <h2 class="s-title">Business Model Canvas</h2>
+
+  <div class="briefing">
+    <div class="briefing-title">Instrucciones — Canvas de sostenibilidad</div>
+    <p>Describid el modelo de negocio <strong>actual</strong> de la empresa en cada bloque. Usad el botón <strong>"Ver pista"</strong> si necesitáis orientación sobre qué incluir en cada bloque para esta empresa concreta.</p>
+    <p>Cuando identifiquéis un bloque como vulnerable ante la transición sostenible, marcadlo con el botón <strong>"⚠ Vulnerable"</strong>. El bloque se iluminará en rojo. Esto guiará el análisis de la siguiente fase.</p>
+  </div>
+
+  <div class="canvas-grid" id="canvas-grid"></div>
+
+  <div class="briefing" style="margin-bottom:1.2rem;">
+    <div class="briefing-title">Reflexión sobre el Canvas</div>
+    <p style="margin-bottom:0.5rem;font-size:0.78rem;font-weight:600;color:var(--amberL);">¿Qué bloque es el más crítico y por qué?</p>
+    <textarea class="scaffold-ta" id="canvas-reflection" placeholder="Explicad en 2-3 frases cuál es el bloque más vulnerable identificado y qué consecuencia tiene para la empresa si no lo aborda..." style="min-height:80px;width:100%;"></textarea>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-ghost" onclick="goScreen('s1')">← Atrás</button>
+    <button class="btn btn-primary" onclick="completeCanvas()">Continuar a la decisión →</button>
+  </div>
+</div>
+
+<!-- ══ SCREEN 3: DECISIÓN ══ -->
+<div class="screen" id="s3">
+  <div class="s-eyebrow">Fase 3 de 4</div>
+  <h2 class="s-title">Decisión estratégica</h2>
+
+  <div class="briefing">
+    <div class="briefing-title">Instrucciones — Decisión y argumento</div>
+    <p>Basándoos en el análisis de Porter y el Canvas, elegid una de las tres opciones estratégicas. A continuación responded las preguntas de andamiaje para construir vuestro argumento. <strong>El consejo os preguntará por qué descartasteis las otras dos opciones.</strong></p>
+  </div>
+
+  <div class="dec-grid">
+    <div class="dec-card" onclick="chooseDec('A',this)">
+      <div class="dec-icon">🛡</div>
+      <div class="dec-label">A · Defender</div>
+      <div class="dec-desc">Mantener el modelo productivo actual. Optimizar sin transformar. Responder reactivamente a la regulación y apostar a que el cambio será más lento de lo esperado.</div>
+    </div>
+    <div class="dec-card" onclick="chooseDec('B',this)">
+      <div class="dec-icon">🔄</div>
+      <div class="dec-label">B · Transformar</div>
+      <div class="dec-desc">Reconfigurar el modelo de negocio hacia la sostenibilidad. Invertir en descarbonización y certificación. Apostar a liderar la transición y convertirla en ventaja competitiva.</div>
+    </div>
+    <div class="dec-card" onclick="chooseDec('C',this)">
+      <div class="dec-icon">↗</div>
+      <div class="dec-label">C · Pivotar</div>
+      <div class="dec-desc">Reducir progresivamente la exposición al mercado europeo. Redirigir hacia mercados con menor presión regulatoria manteniendo el modelo productivo actual.</div>
+    </div>
+  </div>
+
+  <div class="panel" id="scaffold-panel" style="display:none">
+    <div class="panel-title">Construye el argumento — responde las cuatro preguntas</div>
+
+    <div class="scaffold-block">
+      <label>1. ¿Por qué esta opción es la más coherente con el análisis de Porter y el Canvas?</label>
+      <div class="hint">Conectad explícitamente vuestra decisión con lo que habéis identificado: las fuerzas más intensas y los bloques más vulnerables.</div>
+      <textarea class="scaffold-ta" id="arg-coherencia" placeholder="Nuestra opción es coherente con el análisis porque..."></textarea>
+    </div>
+
+    <div class="scaffold-block">
+      <label>2. ¿Qué recursos y capacidades necesita esta opción y los tenéis?</label>
+      <div class="hint">Pensad en capital financiero, capacidades técnicas, relaciones con clientes y proveedores, tiempo disponible.</div>
+      <textarea class="scaffold-ta" id="arg-recursos" placeholder="Esta opción requiere... y la empresa cuenta con / le falta..."></textarea>
+    </div>
+
+    <div class="scaffold-block">
+      <label>3. ¿Cuál es el principal riesgo de esta opción y cómo lo gestionaríais?</label>
+      <div class="hint">Toda estrategia tiene riesgos. Identificad el más importante y proponed cómo mitigarlo.</div>
+      <textarea class="scaffold-ta" id="arg-riesgo" placeholder="El principal riesgo es... y lo gestionaríamos..."></textarea>
+    </div>
+
+    <div class="scaffold-block">
+      <label>4. ¿Por qué descartáis las otras dos opciones?</label>
+      <div class="hint">No basta con elegir vuestra opción. Debéis argumentar por qué las alternativas son menos adecuadas para esta empresa en este momento.</div>
+      <textarea class="scaffold-ta" id="arg-descarte" placeholder="Descartamos Defender porque... Descartamos Transformar/Pivotar porque..."></textarea>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-ghost" onclick="goScreen('s2')">← Atrás</button>
+    <button class="btn btn-primary" id="btn-feedback" disabled onclick="generateFeedback()">Obtener feedback del consejo ✦</button>
+  </div>
+</div>
+
+<!-- ══ SCREEN 4: FEEDBACK ══ -->
+<div class="screen" id="s4">
+  <div class="s-eyebrow">Fase 4 de 4</div>
+  <h2 class="s-title">Feedback del consejo</h2>
+
+  <div class="briefing" style="margin-bottom:1.5rem;">
+    <div class="briefing-title">Resumen de vuestro análisis</div>
+    <div id="summary-box" style="font-size:0.84rem;color:var(--ink2);line-height:1.75;"></div>
+  </div>
+
+  <!-- Porter mini radar -->
+  <div class="chart-wrap" style="margin-bottom:1.2rem;">
+    <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.12em;color:var(--orange);text-transform:uppercase;margin-bottom:0.8rem;">Vuestro análisis Porter</div>
+    <canvas id="radar-chart-2" style="max-height:260px;"></canvas>
+  </div>
+
+  <div class="ai-card" id="ai-card">
+    <div class="ai-label"><div class="ai-pulse"></div>Feedback del Consejo de Administración </div>
+    <div class="ai-content" id="ai-content">
+      <div class="ai-loading"><div class="ai-loader"></div><p style="color:rgba(250,248,244,0.5);font-size:0.85rem;">El consejo está revisando vuestro análisis...</p></div>
+    </div>
+  </div>
+
+  <div class="confirm-box" id="confirm-box" style="display:none">
+    <div class="confirm-icon">✅</div>
+    <div class="confirm-title">Análisis entregado</div>
+    <div class="confirm-sub">Vuestro trabajo ha quedado registrado. Preparad la presentación oral de 10 minutos basándoos en el feedback recibido.</div>
+  </div>
+
+  <div class="actions" id="final-actions" style="justify-content:center;">
+    <button class="btn btn-ghost" onclick="exportPDF()">⬇ Guardar PDF</button>
+    <button class="btn btn-green" id="btn-confirm" onclick="confirmDelivery()">✓ Confirmar entrega</button>
+  </div>
+
+  <footer class="site-footer" style="margin-top:2rem;">
+    <span>SimuLab</span> · Prof. Jorge Matías-Pereda · Departamento de Administración y Economía de la Empresa · <span>Universidad de Salamanca</span> · 2026
+  </footer>
+</div>
+
+</div><!-- /app -->
+
+<script>
+// ── BACKGROUND ──────────────────────────────────────────────────────────
+(function(){
+  const c=document.getElementById('bg'),ctx=c.getContext('2d');
+  let W,H,t=0;
+
+  // Soft aurora blobs for light theme
+  const blobs=[
+    {x:.12,y:.15,rx:.5,ry:.4,r:[255,183,100],a:.25,sx:.0003,sy:.00025},
+    {x:.88,y:.75,rx:.55,ry:.45,r:[160,210,185],a:.3,sx:.00025,sy:.0003},
+    {x:.55,y:.35,rx:.4,ry:.5,r:[200,180,240],a:.2,sx:.0004,sy:.00035},
+    {x:.25,y:.8,rx:.38,ry:.32,r:[255,210,150],a:.22,sx:.00035,sy:.00028},
+    {x:.78,y:.2,rx:.32,ry:.4,r:[180,230,210],a:.2,sx:.00028,sy:.0004},
+  ];
+
+  const resize=()=>{W=c.width=innerWidth;H=c.height=innerHeight;};
+
+  const draw=()=>{
+    t+=1;
+    ctx.clearRect(0,0,W,H);
+
+    // Warm cream base
+    ctx.fillStyle='#FAF8F4';
+    ctx.fillRect(0,0,W,H);
+
+    // Animated soft blobs
+    blobs.forEach(b=>{
+      const ox=b.x*W+Math.sin(t*b.sx*2.1+b.rx)*W*.06;
+      const oy=b.y*H+Math.cos(t*b.sy*1.8+b.ry)*H*.06;
+      const rw=b.rx*Math.min(W,H)*0.7;
+      const rh=b.ry*Math.min(W,H)*0.7;
+
+      // Elliptical gradient
+      ctx.save();
+      ctx.translate(ox,oy);
+      ctx.scale(1,rh/rw);
+      const g=ctx.createRadialGradient(0,0,0,0,0,rw);
+      g.addColorStop(0,`rgba(${b.r.join(',')},${b.a})`);
+      g.addColorStop(.5,`rgba(${b.r.join(',')},${b.a*.4})`);
+      g.addColorStop(1,'rgba(255,255,255,0)');
+      ctx.fillStyle=g;
+      ctx.beginPath();ctx.arc(0,0,rw,0,Math.PI*2);ctx.fill();
+      ctx.restore();
+    });
+
+    // Very subtle dot grid
+    ctx.fillStyle='rgba(26,23,20,0.04)';
+    const sp=40;
+    for(let x=sp/2;x<W;x+=sp){
+      for(let y=sp/2;y<H;y+=sp){
+        ctx.beginPath();ctx.arc(x,y,1,0,Math.PI*2);ctx.fill();
+      }
+    }
+
+    requestAnimationFrame(draw);
+  };
+  window.addEventListener('resize',()=>resize());
+  resize();draw();
+})();
+
+// ── COMPANY DATA ─────────────────────────────────────────────────────────
+const COS = {
+  acerlatam: {
+    name:'ACERLATAM S.A.', emoji:'🏭', sector:'Siderurgia · Colombia',
+    context:'empresa colombiana de acero estructural que exporta el 38% de su producción a constructoras en España, Alemania y Francia, con emisiones de 42t CO₂ por tonelada de acero y exposición directa al CBAM y a las exigencias CSRD de sus clientes europeos',
+    porterContext:'sector siderúrgico colombiano con exposición al mercado europeo bajo regulación CBAM y CSRD',
+    canvasHints:{
+      kp:'¿Quiénes son los proveedores de chatarra, carbón y energía? ¿Hay proveedores de certificaciones o auditorías ambientales?',
+      ka:'Producción de acero, mantenimiento de hornos, gestión de logística internacional, relaciones con clientes europeos',
+      kr:'Plantas de producción, hornos de arco eléctrico, relaciones comerciales con clientes europeos, know-how técnico siderúrgico',
+      vp:'Acero estructural de alta resistencia. ¿Tiene alguna diferenciación actual? ¿Precio? ¿Calidad? ¿Servicio?',
+      cr:'Contratos de suministro a largo plazo con constructoras europeas. ¿Hay gestores de cuenta?',
+      ch:'¿Venta directa? ¿A través de distribuidores? ¿Agentes comerciales en Europa?',
+      cs:'Constructoras e industria manufacturera en España, Alemania y Francia. ¿Hay otros segmentos?',
+      cost:'Materias primas (chatarra, carbón), energía, mano de obra, logística internacional, mantenimiento industrial',
+      rev:'Venta de acero por tonelada. ¿Hay contratos de precio fijo o variable? ¿Descuentos por volumen?'
+    }
+  },
+  cafecol: {
+    name:'CAFECOL EXPORT S.A.', emoji:'☕', sector:'Agroindustria · Colombia',
+    context:'exportador colombiano de café premium que vende el 72% de su producción a Europa y enfrenta la Regulación Europea de Deforestación (EUDR) que exige trazabilidad GPS de cada lote de café procedente de 12.000 fincas cafeteras, con un plazo de seis meses para cumplir o perder el acceso al mercado europeo',
+    porterContext:'sector cafetero colombiano de exportación premium bajo la nueva Regulación Europea de Deforestación (EUDR) y con crecientes exigencias de sostenibilidad de cadena de suministro',
+    canvasHints:{
+      kp:'12.000 familias cafeteras (proveedores clave). ¿Certificadoras? ¿Empresas de tecnología para trazabilidad? ¿Cooperativas?',
+      ka:'Compra y selección de café, control de calidad, procesado, exportación, gestión de relaciones con caficultores',
+      kr:'Red de 12.000 fincas cafeteras, marca de calidad colombiana, relaciones con importadores europeos, know-how de exportación',
+      vp:'Café premium colombiano. ¿Qué lo diferencia? ¿Origen, variedad, proceso, certificaciones actuales (Fairtrade, orgánico)?',
+      cr:'Contratos con importadores y tostadores europeos. ¿Hay relaciones directas con marcas? ¿Intermediarios?',
+      ch:'¿Venta a importadores mayoristas europeos? ¿A tostadores directamente? ¿Plataformas de comercio justo?',
+      cs:'Importadores y tostadores de café en Europa. ¿Hay segmentos premium vs. volumen? ¿Hostelería?',
+      cost:'Precio de compra del café a caficultores, procesado, certificaciones actuales, logística de exportación',
+      rev:'Precio por saco de café (¿premium sobre el mercado de commodities?). ¿Contratos de precio fijo o C-market?'
+    }
+  }
+};
+
+// Porter forces definitions
+const FORCES = [
+  {
+    id:'entrantes', icon:'🚪', name:'Amenaza de nuevos entrantes',
+    desc:'¿Es fácil para nuevos competidores sostenibles entrar en vuestro mercado?',
+    interpretation:'Alta puntuación = muchos obstáculos para nuevos entrantes = FAVORABLE para la empresa (menos amenaza)',
+    vars:[
+      {id:'cert_barrera', name:'Coste y tiempo de obtener certificaciones ESG necesarias para acceder al mercado',
+       info:'<strong>En contexto de sostenibilidad:</strong> las certificaciones ambientales (ISO 14001, huella de carbono verificada, certificación EUDR) actúan como barreras de entrada. Un nuevo competidor necesita años para obtenerlas. ¿Cuánto tiempo y dinero requieren en vuestro sector? <strong>1=muy fácil obtenerlas, 5=proceso muy costoso y largo</strong>'},
+      {id:'escala_verde', name:'Ventaja de escala en reducción de emisiones (economías de escala verdes)',
+       info:'<strong>En contexto de sostenibilidad:</strong> las empresas grandes pueden amortizar las inversiones en renovables, sistemas de trazabilidad o certificación entre más unidades producidas. ¿Tienen ventaja los incumbentes grandes sobre los nuevos entrantes pequeños? <strong>1=sin ventaja de escala, 5=ventaja muy significativa</strong>'},
+      {id:'financiacion', name:'Dificultad de acceso a financiación verde para nuevos entrantes',
+       info:'<strong>En contexto de sostenibilidad:</strong> los bonos verdes y préstamos ESG favorecen a empresas con historial demostrable. Los nuevos entrantes sin track record sostenible tienen mayor coste de capital. ¿Es esto relevante en vuestro sector? <strong>1=financiación accesible para cualquiera, 5=muy difícil para nuevos</strong>'},
+      {id:'reputacion', name:'Valor de las relaciones establecidas con clientes ESG (reputación acumulada)',
+       info:'<strong>En contexto de sostenibilidad:</strong> los clientes europeos que ya tienen relaciones de confianza con proveedores que conocen tienen alta resistencia a cambiar. La reputación en sostenibilidad tarda años en construirse. <strong>1=fácil para un nuevo actor ganarse la confianza, 5=muy difícil competir con incumbentes establecidos</strong>'},
+      {id:'reg_entrada', name:'Requisitos regulatorios de entrada al mercado europeo (CBAM, CSRD, EUDR)',
+       info:'<strong>En contexto de sostenibilidad:</strong> el CBAM, la CSRD y la EUDR crean requisitos técnicos y administrativos que actúan como barreras. ¿Cuánta complejidad añaden para un nuevo competidor que quiera vender en Europa? <strong>1=requisitos fáciles de cumplir, 5=barreras regulatorias muy elevadas</strong>'}
+    ]
+  },
+  {
+    id:'proveedores', icon:'🏗', name:'Poder de negociación de los proveedores',
+    desc:'¿Cuánto poder tienen los proveedores de insumos sostenibles sobre vuestra empresa?',
+    interpretation:'Alta puntuación = proveedores muy poderosos = DESFAVORABLE para la empresa',
+    vars:[
+      {id:'conc_prov', name:'Concentración de proveedores de insumos certificados o sostenibles',
+       info:'<strong>En contexto de sostenibilidad:</strong> hay pocos proveedores de materiales reciclados certificados, energía renovable con garantía de origen o insumos con trazabilidad verificada. ¿Es el mercado de insumos sostenibles concentrado en pocos actores? <strong>1=muchos proveedores alternativos, 5=mercado muy concentrado, pocos proveedores</strong>'},
+      {id:'mat_criticos', name:'Dependencia de materiales críticos o escasos con alta huella ambiental',
+       info:'<strong>En contexto de sostenibilidad:</strong> algunos materiales clave (litio, cobalto, chatarra de calidad, café de origen verificado) son escasos o su precio depende de factores fuera del control de la empresa. ¿Cuánta dependencia tiene vuestra empresa? <strong>1=sin dependencia de materiales críticos, 5=muy alta dependencia</strong>'},
+      {id:'coste_cambio_prov', name:'Coste de cambiar a proveedores con menor huella o mejor certificación',
+       info:'<strong>En contexto de sostenibilidad:</strong> si los proveedores actuales no cumplen estándares ESG, ¿cuánto cuesta y cuánto tiempo lleva cambiar a proveedores que sí los cumplan? <strong>1=fácil y barato cambiar, 5=cambio muy costoso o imposible a corto plazo</strong>'},
+      {id:'int_vertical', name:'Riesgo de que proveedores integren hacia adelante con propuesta verde propia',
+       info:'<strong>En contexto de sostenibilidad:</strong> ¿pueden vuestros proveedores empezar a vender directamente al cliente final aprovechando sus credenciales de sostenibilidad? Por ejemplo, un productor de materia prima que empieza a certificarse y vende directamente a Europa. <strong>1=riesgo muy bajo, 5=riesgo muy alto</strong>'}
+    ]
+  },
+  {
+    id:'compradores', icon:'🏢', name:'Poder de negociación de los compradores',
+    desc:'¿Cuánto poder tienen los clientes europeos para imponer condiciones de sostenibilidad?',
+    interpretation:'Alta puntuación = compradores muy poderosos = DESFAVORABLE para la empresa',
+    vars:[
+      {id:'exig_esg', name:'Intensidad de las exigencias ESG y de trazabilidad que imponen los compradores',
+       info:'<strong>En contexto de sostenibilidad:</strong> ¿están vuestros clientes europeos sujetos a CSRD y por tanto trasladando exigencias Scope 3? ¿Exigen certificaciones, auditorías, datos de emisiones verificados? ¿Con qué frecuencia y con cuánto detalle? <strong>1=exigencias mínimas, 5=exigencias muy elevadas y crecientes</strong>'},
+      {id:'sensibilidad_cbam', name:'Sensibilidad de los compradores al precio del carbono incorporado en el producto',
+       info:'<strong>En contexto de sostenibilidad:</strong> con el CBAM, los importadores europeos pagan más por productos con alta huella de carbono. ¿En qué medida están presionando a sus proveedores para reducir esa huella o bajando el precio pagado? <strong>1=sin impacto en la negociación, 5=factor determinante en precio y selección</strong>'},
+      {id:'cambio_proveedor', name:'Facilidad para cambiar a proveedores alternativos más sostenibles',
+       info:'<strong>En contexto de sostenibilidad:</strong> ¿tienen los compradores europeos alternativas reales a vuestra empresa con menor huella? ¿En Brasil, Europa del Este, Asia? ¿Ya las están evaluando? <strong>1=muy difícil sustituiros, 5=muy fácil encontrar alternativas sostenibles</strong>'},
+      {id:'net_zero', name:'Proporción de compradores con compromisos públicos de Net Zero propios',
+       info:'<strong>En contexto de sostenibilidad:</strong> si el cliente tiene un compromiso público de Net Zero, necesita que TODA su cadena de suministro (Scope 3) también descarbonize. Esto hace que sus exigencias sobre vosotros no sean negociables. ¿Cuántos de vuestros clientes tienen este compromiso? <strong>1=ninguno o muy pocos, 5=prácticamente todos</strong>'}
+    ]
+  },
+  {
+    id:'sustitutos', icon:'🔄', name:'Amenaza de productos y servicios sustitutos',
+    desc:'¿Existen alternativas sostenibles que puedan reemplazar vuestro producto o servicio?',
+    interpretation:'Alta puntuación = amenaza de sustitución muy real = DESFAVORABLE para la empresa',
+    vars:[
+      {id:'disp_sust', name:'Disponibilidad de productos alternativos con menor huella de carbono',
+       info:'<strong>En contexto de sostenibilidad:</strong> ¿existen ya productos o servicios alternativos que satisfagan la misma necesidad del cliente con menor impacto ambiental? Por ejemplo, acero reciclado verde, madera estructural certificada, café de trazabilidad blockchain. <strong>1=no existen alternativas reales, 5=alternativas muy disponibles y accesibles</strong>'},
+      {id:'precio_sust', name:'Competitividad en precio y rendimiento de los sustitutos sostenibles',
+       info:'<strong>En contexto de sostenibilidad:</strong> ¿son los sustitutos ya comparables en precio y calidad, o todavía significativamente más caros? ¿La brecha se está cerrando rápidamente? <strong>1=sustitutos mucho más caros o peores, 5=sustitutos ya igual o más competitivos</strong>'},
+      {id:'adopcion', name:'Velocidad de adopción tecnológica de las alternativas en el mercado',
+       info:'<strong>En contexto de sostenibilidad:</strong> ¿a qué velocidad están creciendo los sustitutos sostenibles? ¿Es una tendencia marginal o está acelerando exponencialmente? El ejemplo del vehículo eléctrico es ilustrativo: pasó de marginal a mainstream en menos de 10 años. <strong>1=adopción muy lenta, 5=adopción acelerada e imparable</strong>'},
+      {id:'apoyo_reg', name:'Apoyo regulatorio y subsidios a los productos sustitutos',
+       info:'<strong>En contexto de sostenibilidad:</strong> ¿están los sustitutos sostenibles siendo activamente incentivados por la regulación europea? Por ejemplo, créditos fiscales para acero verde, primas para café de comercio justo, bonificaciones para productos de economía circular. <strong>1=sin incentivos regulatorios, 5=fuerte apoyo regulatorio a los sustitutos</strong>'}
+    ]
+  },
+  {
+    id:'rivalidad', icon:'⚔', name:'Rivalidad entre competidores existentes',
+    desc:'¿Cómo de intensa es la competencia por posicionamiento sostenible en vuestro sector?',
+    interpretation:'Alta puntuación = rivalidad muy intensa = DESFAVORABLE para la empresa',
+    vars:[
+      {id:'comp_cert', name:'Número de competidores que ya tienen certificaciones de sostenibilidad relevantes',
+       info:'<strong>En contexto de sostenibilidad:</strong> ¿cuántos de vuestros competidores directos ya tienen certificación de emisiones, trazabilidad o estándares ESG? Si muchos ya están certificados, la diferenciación por sostenibilidad disminuye y la presión sobre los que no lo están aumenta. <strong>1=muy pocos competidores certificados, 5=la mayoría ya certificados</strong>'},
+      {id:'diferenciacion_esg', name:'Posibilidad de diferenciarse por credenciales ESG en este sector',
+       info:'<strong>En contexto de sostenibilidad:</strong> ¿puede una empresa realmente diferenciarse y cobrar un precio premium por ser más sostenible, o la sostenibilidad se está convirtiendo en un requisito mínimo (commodity) sin valor diferencial? <strong>1=altísimo potencial de diferenciación sostenible, 5=sostenibilidad ya es requisito mínimo sin diferencial de precio</strong>'},
+      {id:'crecimiento', name:'Velocidad de crecimiento del mercado sostenible vs. mercado convencional',
+       info:'<strong>En contexto de sostenibilidad:</strong> ¿está el segmento de demanda sostenible creciendo más rápido que el mercado total? En un mercado en crecimiento la competencia es menos intensa porque todos pueden crecer. En uno estancado, cada cliente que gana uno lo pierde otro. <strong>1=mercado sostenible en fuerte crecimiento, 5=mercado estancado con suma cero</strong>'},
+      {id:'costes_salida', name:'Barreras de salida para competidores con activos intensivos en carbono',
+       info:'<strong>En contexto de sostenibilidad:</strong> los competidores con grandes activos físicos intensivos en carbono (plantas, maquinaria, infraestructuras) tienen dificultad para salir del mercado incluso cuando no son rentables, lo que mantiene la presión competitiva. ¿Son altas las barreras de salida en vuestro sector? <strong>1=barreras de salida bajas, 5=barreras muy altas, competidores zombies en el sector</strong>'}
+    ]
+  }
+];
+
+// Canvas blocks definition
+const CANVAS_BLOCKS = [
+  {id:'kp', cls:'c-kp', title:'Socios Clave (KP)', hint:'kp', placeholder:'¿Quiénes son los socios y proveedores más importantes? ¿Qué relaciones críticas mantiene la empresa?'},
+  {id:'ka', cls:'c-ka', title:'Actividades Clave (KA)', hint:'ka', placeholder:'¿Cuáles son las actividades más importantes para que el modelo funcione?'},
+  {id:'kr', cls:'c-kr', title:'Recursos Clave (KR)', hint:'kr', placeholder:'¿Qué activos físicos, intelectuales, humanos o financieros son indispensables?'},
+  {id:'vp', cls:'c-vp', title:'Propuesta de Valor (VP)', hint:'vp', placeholder:'¿Qué valor ofrece la empresa al cliente? ¿Qué problema resuelve o necesidad satisface?'},
+  {id:'cr', cls:'c-cr', title:'Relación con Clientes (CR)', hint:'cr', placeholder:'¿Qué tipo de relación mantiene con cada segmento de clientes?'},
+  {id:'ch', cls:'c-ch', title:'Canales (CH)', hint:'ch', placeholder:'¿Cómo llega el producto o servicio al cliente?'},
+  {id:'cs', cls:'c-cs', title:'Segmentos de Clientes (CS)', hint:'cs', placeholder:'¿Para quién crea valor la empresa? ¿Cuáles son los clientes más importantes?'},
+  {id:'cost', cls:'c-cost', title:'Estructura de Costes (C$)', hint:'cost', placeholder:'¿Cuáles son los costes más importantes del modelo de negocio?'},
+  {id:'rev', cls:'c-rev', title:'Fuentes de Ingreso (R$)', hint:'rev', placeholder:'¿Por qué pagan los clientes? ¿Cómo genera ingresos la empresa?'}
+];
+
+// ── STATE ────────────────────────────────────────────────────────────────
+let st = {
+  co: null, team: '',
+  porterScores: {},  // {forceId: {varId: value}}
+  forceMeans: {},    // {forceId: mean}
+  canvasData: {},    // {blockId: text}
+  canvasVuln: {},    // {blockId: bool}
+  canvasReflection: '',
+  decision: null,
+  args: {},
+  radarChart1: null,
+  radarChart2: null
+};
+
+// ── NAVIGATION ───────────────────────────────────────────────────────────
+function goScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  updateNav(id);
+}
+
+function updateNav(screenId) {
+  const nav = document.getElementById('progress-nav');
+  const map = {s0:0,s1:1,s2:2,s3:3,s4:4};
+  const n = map[screenId]||0;
+  nav.style.display = n===0 ? 'none' : 'flex';
+  ['pn1','pn2','pn3','pn4'].forEach((id,i)=>{
+    const el = document.getElementById(id);
+    el.classList.remove('active','done');
+    if(i+1 < n) el.classList.add('done');
+    else if(i+1 === n) el.classList.add('active');
+  });
+}
+
+// ── COMPANY SELECTION ────────────────────────────────────────────────────
+let selectedCoEl = null;
+function selectCo(key, el) {
+  document.querySelectorAll('.co-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedCoEl = el;
+  st.co = key;
+  document.getElementById('btn-start').disabled = false;
+}
+
+function startTaller() {
+  st.team = document.getElementById('team-name').value.trim() || 'Equipo';
+  document.getElementById('team-pill').textContent = st.team;
+  buildPorter();
+  buildCanvas();
+  goScreen('s1');
+}
+
+// ── BUILD PORTER ─────────────────────────────────────────────────────────
+function buildPorter() {
+  const co = COS[st.co];
+  document.getElementById('porter-briefing').querySelector('p:last-child').innerHTML =
+    'Sector analizado: <strong>' + co.porterContext + '</strong>';
+
+  const container = document.getElementById('porter-forces');
+  container.innerHTML = '';
+
+  FORCES.forEach((force,fi) => {
+    st.porterScores[force.id] = {};
+    force.vars.forEach(v => { st.porterScores[force.id][v.id] = 3; });
+
+    const block = document.createElement('div');
+    block.className = 'force-block';
+    block.id = 'fb-' + force.id;
+
+    const varsHTML = force.vars.map(v => `
+      <div class="var-row">
+        <div class="var-header">
+          <div class="var-name">${v.name}</div>
+          <div class="var-val" id="vv-${force.id}-${v.id}">3</div>
+        </div>
+        <div class="info-toggle" onclick="toggleInfo('info-${force.id}-${v.id}')">ℹ Ver información de ayuda</div>
+        <div class="info-box" id="info-${force.id}-${v.id}">${v.info}</div>
+        <input type="range" class="var-slider" min="1" max="5" value="3"
+          oninput="updateVar('${force.id}','${v.id}',this)"
+          style="--pct:50%">
+        <div class="var-labels"><span>1 Muy baja</span><span>2</span><span>3 Media</span><span>4</span><span>5 Muy alta</span></div>
+      </div>
+    `).join('');
+
+    block.innerHTML = `
+      <div class="force-header" onclick="toggleForce('${force.id}')">
+        <div class="force-icon">${force.icon}</div>
+        <div class="force-meta">
+          <div class="force-name">${force.name}</div>
+          <div class="force-desc">${force.desc}</div>
+        </div>
+        <div class="force-score-badge med" id="fsb-${force.id}">3,0</div>
+        <div class="force-chevron">▼</div>
+      </div>
+      <div class="force-body">
+        <div style="font-size:0.72rem;color:rgba(232,160,32,0.7);margin-bottom:0.8rem;font-style:italic;">📌 ${force.interpretation}</div>
+        ${varsHTML}
+      </div>
+    `;
+    container.appendChild(block);
+  });
+
+  // Open first force
+  toggleForce('entrantes');
+  updateRadar();
+}
+
+function toggleForce(id) {
+  const block = document.getElementById('fb-'+id);
+  block.classList.toggle('expanded');
+}
+
+function toggleInfo(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+  const btn = el.previousElementSibling;
+  btn.textContent = el.classList.contains('open') ? 'ℹ Ocultar información' : 'ℹ Ver información de ayuda';
+}
+
+function updateVar(forceId, varId, el) {
+  const val = parseInt(el.value);
+  const pct = ((val-1)/4)*100;
+  el.style.setProperty('--pct', pct+'%');
+  st.porterScores[forceId][varId] = val;
+  document.getElementById('vv-'+forceId+'-'+varId).textContent = val;
+  updateForceMean(forceId);
+  updateRadar();
+}
+
+function updateForceMean(forceId) {
+  const vals = Object.values(st.porterScores[forceId]);
+  const mean = vals.reduce((a,b)=>a+b,0)/vals.length;
+  st.forceMeans[forceId] = mean;
+  const badge = document.getElementById('fsb-'+forceId);
+  badge.textContent = mean.toFixed(1);
+  badge.className = 'force-score-badge ' + (mean<2.5?'low':mean<3.8?'med':'high');
+}
+
+function updateRadar() {
+  FORCES.forEach(f => updateForceMean(f.id));
+  const data = FORCES.map(f => st.forceMeans[f.id]||3);
+  const labels = FORCES.map(f => f.name.split(' ').slice(-1)[0].replace('entrantes','Entrantes').replace('proveedores','Proveedores').replace('compradores','Compradores').replace('sustitutos','Sustitutos').replace('existentes','Rivalidad'));
+  const forceLabels = ['Entrantes','Proveedores','Compradores','Sustitutos','Rivalidad'];
+
+  const radarWrap = document.getElementById('radar-wrap');
+  radarWrap.style.display = 'block';
+
+  if(st.radarChart1) st.radarChart1.destroy();
+  const ctx = document.getElementById('radar-chart').getContext('2d');
+  st.radarChart1 = new Chart(ctx, {
+    type:'radar',
+    data:{
+      labels: forceLabels,
+      datasets:[{
+        label:'Intensidad competitiva',
+        data,
+        borderColor:'#C94A1A',
+        backgroundColor:'rgba(201,74,26,0.15)',
+        pointBackgroundColor:'#C94A1A',
+        pointRadius:5,
+        borderWidth:2
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:true,
+      scales:{r:{min:1,max:5,ticks:{stepSize:1,color:'#8A8278',font:{size:10},backdropColor:'transparent'},grid:{color:'rgba(26,23,20,0.1)'},pointLabels:{color:'#1A1714',font:{size:11,weight:'700'}},angleLines:{color:'rgba(26,23,20,0.1)'}}},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(26,23,20,0.92)',borderColor:'rgba(201,74,26,0.4)',borderWidth:1,titleColor:'#F0B429',bodyColor:'#FAF8F4'}}
+    }
+  });
+
+  updateAttractivenessVerdict(data);
+}
+
+function updateAttractivenessVerdict(data) {
+  // In Porter, high scores on some forces are good (entrantes/proveedores/compradores LOW = good for firm)
+  // But we framed them differently per force — let's compute a simple overall attractiveness
+  const avg = data.reduce((a,b)=>a+b,0)/data.length;
+  // Invert for forces where high = bad for firm (proveedores, compradores, sustitutos, rivalidad)
+  // entrantes: high = good (high barriers)
+  // proveedores: high = bad
+  // compradores: high = bad
+  // sustitutos: high = bad
+  // rivalidad: high = bad
+  const attractScore = ((6-data[0]) + data[1] + data[2] + data[3] + data[4]) / 5; // 1=attractive 5=unattractive
+  // Wait, let me recalculate:
+  // entrantes high = favorable => attractiveness contribution high when entrantes high
+  // others high = unfavorable
+  const attract = (data[0] + (6-data[1]) + (6-data[2]) + (6-data[3]) + (6-data[4])) / 5;
+
+  const bar = document.getElementById('attract-bar');
+  const title = document.getElementById('attract-title');
+  const body = document.getElementById('attract-body');
+  bar.style.display = 'block';
+
+  if(attract >= 3.5) {
+    bar.className = 'attract-bar high';
+    title.textContent = '✅ Sector con atractivo moderado-alto bajo presión sostenible';
+    body.textContent = `Puntuación de atractivo: ${attract.toFixed(1)}/5. Las barreras de entrada son sólidas y la empresa tiene margen para diferenciarse por sostenibilidad. La rentabilidad potencial es positiva si se gestionan bien las fuerzas de compradores y sustitutos.`;
+  } else if(attract >= 2.5) {
+    bar.className = 'attract-bar med';
+    title.textContent = '⚠ Sector con atractivo moderado — presión sostenible creciente';
+    body.textContent = `Puntuación de atractivo: ${attract.toFixed(1)}/5. El sector presenta oportunidades pero la presión de clientes y sustitutos sostenibles está erosionando la rentabilidad. Se requiere acción estratégica para preservar márgenes.`;
+  } else {
+    bar.className = 'attract-bar low';
+    title.textContent = '🔴 Sector con bajo atractivo bajo la presión de sostenibilidad';
+    body.textContent = `Puntuación de atractivo: ${attract.toFixed(1)}/5. Las cinco fuerzas, combinadas con la presión regulatoria europea, apuntan a una compresión severa de márgenes. La rentabilidad sostenida requiere una transformación significativa del modelo.`;
+  }
+}
+
+function completePorter() {
+  updateRadar();
+  goScreen('s2');
+}
+
+// ── BUILD CANVAS ──────────────────────────────────────────────────────────
+function buildCanvas() {
+  const co = COS[st.co];
+  const grid = document.getElementById('canvas-grid');
+  grid.innerHTML = '';
+
+  CANVAS_BLOCKS.forEach(b => {
+    const div = document.createElement('div');
+    div.className = 'c-block ' + b.cls;
+    div.id = 'cb-' + b.id;
+    const hint = co.canvasHints[b.id] || '';
+    div.innerHTML = `
+      <div class="c-block-title">${b.title}</div>
+      <textarea placeholder="${b.placeholder}" oninput="saveCanvas('${b.id}',this.value)" rows="3">${st.canvasData[b.id]||''}</textarea>
+      <div class="c-block-footer">
+        <button class="vuln-toggle" onclick="toggleVuln('${b.id}')">⚠ Vulnerable</button>
+        <span class="c-hint-btn" onclick="toggleHint('hint-${b.id}')">Ver pista</span>
+      </div>
+      <div class="c-hint-box" id="hint-${b.id}">${hint}</div>
+    `;
+    grid.appendChild(div);
+  });
+}
+
+function saveCanvas(id, val) { st.canvasData[id] = val; }
+function toggleVuln(id) {
+  st.canvasVuln[id] = !st.canvasVuln[id];
+  document.getElementById('cb-'+id).classList.toggle('vulnerable', st.canvasVuln[id]);
+}
+function toggleHint(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+function completeCanvas() {
+  st.canvasReflection = document.getElementById('canvas-reflection').value;
+  goScreen('s3');
+}
+
+// ── DECISION ──────────────────────────────────────────────────────────────
+function chooseDec(opt, el) {
+  document.querySelectorAll('.dec-card').forEach(c=>c.classList.remove('chosen'));
+  el.classList.add('chosen');
+  st.decision = opt;
+  document.getElementById('scaffold-panel').style.display = 'block';
+  document.getElementById('btn-feedback').disabled = false;
+  document.getElementById('scaffold-panel').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ── GENERATE FEEDBACK ─────────────────────────────────────────────────────
+async function generateFeedback() {
+  // Save args
+  st.args = {
+    coherencia: document.getElementById('arg-coherencia').value,
+    recursos:   document.getElementById('arg-recursos').value,
+    riesgo:     document.getElementById('arg-riesgo').value,
+    descarte:   document.getElementById('arg-descarte').value
+  };
+
+  goScreen('s4');
+
+  // Build summary
+  buildSummary();
+
+  // Clone radar
+  buildRadar2();
+
+  // Build prompt
+  const co = COS[st.co];
+  const forcesSummary = FORCES.map(f =>
+    `${f.name} (media ${(st.forceMeans[f.id]||3).toFixed(1)}/5): ${
+      Object.entries(st.porterScores[f.id]||{}).map(([k,v])=>`${k}=${v}`).join(', ')
+    }`
+  ).join('\n');
+
+  const vulnBlocks = CANVAS_BLOCKS.filter(b=>st.canvasVuln[b.id]).map(b=>b.title).join(', ') || 'ninguno marcado';
+  const canvasSummary = CANVAS_BLOCKS.map(b=>`${b.title}: ${st.canvasData[b.id]||'sin rellenar'}`).join('\n');
+  const decLabels = {A:'Defender la posición actual',B:'Transformar el modelo de negocio',C:'Pivotar a nuevos mercados'};
+
+  const prompt = `Eres el Consejo de Administración de ${co.name}, evaluando la presentación estratégica de un equipo de estudiantes universitarios (ingeniería y comercio internacional). Tu rol es dar feedback riguroso, constructivo y con criterio de negocio real.
+
+EMPRESA ANALIZADA: ${co.name} — ${co.context}
+
+ANÁLISIS PORTER DEL EQUIPO:
+${forcesSummary}
+
+BLOQUES CANVAS MARCADOS COMO VULNERABLES: ${vulnBlocks}
+CANVAS COMPLETO:
+${canvasSummary}
+
+REFLEXIÓN SOBRE EL CANVAS: ${st.canvasReflection || 'sin respuesta'}
+
+DECISIÓN ESTRATÉGICA: ${decLabels[st.decision]}
+ARGUMENTO DE COHERENCIA: ${st.args.coherencia || 'sin respuesta'}
+ARGUMENTO DE RECURSOS: ${st.args.recursos || 'sin respuesta'}
+RIESGO IDENTIFICADO: ${st.args.riesgo || 'sin respuesta'}
+DESCARTE DE ALTERNATIVAS: ${st.args.descarte || 'sin respuesta'}
+
+Proporciona el feedback del consejo en español con esta estructura exacta:
+
+<h3>📊 Valoración del análisis Porter</h3>
+¿Han identificado correctamente las fuerzas más relevantes para este sector en el contexto de sostenibilidad? ¿Hay fuerzas sobrevaloradas o infravaloradas? ¿Qué han captado bien y qué se les ha escapado?
+
+<h3>🗺 Valoración del Canvas</h3>
+¿Han identificado los bloques más vulnerables correctamente? ¿Hay algún bloque crítico que no han marcado? ¿Es coherente su lectura del modelo de negocio con la realidad de la empresa?
+
+<h3>⚖ Coherencia entre Porter, Canvas y decisión</h3>
+¿Su decisión estratégica es coherente con lo que han analizado? ¿La decisión que toman tiene sentido dado el análisis previo, o hay contradicciones?
+
+<h3>💪 Lo que han hecho bien</h3>
+Identificad 2-3 aciertos genuinos del análisis. Sin condescendencia.
+
+<h3>❓ Las dos preguntas que el consejo haría en la presentación oral</h3>
+Las dos preguntas más incómodas que un consejo real haría a este equipo. Preguntas concretas, no genéricas.
+
+<h3>🎯 Veredicto final</h3>
+Una valoración directa del trabajo: ¿aprueba el consejo este análisis? ¿Qué necesita mejorar para ser un análisis estratégico sólido?
+
+Máximo 600 palabras. Directo, con criterio, sin lenguaje de consultoría vacío.`;
+
+  try {
+    const res = await fetch('https://broken-flower-ecde.mpereda.workers.dev',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1100,messages:[{role:'user',content:prompt}]})
+    });
+    const data = await res.json();
+    const text = data.content?.[0]?.text || getFallbackFeedback();
+    document.getElementById('ai-content').innerHTML = text;
+  } catch(e) {
+    document.getElementById('ai-content').innerHTML = getFallbackFeedback();
+  }
+}
+
+function buildSummary() {
+  const co = COS[st.co];
+  const decLabels = {A:'Defender la posición actual',B:'Transformar el modelo de negocio',C:'Pivotar a nuevos mercados'};
+  const vulns = CANVAS_BLOCKS.filter(b=>st.canvasVuln[b.id]).map(b=>b.title);
+  const avgForce = (FORCES.reduce((a,f)=>a+(st.forceMeans[f.id]||3),0)/FORCES.length).toFixed(1);
+
+  document.getElementById('summary-box').innerHTML = `
+    <strong style="color:var(--orange)">${co.emoji} ${co.name}</strong> <span style="color:var(--muted)">· ${co.sector}</span><br>
+    <span style="color:var(--muted)">Equipo: ${st.team}</span><br><br>
+    <strong style="color:var(--ink)">Porter:</strong> <span style="color:var(--ink2)">Intensidad media del sector = ${avgForce}/5 ·
+    Fuerza más intensa: ${FORCES.reduce((a,b)=>(st.forceMeans[b.id]||3)>(st.forceMeans[a.id]||3)?b:a).name}</span><br>
+    <strong style="color:var(--ink)">Canvas:</strong> <span style="color:var(--ink2)">Bloques vulnerables: ${vulns.length>0?vulns.join(', '):'ninguno'}</span><br>
+    <strong style="color:var(--ink)">Decisión:</strong> <span style="color:var(--orange);font-weight:600">${decLabels[st.decision]||'Sin definir'}</span>
+  `;
+}
+
+function buildRadar2() {
+  if(st.radarChart2) st.radarChart2.destroy();
+  const data = FORCES.map(f=>st.forceMeans[f.id]||3);
+  const ctx = document.getElementById('radar-chart-2').getContext('2d');
+  st.radarChart2 = new Chart(ctx,{
+    type:'radar',
+    data:{labels:['Entrantes','Proveedores','Compradores','Sustitutos','Rivalidad'],
+      datasets:[{label:'Vuestro análisis',data,borderColor:'#C94A1A',backgroundColor:'rgba(201,74,26,0.12)',pointBackgroundColor:'#C94A1A',pointRadius:6,pointHoverRadius:8,borderWidth:2.5}]},
+    options:{responsive:true,maintainAspectRatio:true,
+      scales:{r:{
+        min:1,max:5,
+        ticks:{stepSize:1,color:'#8A8278',font:{size:10},backdropColor:'rgba(250,248,244,0.8)'},
+        grid:{color:'rgba(26,23,20,0.12)'},
+        pointLabels:{color:'#1A1714',font:{size:12,weight:'700'}},
+        angleLines:{color:'rgba(26,23,20,0.15)'}
+      }},
+      plugins:{legend:{display:false},tooltip:{
+        backgroundColor:'rgba(26,23,20,0.92)',
+        borderColor:'rgba(201,74,26,0.4)',borderWidth:1,
+        titleColor:'#F0B429',bodyColor:'#FAF8F4'
+      }}}
+  });
+}
+
+// ── FALLBACK FEEDBACK ────────────────────────────────────────────────────
+function getFallbackFeedback() {
+  const co = COS[st.co];
+  const decLabels = {A:'defender la posición actual',B:'transformar el modelo de negocio',C:'pivotar a nuevos mercados'};
+  const vulns = CANVAS_BLOCKS.filter(b=>st.canvasVuln[b.id]).map(b=>b.title);
+  const topForce = FORCES.reduce((a,b)=>(st.forceMeans[b.id]||3)>(st.forceMeans[a.id]||3)?b:a);
+  const lowForce = FORCES.reduce((a,b)=>(st.forceMeans[b.id]||3)<(st.forceMeans[a.id]||3)?b:a);
+  const opt = st.decision || 'B';
+
+  return `
+<h3>📊 Valoración del análisis Porter</h3>
+<p>El equipo ha identificado correctamente que <strong>${topForce.name}</strong> es la fuerza más intensa en el contexto sostenible de ${co.name}. Este es efectivamente el vector de mayor presión a corto plazo. Sin embargo, conviene matizar que en sectores con exposición directa al CBAM y CSRD, la fuerza de compradores tiende a subestimarse: los clientes europeos no solo tienen más opciones, sino que tienen obligaciones legales que los fuerzan a actuar. La presión que ejercen no es discrecional, es estructural.</p>
+
+<h3>🗺 Valoración del Canvas</h3>
+<p>${vulns.length>0?`Han marcado como vulnerables: <strong>${vulns.join(', ')}</strong>. El diagnóstico apunta en la dirección correcta.`:'No han marcado bloques vulnerables, lo que sugiere que el análisis del modelo puede ser superficial.'} El bloque que más frecuentemente se subestima en estos análisis es la <strong>estructura de costes</strong>: el CBAM representa un coste nuevo y creciente que no está internalizado en el modelo actual, y eso transforma fundamentalmente la ecuación de rentabilidad.</p>
+
+<h3>⚖ Coherencia entre Porter, Canvas y decisión</h3>
+<p>La decisión de <strong>${decLabels[opt]}</strong> ${opt==='B'?'es coherente con un análisis que identifica presión regulatoria creciente y clientes europeos con compromisos Net Zero. Si las fuerzas apuntan a que el statu quo no es sostenible, transformar es la respuesta lógica.':opt==='A'?'presenta una tensión con el análisis: si las fuerzas identificadas son intensas y los bloques del Canvas son vulnerables, defender la posición sin cambios requiere un argumento muy sólido sobre por qué las fuerzas no se materializarán en el horizonte analizado.':'tiene coherencia si el mercado alternativo ofrece condiciones realmente mejores. El análisis debería justificar por qué otros mercados no sufrirán presiones similares en el medio plazo.'}</p>
+
+<h3>💪 Lo que han hecho bien</h3>
+<p>Primero: han estructurado el análisis con rigor, aplicando marcos conceptuales sólidos a un caso real con datos concretos. Segundo: han conectado la regulación europea (CBAM, CSRD) con las implicaciones competitivas para la empresa, que es exactamente lo que un consejo necesita ver.</p>
+
+<h3>❓ Las dos preguntas del consejo</h3>
+<p><strong>1. "¿En cuántos meses tiene la empresa para actuar antes de perder los primeros contratos europeos? ¿Lo han calculado?"</strong> — El análisis estratégico sin horizonte temporal es incompleto. El consejo necesita saber cuándo exactamente se convierte en urgencia ejecutiva.</p>
+<p><strong>2. "¿Qué pasa si el precio del CO₂ en el EU ETS sube a €100/tonelada antes de que ejecutéis vuestra estrategia?"</strong> — La robustez de la decisión ante escenarios adversos es la prueba del algodón de cualquier propuesta estratégica.</p>
+
+<h3>🎯 Veredicto final</h3>
+<p>El análisis es sólido en su estructura y correcto en su dirección general. Para convertirse en una propuesta ejecutiva aprobable, necesita dos cosas: <strong>cuantificación del impacto financiero</strong> (el consejo decide con números, no solo con marcos) y <strong>un plan de implementación con hitos concretos</strong>. La estrategia correcta mal ejecutada produce el mismo resultado que la estrategia equivocada.</p>`;
+}
+
+// ── CONFIRM DELIVERY ─────────────────────────────────────────────────────
+function confirmDelivery() {
+  document.getElementById('confirm-box').style.display = 'block';
+  document.getElementById('btn-confirm').style.display = 'none';
+  document.getElementById('confirm-box').scrollIntoView({behavior:'smooth'});
+}
+
+// ── PDF EXPORT ────────────────────────────────────────────────────────────
+function exportPDF() {
+  const co = st.co ? COS[st.co] : {name:'—',emoji:'',sector:''};
+  const dateStr = new Date().toLocaleDateString('es-ES',{year:'numeric',month:'long',day:'numeric'});
+  const decLabels = {A:'A · Defender la posición actual',B:'B · Transformar el modelo de negocio',C:'C · Pivotar a nuevos mercados'};
+  const vulns = CANVAS_BLOCKS.filter(b=>st.canvasVuln[b.id]).map(b=>b.title).join(', ')||'Ninguno marcado';
+  const porterStr = FORCES.map(f=>`${f.name}: ${(st.forceMeans[f.id]||3).toFixed(1)}/5`).join(' · ');
+  const feedbackHTML = document.getElementById('ai-content').innerHTML;
+
+  const doc = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+<title>Análisis Estratégico · ${co.name} · SimuLab</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:'Inter',sans-serif;background:#fff;color:#1a1a2e;font-size:10pt;line-height:1.65;}.page{max-width:210mm;margin:0 auto;padding:15mm 14mm 12mm;}.hdr{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #E8A020;padding-bottom:9px;margin-bottom:13px;}.logo{font-family:'Space Grotesk',sans-serif;font-size:8pt;font-weight:700;letter-spacing:.15em;color:#E8A020;text-transform:uppercase;margin-bottom:3px;}.ttl{font-family:'Space Grotesk',sans-serif;font-size:16pt;font-weight:700;color:#0D1E35;}.sub{font-size:9pt;color:#666;margin-top:3px;}.date{font-size:8pt;color:#999;text-align:right;}.sec{font-size:7.5pt;font-weight:700;letter-spacing:.12em;color:#E8A020;text-transform:uppercase;border-bottom:1px solid #eee;padding-bottom:4px;margin:11px 0 7px;}.co-b{background:#f4f6f9;border-radius:7px;padding:8px 12px;margin-bottom:10px;}.co-b .name{font-family:'Space Grotesk',sans-serif;font-size:11pt;font-weight:700;color:#0D1E35;}.co-b .loc{font-size:8.5pt;color:#888;margin-top:2px;}.pb{margin-bottom:8px;padding:8px 10px;background:#fffbf0;border:1.5px solid #E8A020;border-radius:7px;}.pb .t{font-size:7pt;font-weight:700;color:#E8A020;text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;}.pb .c{font-size:9.5pt;color:#222;white-space:pre-wrap;line-height:1.55;}.dec-box{background:#0D1E35;color:#fff;border-radius:7px;padding:8px 12px;margin-bottom:8px;}.dec-box .lbl{font-size:7.5pt;color:#AABBCC;}.dec-box .val{font-family:'Space Grotesk',sans-serif;font-size:11pt;font-weight:700;color:#E8A020;}.fb-box{font-size:9.5pt;line-height:1.65;color:#1a1a2e;}.fb-box h3{font-family:'Space Grotesk',sans-serif;font-size:10pt;font-weight:700;color:#0D1E35;border-left:3px solid #E8A020;padding-left:6px;margin:10px 0 4px;}.fb-box h3:first-child{margin-top:0;}.fb-box p{margin-bottom:5px;}.fb-box strong{font-weight:700;}.foot{border-top:1px solid #eee;padding-top:6px;margin-top:10px;font-size:7pt;color:#aaa;display:flex;justify-content:space-between;}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}</style></head><body><div class="page">
+<div class="hdr"><div><div class="logo">SimuLab · Universidad de Salamanca</div><div class="ttl">Análisis Estratégico Aplicado</div><div class="sub">Taller Bloque 4 · Estrategia Empresarial y Sostenibilidad · ${st.team}</div></div><div class="date">${dateStr}<br>Prof. Jorge Matías-Pereda</div></div>
+<div class="co-b"><div class="name">${co.emoji} ${co.name}</div><div class="loc">${co.sector}</div></div>
+<div class="sec">Análisis Porter — Cinco Fuerzas Sostenibles</div>
+<div class="pb"><div class="t">Intensidades por fuerza</div><div class="c">${porterStr}</div></div>
+<div class="pb"><div class="t">Bloques Canvas vulnerables</div><div class="c">${vulns}</div></div>
+<div class="pb"><div class="t">Reflexión sobre el Canvas</div><div class="c">${st.canvasReflection||'—'}</div></div>
+<div class="sec">Decisión estratégica</div>
+<div class="dec-box"><div class="lbl">Opción elegida</div><div class="val">${decLabels[st.decision]||'Sin definir'}</div></div>
+<div class="pb"><div class="t">Coherencia con el análisis</div><div class="c">${st.args.coherencia||'—'}</div></div>
+<div class="pb"><div class="t">Recursos necesarios</div><div class="c">${st.args.recursos||'—'}</div></div>
+<div class="pb"><div class="t">Riesgo principal y gestión</div><div class="c">${st.args.riesgo||'—'}</div></div>
+<div class="pb"><div class="t">Descarte de alternativas</div><div class="c">${st.args.descarte||'—'}</div></div>
+<div class="sec">Feedback del Consejo de Administración</div>
+<div class="fb-box">${feedbackHTML}</div>
+<div class="foot"><span>SimuLab · Universidad de Salamanca · Prof. Jorge Matías-Pereda · 2026</span><span>Estrategia Empresarial y Sostenibilidad · Bloque 4</span></div>
+</div><script>window.onload=()=>window.print();<\/script></body></html>`;
+
+  const win=window.open('','_blank');win.document.write(doc);win.document.close();
+}
+</script>
+</body>
+</html>
