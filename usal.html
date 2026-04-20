@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Propuesta y Presupuesto · Formación Permanente USAL 2026 · Jorge Matías-Pereda</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   Paleta, tipografía y base
+   ========================================================= */
+:root{
+  --burgundy:#7a1f2b;
+  --burgundy-dark:#5a1620;
+  --burgundy-soft:#f7ecee;
+  --gold:#a8873e;
+  --gold-soft:#f7f1e1;
+  --ink:#1a1410;
+  --ink-soft:#44403c;
+  --mute:#78716c;
+  --line:#e7e5e0;
+  --line-soft:#f0ede7;
+  --cream:#faf7f2;
+  --white:#ffffff;
+  --ok:#2d7d46;
+  --err:#b91c1c;
+  --font-serif:"Cormorant Garamond", Georgia, serif;
+  --font-sans:"Public Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  --shadow-sm: 0 1px 2px rgba(26,20,16,.04), 0 1px 3px rgba(26,20,16,.06);
+  --shadow-md: 0 2px 8px rgba(26,20,16,.06), 0 4px 16px rgba(26,20,16,.04);
+  --radius: 6px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--font-sans);
+  color:var(--ink);
+  background:var(--cream);
+  font-size:15px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+h1,h2,h3,h4{font-family:var(--font-serif);font-weight:600;color:var(--ink);letter-spacing:-.01em}
+h1{font-size:2.2rem;line-height:1.1;margin:0}
+h2{font-size:1.55rem;line-height:1.2;margin:0 0 .5rem 0}
+h3{font-size:1.2rem;line-height:1.25;margin:0 0 .25rem 0}
+a{color:var(--burgundy);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .15s}
+a:hover{border-color:var(--burgundy)}
+small{font-size:.82rem;color:var(--mute)}
+
+/* Encabezado */
+.topbar{
+  background:linear-gradient(180deg, var(--burgundy) 0%, var(--burgundy-dark) 100%);
+  color:#f4ebd8;
+  padding:1.8rem 0 1.3rem 0;
+  border-bottom:3px solid var(--gold);
+}
+.container{max-width:1180px;margin:0 auto;padding:0 1.5rem}
+.brand{display:flex;align-items:flex-end;gap:1.4rem;flex-wrap:wrap}
+.brand-mark{
+  font-family:var(--font-serif);
+  font-size:2.4rem;font-style:italic;line-height:1;
+  color:var(--gold);
+  padding-right:1.4rem;
+  border-right:1px solid rgba(244,235,216,.25);
+}
+.brand-title{flex:1;min-width:260px}
+.brand-title h1{color:#f4ebd8;font-weight:500;font-size:1.7rem}
+.brand-title .tag{font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);opacity:.95;margin-bottom:.25rem}
+.brand-contact{font-size:.85rem;color:rgba(244,235,216,.85);text-align:right;line-height:1.6}
+.brand-contact strong{color:#f4ebd8;font-weight:500}
+.brand-contact a{color:rgba(244,235,216,.92)}
+.brand-contact a:hover{color:var(--gold);border-color:var(--gold)}
+
+/* Pestañas */
+.tabs{background:var(--white);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;box-shadow:var(--shadow-sm)}
+.tabs-inner{display:flex;gap:0}
+.tab{
+  padding:1.1rem 1.5rem;font-size:.82rem;letter-spacing:.1em;text-transform:uppercase;
+  font-weight:600;color:var(--mute);cursor:pointer;background:none;border:none;
+  border-bottom:3px solid transparent;transition:all .15s;font-family:var(--font-sans);
+}
+.tab:hover{color:var(--ink)}
+.tab.active{color:var(--burgundy);border-bottom-color:var(--burgundy)}
+.tab-num{
+  display:inline-block;width:22px;height:22px;line-height:22px;
+  border-radius:50%;background:var(--burgundy-soft);color:var(--burgundy);
+  text-align:center;font-size:.72rem;margin-right:.55rem;
+  font-family:var(--font-serif);font-weight:600;
+}
+.tab.active .tab-num{background:var(--burgundy);color:var(--gold)}
+
+/* Intro */
+.intro{padding:2rem 0 1rem 0;border-bottom:1px dashed var(--line);margin-bottom:2rem}
+.intro p{margin:.4rem 0;max-width:780px;color:var(--ink-soft)}
+.intro .lede{font-size:1.05rem;color:var(--ink)}
+.chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem}
+.chip{background:var(--gold-soft);color:var(--ink-soft);padding:.25rem .7rem;border-radius:100px;font-size:.78rem;border:1px solid rgba(168,135,62,.3)}
+.chip.burgundy{background:var(--burgundy-soft);color:var(--burgundy);border-color:rgba(122,31,43,.2)}
+
+/* Workspace */
+.workspace{display:grid;grid-template-columns:1fr 380px;gap:2.2rem;padding-bottom:4rem}
+@media (max-width:960px){.workspace{grid-template-columns:1fr}}
+
+.block{
+  background:var(--white);border:1px solid var(--line);border-radius:var(--radius);
+  padding:1.6rem 1.7rem;margin-bottom:1.2rem;box-shadow:var(--shadow-sm);
+}
+.block-head{
+  display:flex;justify-content:space-between;align-items:baseline;gap:1rem;
+  padding-bottom:1rem;margin-bottom:1.1rem;border-bottom:1px solid var(--line-soft);
+}
+.block-head h2{margin:0}
+.block-head .num{font-family:var(--font-serif);font-size:1.05rem;color:var(--gold);font-style:italic}
+.block .help{
+  font-size:.82rem;color:var(--mute);background:var(--line-soft);
+  padding:.7rem .9rem;border-radius:4px;margin-bottom:1rem;
+  border-left:3px solid var(--gold);
+}
+.block .help strong{color:var(--ink)}
+.block .help.burgundy{border-left-color:var(--burgundy);background:var(--burgundy-soft)}
+
+.field{margin-bottom:1rem}
+.field-row{display:grid;gap:1rem;grid-template-columns:1fr 1fr}
+.field-row.three{grid-template-columns:1fr 1fr 1fr}
+.field-row.four{grid-template-columns:1fr 1fr 1fr 1fr}
+.field-row.split{grid-template-columns:2fr 1fr}
+@media (max-width:640px){
+  .field-row,.field-row.three,.field-row.four,.field-row.split{grid-template-columns:1fr}
+}
+label{display:block;font-size:.78rem;font-weight:600;color:var(--ink-soft);margin-bottom:.35rem;letter-spacing:.02em}
+label .opt{font-weight:400;color:var(--mute);font-style:italic}
+input[type="text"],input[type="email"],input[type="number"],input[type="date"],input[type="tel"],select,textarea{
+  width:100%;padding:.55rem .75rem;border:1px solid var(--line);border-radius:4px;
+  font-family:var(--font-sans);font-size:.92rem;color:var(--ink);background:#fff;
+  transition:border-color .15s, box-shadow .15s;
+}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--burgundy);box-shadow:0 0 0 3px rgba(122,31,43,.08)}
+textarea{resize:vertical;min-height:80px;line-height:1.5}
+select{
+  appearance:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='%237a1f2b' d='M6 8L0 0h12z'/></svg>");
+  background-repeat:no-repeat;background-position:right .75rem center;padding-right:2rem;
+}
+
+.check{display:flex;align-items:flex-start;gap:.6rem;margin-bottom:.5rem;cursor:pointer;font-size:.92rem}
+.check input{margin-top:.18rem;accent-color:var(--burgundy);cursor:pointer;width:16px;height:16px}
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:.4rem .9rem}
+@media (max-width:520px){.check-grid{grid-template-columns:1fr}}
+.check .price{color:var(--mute);font-size:.82rem;margin-left:auto;padding-left:.5rem;white-space:nowrap}
+
+.item{
+  display:grid;grid-template-columns:1fr auto auto;gap:.8rem;
+  padding:.65rem 0;border-bottom:1px solid var(--line-soft);align-items:center;
+}
+.item:last-child{border-bottom:none}
+.item-name{font-size:.9rem}
+.item-qty input{width:80px;text-align:center;padding:.3rem .4rem}
+.item-total{font-weight:600;color:var(--burgundy);min-width:90px;text-align:right;font-variant-numeric:tabular-nums}
+
+.summary{position:sticky;top:90px;align-self:start;background:var(--white);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-md);overflow:hidden}
+.summary-head{background:linear-gradient(180deg, var(--burgundy) 0%, var(--burgundy-dark) 100%);color:#f4ebd8;padding:1.2rem 1.4rem}
+.summary-head h3{color:#f4ebd8;margin:0;font-size:1.3rem}
+.summary-head .sub{font-size:.75rem;text-transform:uppercase;letter-spacing:.14em;color:var(--gold);margin-top:.15rem}
+.summary-body{padding:1.2rem 1.4rem}
+.summary-line{display:flex;justify-content:space-between;gap:.6rem;padding:.45rem 0;font-size:.88rem;border-bottom:1px dotted var(--line)}
+.summary-line:last-child{border-bottom:none}
+.summary-line .lbl{color:var(--ink-soft);flex:1;min-width:0}
+.summary-line .val{font-variant-numeric:tabular-nums;font-weight:500;white-space:nowrap}
+.summary-line.zero{opacity:.4}
+.summary-line.subtotal{border-top:2px solid var(--ink);border-bottom:none;margin-top:.5rem;padding-top:.75rem;font-weight:600;font-size:.95rem}
+.summary-line.iva{font-size:.82rem;color:var(--mute)}
+.summary-line.total{background:var(--gold-soft);margin:.6rem -1.4rem -1.2rem -1.4rem;padding:1rem 1.4rem;font-size:1.05rem;font-weight:700;font-family:var(--font-serif);border-top:1px solid var(--gold)}
+.summary-line.total .val{font-size:1.35rem;color:var(--burgundy);font-weight:700}
+
+.summary-cop{padding:1rem 1.4rem;background:var(--burgundy-soft);border-top:1px solid var(--line)}
+.summary-cop .lbl{font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;color:var(--burgundy);font-weight:600}
+.summary-cop .cop-val{font-family:var(--font-serif);font-size:1.6rem;font-weight:600;color:var(--burgundy-dark);margin-top:.2rem;font-variant-numeric:tabular-nums}
+.summary-cop .rate{font-size:.75rem;color:var(--mute);margin-top:.35rem;display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
+.summary-cop .rate input{width:80px;padding:.2rem .4rem;font-size:.8rem}
+.rate-badge{display:inline-block;padding:.1rem .4rem;background:var(--white);border:1px solid var(--line);border-radius:3px;font-size:.7rem;color:var(--mute)}
+.rate-badge.live{color:var(--ok);border-color:var(--ok)}
+
+.actions{padding:1rem 1.4rem;display:flex;flex-direction:column;gap:.5rem;border-top:1px solid var(--line);background:var(--cream)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.7rem 1.1rem;font-family:var(--font-sans);font-size:.85rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;border-radius:4px;border:1px solid transparent;cursor:pointer;transition:all .15s;text-decoration:none}
+.btn-primary{background:var(--burgundy);color:#f4ebd8;border-color:var(--burgundy)}
+.btn-primary:hover{background:var(--burgundy-dark)}
+.btn-secondary{background:var(--white);color:var(--ink);border-color:var(--line)}
+.btn-secondary:hover{border-color:var(--burgundy);color:var(--burgundy)}
+.btn-gold{background:var(--gold);color:#1a1410;border-color:var(--gold)}
+.btn-gold:hover{background:#8d7133}
+
+.flash{padding:.6rem .9rem;background:var(--gold-soft);border-left:3px solid var(--gold);font-size:.82rem;color:var(--ink-soft);margin:1rem 1.4rem 0 1.4rem;border-radius:3px;display:none}
+.flash.show{display:block}
+.flash.ok{background:#e8f5ea;border-left-color:var(--ok)}
+
+.iva-note{font-size:.78rem;color:var(--mute);font-style:italic;padding-top:.75rem;margin-top:.5rem;border-top:1px dashed var(--line-soft)}
+.toggle-block{display:flex;align-items:center;gap:.7rem;padding:.9rem 1rem;background:var(--line-soft);border-radius:4px;margin-bottom:1rem;cursor:pointer}
+.toggle-block input{width:18px;height:18px;accent-color:var(--burgundy)}
+.toggle-block .tlabel{font-weight:600;flex:1}
+.toggle-block .tprice{color:var(--mute);font-size:.85rem}
+
+.footer{padding:2rem 0;background:var(--burgundy-dark);color:rgba(244,235,216,.75);font-size:.82rem;border-top:3px solid var(--gold)}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:2rem}
+@media (max-width:720px){.footer-grid{grid-template-columns:1fr}}
+.footer strong{color:#f4ebd8;display:block;margin-bottom:.3rem;font-family:var(--font-serif);font-size:1rem}
+.footer a{color:var(--gold)}
+
+.pane{display:none}
+.pane.active{display:block}
+
+/* Impresión */
+@media print{
+  @page { size: A4; margin: 16mm 14mm; }
+  body{background:#fff;font-size:10.5pt;color:#000}
+  .topbar{background:#fff;color:#000;padding:0 0 .8rem 0;border-bottom:2px solid #000;margin-bottom:1rem}
+  .topbar *{color:#000 !important}
+  .brand-mark{border-right-color:#000;color:#000}
+  .tabs,.actions,.intro .chips,.flash,.print-hide{display:none !important}
+  .intro{padding:.5rem 0;border:none;margin-bottom:.8rem}
+  .workspace{display:block;padding:0;gap:0}
+  .pane{display:block !important;page-break-before:always}
+  .pane:first-of-type{page-break-before:auto}
+  .block{box-shadow:none;border:1px solid #999;margin-bottom:.8rem;padding:1rem;break-inside:avoid}
+  .block-head{padding-bottom:.5rem;margin-bottom:.6rem}
+  h2{font-size:1.2rem}
+  h1{font-size:1.6rem}
+  input[type="text"],input[type="email"],input[type="number"],input[type="date"],input[type="tel"],textarea,select{
+    border:none;border-bottom:1px solid #666;border-radius:0;padding:.2rem 0;background:transparent;
+  }
+  input:focus,select:focus,textarea:focus{box-shadow:none}
+  select{background-image:none;padding-right:0}
+  .summary{position:static;box-shadow:none;border:2px solid #000;page-break-inside:avoid}
+  .summary-head{background:#000 !important;color:#fff !important;padding:.7rem 1rem}
+  .summary-head *{color:#fff !important}
+  .summary-line.total{background:#f2f2f2;color:#000}
+  .summary-line.total .val{color:#000}
+  .summary-cop{background:#f9f9f9;border-top:1px solid #000}
+  .footer{background:#fff;color:#333;border-top:1px solid #000;padding:1rem 0;margin-top:1rem}
+  .footer *{color:#333 !important}
+}
+
+.block{animation:fadeIn .3s ease-out both}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<!-- ================== HEADER ================== -->
+<header class="topbar">
+  <div class="container">
+    <div class="brand">
+      <div class="brand-mark">JM·P</div>
+      <div class="brand-title">
+        <div class="tag">Formación Permanente · Universidad de Salamanca</div>
+        <h1>Propuesta y Presupuesto de Curso · 2026</h1>
+      </div>
+      <div class="brand-contact">
+        <strong>Prof. Jorge Matías-Pereda</strong><br>
+        Dpto. Administración y Economía de la Empresa · USAL<br>
+        <a href="mailto:mpereda@usal.es">mpereda@usal.es</a> · WhatsApp <a href="https://wa.me/34677403639">+34 677 403 639</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ================== TABS ================== -->
+<nav class="tabs">
+  <div class="container tabs-inner">
+    <button class="tab active" data-tab="proposal"><span class="tab-num">1</span>Propuesta de curso</button>
+    <button class="tab" data-tab="budget"><span class="tab-num">2</span>Presupuesto del curso</button>
+  </div>
+</nav>
+
+<div class="container">
+
+<!-- =========================================================
+     PANE 1 · PROPUESTA DE CURSO
+     ========================================================= -->
+<section class="pane active" id="pane-proposal">
+
+  <div class="intro">
+    <p class="lede"><strong>Propuesta de curso a medida</strong>. Utilice este formulario para proponernos un programa adaptado a su grupo universitario colombiano. El profesor Matías-Pereda le responderá con una propuesta académica y, a continuación, con un presupuesto preliminar en la pestaña 2.</p>
+    <p>Todos los cursos pueden optar a <strong>certificación oficial de la Universidad de Salamanca</strong> a través del Centro de Formación Permanente (CFP).</p>
+    <div class="chips">
+      <span class="chip burgundy">Formación Permanente USAL</span>
+      <span class="chip">Presencial · Híbrido · Online</span>
+      <span class="chip">Profesorado en Salamanca o en Colombia</span>
+      <span class="chip">Certificación oficial</span>
+    </div>
+  </div>
+
+  <div class="workspace">
+    <div class="form-col">
+
+      <!-- Institución -->
+      <div class="block">
+        <div class="block-head"><h2>Datos de la institución solicitante</h2><span class="num">i</span></div>
+        <div class="help">Identifique a la universidad o entidad que promueve el curso y, si aplica, a la agencia intermediaria.</div>
+        <div class="field-row">
+          <div class="field"><label>Universidad / Institución</label><input type="text" id="p_univ" placeholder="Ej.: Universidad de los Andes"></div>
+          <div class="field"><label>País / Ciudad</label><input type="text" id="p_pais" placeholder="Colombia / Bogotá"></div>
+        </div>
+        <div class="field-row three">
+          <div class="field"><label>Persona de contacto</label><input type="text" id="p_cont"></div>
+          <div class="field"><label>Cargo</label><input type="text" id="p_cargo" placeholder="Ej.: Decana Facultad..."></div>
+          <div class="field"><label>Email</label><input type="email" id="p_email"></div>
+        </div>
+        <div class="field">
+          <label>Agencia intermediaria <span class="opt">si aplica</span></label>
+          <input type="text" id="p_agencia" value="Viajar de Colombia — IAC">
+        </div>
+      </div>
+
+      <!-- Curso -->
+      <div class="block">
+        <div class="block-head"><h2>Datos del curso propuesto</h2><span class="num">ii</span></div>
+        <div class="help">Título, contenidos e información académica. Cuanto más detalle aporte en los contenidos, más ajustada será la propuesta.</div>
+        <div class="field">
+          <label>Título del curso propuesto</label>
+          <input type="text" id="p_titulo" placeholder="Ej.: Negociación y resolución de conflictos en entornos multiculturales">
+        </div>
+        <div class="field">
+          <label>Resumen / contenidos principales</label>
+          <textarea id="p_contenido" rows="5" placeholder="Describa las líneas temáticas, unidades, casos prácticos, etc."></textarea>
+        </div>
+        <div class="field">
+          <label>Áreas de conocimiento <span class="opt">marque todas las que correspondan</span></label>
+          <div class="check-grid" id="p_areas_wrap">
+            <label class="check"><input type="checkbox" class="p-area" value="Administración y Dirección de Empresas"><span>Administración y Dirección de Empresas</span></label>
+            <label class="check"><input type="checkbox" class="p-area" value="Negociación y gestión de conflictos"><span>Negociación y gestión de conflictos</span></label>
+            <label class="check"><input type="checkbox" class="p-area" value="Innovación y emprendimiento"><span>Innovación y emprendimiento</span></label>
+            <label class="check"><input type="checkbox" class="p-area" value="Gestión del conocimiento"><span>Gestión del conocimiento</span></label>
+            <label class="check"><input type="checkbox" class="p-area" value="Fusiones y adquisiciones (M&A)"><span>Fusiones y adquisiciones (M&amp;A)</span></label>
+            <label class="check"><input type="checkbox" class="p-area" value="Diversidad e inclusión"><span>Diversidad e inclusión</span></label>
+            <label class="check"><input type="checkbox" class="p-area" value="Recursos Humanos"><span>Recursos Humanos</span></label>
+            <label class="check"><input type="checkbox" class="p-area" value="Sostenibilidad e inteligencia de sistemas"><span>Sostenibilidad e inteligencia de sistemas</span></label>
+            <label class="check"><input type="checkbox" class="p-area" value="Inteligencia artificial aplicada"><span>Inteligencia artificial aplicada</span></label>
+            <label class="check"><input type="checkbox" class="p-area" value="Internacionalización de empresas"><span>Internacionalización de empresas</span></label>
+            <label class="check"><input type="checkbox" class="p-area" value="Comunicación corporativa"><span>Comunicación corporativa</span></label>
+            <label class="check"><input type="checkbox" class="p-area" value="Otra área"><span>Otra (especificar en comentarios)</span></label>
+          </div>
+        </div>
+        <div class="field-row three">
+          <div class="field"><label>Nº de horas lectivas</label><input type="number" id="p_horas" min="1" value="20"></div>
+          <div class="field"><label>Idioma del curso</label>
+            <select id="p_idioma">
+              <option value="Español">Español</option>
+              <option value="Inglés">Inglés</option>
+              <option value="Bilingüe (español/inglés)">Bilingüe (español/inglés)</option>
+            </select>
+          </div>
+          <div class="field"><label>Nº previsto de viajes a España</label>
+            <select id="p_viajes">
+              <option value="1">1 viaje</option>
+              <option value="2">2 viajes</option>
+              <option value="0">Ninguno (profesorado en Colombia o curso online)</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row three">
+          <div class="field"><label>Modalidad</label>
+            <select id="p_mod">
+              <option value="Presencial en Salamanca">Presencial en Salamanca</option>
+              <option value="Presencial en Colombia (profesorado desplazado)">Presencial en Colombia (profesorado desplazado)</option>
+              <option value="Itinerante (Colombia + Salamanca)">Itinerante (parte en Colombia + parte en Salamanca)</option>
+              <option value="Híbrida (presencial + online)">Híbrida (presencial + online)</option>
+              <option value="Online en directo">Online en directo</option>
+              <option value="Online asincrónica">Online asincrónica</option>
+            </select>
+          </div>
+          <div class="field"><label>Fecha preferida de inicio</label><input type="date" id="p_fini"></div>
+          <div class="field"><label>Fecha preferida de fin</label><input type="date" id="p_ffin"></div>
+        </div>
+      </div>
+
+      <!-- Estudiantes -->
+      <div class="block">
+        <div class="block-head"><h2>Perfil de los estudiantes</h2><span class="num">iii</span></div>
+        <div class="help burgundy"><strong>Importante:</strong> en esta fase basta con indicar el <strong>número aproximado</strong> de participantes y su perfil. La <strong>lista definitiva</strong> (nombres, documento de identidad y correo electrónico) se adjuntará posteriormente, una vez confirmada la inscripción y al menos 15 días antes del inicio del curso.</div>
+        <div class="field-row three">
+          <div class="field"><label>Nº estimado de estudiantes</label><input type="number" id="p_nalum" min="1" value="20"></div>
+          <div class="field"><label>Nivel académico</label>
+            <select id="p_nivel">
+              <option value="Grado / Pregrado">Grado / Pregrado</option>
+              <option value="Postgrado / Maestría">Postgrado / Maestría</option>
+              <option value="Doctorado">Doctorado</option>
+              <option value="Profesional en ejercicio">Profesional en ejercicio</option>
+              <option value="Mixto">Mixto</option>
+            </select>
+          </div>
+          <div class="field"><label>Edad media <span class="opt">aprox.</span></label><input type="number" id="p_edad" min="16" max="99" placeholder="Ej.: 25"></div>
+        </div>
+        <div class="field">
+          <label>Procedencia y formación previa</label>
+          <textarea id="p_proc" rows="3" placeholder="Ej.: estudiantes de último año de Administración de Empresas de la Universidad X, con formación en..."></textarea>
+        </div>
+      </div>
+
+      <!-- Objetivos y certificación -->
+      <div class="block">
+        <div class="block-head"><h2>Objetivos y certificación</h2><span class="num">iv</span></div>
+        <div class="field">
+          <label>Objetivos de aprendizaje esperados</label>
+          <textarea id="p_objs" rows="3" placeholder="¿Qué deben saber y saber hacer los estudiantes al terminar el curso?"></textarea>
+        </div>
+        <div class="field">
+          <label>Tipo de certificación deseada</label>
+          <div class="check-grid">
+            <label class="check"><input type="radio" name="p_cert" value="Diploma oficial USAL" checked><span>Diploma oficial USAL (CFP)</span></label>
+            <label class="check"><input type="radio" name="p_cert" value="Certificado de aprovechamiento"><span>Certificado de aprovechamiento</span></label>
+            <label class="check"><input type="radio" name="p_cert" value="Certificado de asistencia"><span>Certificado de asistencia</span></label>
+            <label class="check"><input type="radio" name="p_cert" value="Microcredencial digital"><span>Microcredencial digital</span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comentarios -->
+      <div class="block">
+        <div class="block-head"><h2>Comentarios adicionales</h2><span class="num">v</span></div>
+        <div class="help">Enfoque deseado, casos de estudio específicos, sectores de interés, restricciones de calendario, requerimientos de idioma, accesibilidad, etc.</div>
+        <div class="field">
+          <textarea id="p_coment" rows="4" placeholder="Cualquier información que ayude a diseñar la propuesta a medida..."></textarea>
+        </div>
+      </div>
+
+    </div>
+
+    <aside class="summary print-hide">
+      <div class="summary-head">
+        <div class="sub">Enviar propuesta</div>
+        <h3>Siguiente paso</h3>
+      </div>
+      <div class="summary-body" style="font-size:.88rem;line-height:1.6">
+        <p style="margin-top:0">Al pulsar <strong>Enviar</strong> se abrirá su cliente de correo con un mensaje pre-rellenado dirigido al profesor <strong>Jorge Matías-Pereda</strong> (<a href="mailto:mpereda@usal.es">mpereda@usal.es</a>), con todos los datos de la propuesta.</p>
+        <p>Respuesta habitual en <strong>48–72 horas laborables</strong>. Una vez aceptada la propuesta académica, pasará a la pestaña 2 para trabajar el presupuesto.</p>
+        <p style="margin-bottom:0"><strong>WhatsApp directo:</strong> <a href="https://wa.me/34677403639">+34 677 403 639</a></p>
+      </div>
+      <div class="flash" id="flashMsg2"></div>
+      <div class="actions">
+        <button class="btn btn-primary" id="btnEmail2">✉ Enviar propuesta por email</button>
+        <button class="btn btn-gold" id="btnPrint2">⎙ Imprimir / Guardar PDF</button>
+        <button class="btn btn-secondary" id="btnReset">↺ Limpiar formulario</button>
+      </div>
+    </aside>
+
+  </div>
+</section>
+
+<!-- =========================================================
+     PANE 2 · PRESUPUESTO DEL CURSO
+     ========================================================= -->
+<section class="pane" id="pane-budget">
+
+  <div class="intro">
+    <p class="lede"><strong>Herramienta de presupuesto preliminar</strong> para cursos de Formación Permanente de la Universidad de Salamanca con certificación oficial USAL, gestionados en convenio con <strong>Viajar de Colombia — IAC (International Academic Connexion)</strong> para grupos universitarios latinoamericanos.</p>
+    <p>Complete los campos que necesite. Los totales se actualizan automáticamente y se muestran en EUR y COP en el panel derecho. Al terminar puede <strong>imprimir en PDF</strong> o <strong>enviar por email</strong> una copia al profesor coordinador.</p>
+    <div class="chips">
+      <span class="chip burgundy">Certificación oficial USAL</span>
+      <span class="chip">Precios 2026 · EUR</span>
+      <span class="chip">Convenio Viajar de Colombia · IAC</span>
+      <span class="chip">IVA solo en servicios externos</span>
+    </div>
+  </div>
+
+  <div class="workspace">
+    <div class="form-col">
+
+      <!-- Datos del grupo -->
+      <div class="block">
+        <div class="block-head"><h2>Datos del grupo</h2><span class="num">i</span></div>
+        <div class="help"><strong>Datos básicos del grupo.</strong> Se usan en el resumen del presupuesto y son necesarios para enviarlo por email. La lista definitiva de participantes se aportará en una fase posterior, no es necesaria ahora.</div>
+        <div class="field-row">
+          <div class="field"><label>Agencia / Entidad organizadora</label>
+            <input type="text" id="f_agencia" value="Viajar de Colombia — IAC">
+          </div>
+          <div class="field"><label>Universidad / Institución de origen</label>
+            <input type="text" id="f_universidad" placeholder="Ej.: Universidad Nacional de Colombia">
+          </div>
+        </div>
+        <div class="field-row three">
+          <div class="field"><label>Persona de contacto</label>
+            <input type="text" id="f_contacto" placeholder="Nombre y apellido">
+          </div>
+          <div class="field"><label>Email de contacto</label>
+            <input type="email" id="f_email" placeholder="correo@ejemplo.com">
+          </div>
+          <div class="field"><label>Teléfono / WhatsApp</label>
+            <input type="tel" id="f_tel" placeholder="+57 ...">
+          </div>
+        </div>
+        <div class="field-row three">
+          <div class="field"><label>Fecha de inicio</label><input type="date" id="f_fecha_ini"></div>
+          <div class="field"><label>Fecha de fin</label><input type="date" id="f_fecha_fin"></div>
+          <div class="field"><label>Nº total de días</label><input type="number" id="f_dias" min="1" value="3"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Nº de estudiantes</label><input type="number" id="f_alumnos" min="1" value="22"></div>
+          <div class="field"><label>Nº de docentes / acompañantes <span class="opt">(opcional)</span></label><input type="number" id="f_acomp" min="0" value="0"></div>
+        </div>
+      </div>
+
+      <!-- Docencia -->
+      <div class="block">
+        <div class="block-head"><h2>Docencia</h2><span class="num">ii</span></div>
+        <div class="help"><strong>Servicio exento de IVA</strong> (art. 20.Uno.9º Ley 37/1992, servicios educativos). La tarifa por hora depende del perfil docente: 90–120 € según experiencia, internacionalización y uso de simuladores.</div>
+        <div class="field-row three">
+          <div class="field"><label>Horas de docencia directa</label><input type="number" id="d_horas" min="0" value="15"></div>
+          <div class="field"><label>Tarifa docente (€/hora)</label>
+            <select id="d_tarifa">
+              <option value="90">90 € — estándar</option>
+              <option value="95" selected>95 € — habitual CFP</option>
+              <option value="100">100 € — senior</option>
+              <option value="110">110 € — internacional / simuladores</option>
+              <option value="120">120 € — catedrático / especialista</option>
+            </select>
+          </div>
+          <div class="field"><label>Horas de visita técnica docente <span class="opt">(opcional)</span></label><input type="number" id="d_visita" min="0" value="0"></div>
+        </div>
+      </div>
+
+      <!-- Coordinación y simuladores -->
+      <div class="block">
+        <div class="block-head"><h2>Coordinación y simuladores IA</h2><span class="num">iii</span></div>
+        <div class="help"><strong>Exentos de IVA.</strong> La coordinación académica es una tarifa plana que incluye diseño del programa, planificación, gestión con CFP y seguimiento del grupo. Los simuladores IA son módulos interactivos propios (SimuLab-AI) que complementan la docencia.</div>
+        <label class="toggle-block">
+          <input type="checkbox" id="t_coord" checked>
+          <span class="tlabel">Coordinación académica</span>
+          <span class="tprice">300,00 € · tarifa plana</span>
+        </label>
+        <label class="toggle-block">
+          <input type="checkbox" id="t_simu">
+          <span class="tlabel">Simuladores IA (SimuLab-AI) · licencia por alumno</span>
+          <span class="tprice">35,00 € / alumno · 2026</span>
+        </label>
+      </div>
+
+      <!-- Desplazamiento profesorado a Colombia -->
+      <div class="block">
+        <div class="block-head"><h2>Desplazamiento del profesorado a Colombia <span class="opt" style="font-family:var(--font-sans);font-weight:400;font-size:.85rem;color:var(--mute);text-transform:none">opcional</span></h2><span class="num">iv</span></div>
+        <div class="help">Active esta sección si el curso se imparte <strong>total o parcialmente en Colombia</strong> con profesorado USAL desplazado. La herramienta calcula billetes + alojamiento + dietas + seguro por el nº de docentes indicado. Los importes son orientativos y se confirman con el prestador del servicio.</div>
+        <label class="toggle-block">
+          <input type="checkbox" id="co_incluir">
+          <span class="tlabel">Incluir desplazamiento del profesorado a Colombia</span>
+          <span class="tprice">activar para completar</span>
+        </label>
+        <div id="co_det" style="display:none">
+          <div class="field-row three">
+            <div class="field"><label>Nº de docentes desplazados</label><input type="number" id="co_ndoc" min="1" value="1"></div>
+            <div class="field"><label>Ciudad / destino</label><input type="text" id="co_ciudad" placeholder="Ej.: Bogotá"></div>
+            <div class="field"><label>Nº de días en Colombia</label><input type="number" id="co_dias" min="0" value="7"></div>
+          </div>
+          <div class="field-row four">
+            <div class="field"><label>Billete aéreo <span class="opt">€/docente</span></label><input type="number" id="co_billete" min="0" step="0.01" value="1100"></div>
+            <div class="field"><label>Alojamiento <span class="opt">€/noche/docente</span></label><input type="number" id="co_aloj" min="0" step="0.01" value="90"></div>
+            <div class="field"><label>Dietas <span class="opt">€/día/docente</span></label><input type="number" id="co_dieta" min="0" step="0.01" value="60"></div>
+            <div class="field"><label>Seguro de viaje <span class="opt">€/docente</span></label><input type="number" id="co_seguro" min="0" step="0.01" value="45"></div>
+          </div>
+          <div class="iva-note">Fórmula: (billete + noches × alojamiento + días × dieta + seguro) × nº de docentes. Considera nº de noches = días − 1. Estos importes corresponden a servicios externos y ya incorporan el IVA aplicable en origen.</div>
+        </div>
+      </div>
+
+      <!-- Aulas -->
+      <div class="block">
+        <div class="block-head"><h2>Aulas y espacios</h2><span class="num">v</span></div>
+        <div class="help"><strong>Alquiler de espacios · IVA 21 % aplicable.</strong> Las actividades organizadas por la propia USAL pueden optar a la exención del 75 % sobre la tarifa base. La exención del 100 % requiere tramitación expresa ante el Vicerrectorado de Economía y depende de la resolución de cada caso.</div>
+        <div class="field-row">
+          <div class="field"><label>Preferencia del espacio</label>
+            <select id="a_pref">
+              <option value="coste">Menor coste — Edificio Multiusos I+D+i</option>
+              <option value="centro">Ubicación céntrica — Edificio Fonseca</option>
+              <option value="historico">Valor patrimonial — Edificio Histórico / Escuelas Mayores</option>
+              <option value="flex">Flexible — la agencia decide tras propuesta</option>
+            </select>
+          </div>
+          <div class="field"><label>Espacio concreto</label>
+            <select id="a_espacio"></select>
+          </div>
+        </div>
+        <div class="field-row three">
+          <div class="field"><label>Nº de jornadas completas</label><input type="number" id="a_dias" min="0" value="3"></div>
+          <div class="field"><label>Exención aplicable</label>
+            <select id="a_exenc">
+              <option value="0">Sin exención — tarifa íntegra</option>
+              <option value="0.75" selected>75 % (actividad USAL confirmada)</option>
+              <option value="1">100 % (requiere tramitación ante Vicerrectorado)</option>
+            </select>
+          </div>
+          <div class="field"><label>Tarifa base / jornada (€)</label><input type="number" id="a_tarifa" min="0" value="110" step="0.01"></div>
+        </div>
+        <div class="iva-note">Tarifa de referencia según espacio: Multiusos I+D+i 110 €/día · Aula Fonseca estándar ~225 €/día (bonificada) · Aulas del Edificio Histórico y Aula Magna, consultar. Se aplica IVA 21 % sobre el importe resultante tras exención. Si selecciona <em>100 %</em>, el presupuesto queda condicionado a la resolución favorable de la tramitación.</div>
+      </div>
+
+      <!-- Restauración -->
+      <div class="block">
+        <div class="block-head"><h2>Restauración</h2><span class="num">vi</span></div>
+        <div class="help"><strong>IVA incluido en el precio.</strong> Menú del día del Restaurante Fonseca para grupos: primer plato, segundo (carne o pescado), postre, pan, agua, vino tinto y café.</div>
+        <div class="field-row three">
+          <div class="field"><label>Servicio</label>
+            <select id="r_tipo">
+              <option value="18.90">Menú del día Fonseca · 18,90 € / persona</option>
+              <option value="0">Sin restauración (catering externo o por cuenta del grupo)</option>
+              <option value="custom">Otro menú / precio personalizado</option>
+            </select>
+          </div>
+          <div class="field"><label>Precio personalizado (€) <span class="opt">si aplica</span></label><input type="number" id="r_custom" min="0" step="0.01" value="0" placeholder="Solo si 'Otro menú'"></div>
+          <div class="field"><label>Nº de comensales / día</label><input type="number" id="r_pax" min="0" value="22"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Nº de días de restauración</label><input type="number" id="r_dias" min="0" value="3"></div>
+        </div>
+      </div>
+
+      <!-- Material -->
+      <div class="block">
+        <div class="block-head"><h2>Material didáctico</h2><span class="num">vii</span></div>
+        <div class="help">Cuadernos oficiales del curso con la marca USAL / CFP. Incluyen esquema del programa y espacio para notas.</div>
+        <div class="item">
+          <div class="item-name"><strong>Cuadernos oficiales USAL</strong><br><small>2,00 € / unidad · sin IVA</small></div>
+          <div class="item-qty"><input type="number" id="m_cuadernos" min="0" value="0" placeholder="Nº"></div>
+          <div class="item-total"><span id="m_cuadernos_tot">0,00 €</span></div>
+        </div>
+        <div class="item">
+          <div class="item-name"><strong>Otros materiales</strong> <span class="opt">(describa)</span><br>
+            <input type="text" id="m_otros_desc" placeholder="Ej.: carpetas, bolígrafos USAL..." style="margin-top:.35rem">
+          </div>
+          <div class="item-qty"><input type="number" id="m_otros_precio" min="0" step="0.01" value="0" placeholder="€"></div>
+          <div class="item-total"><span id="m_otros_tot">0,00 €</span></div>
+        </div>
+      </div>
+
+      <!-- Visitas culturales + centros específicos -->
+      <div class="block">
+        <div class="block-head"><h2>Visitas culturales y a centros</h2><span class="num">viii</span></div>
+        <div class="help">Visitas guiadas al patrimonio USAL y, si se solicita, visitas a centros específicos (facultades, institutos de investigación, empresas, museos externos, etc.). Los precios son orientativos 2026 y se confirman con el Servicio de Actividades Culturales. Marque las que desee incluir.</div>
+        <div class="check-grid">
+          <label class="check"><input type="checkbox" class="v-chk" data-price="5" data-name="Escuelas Mayores — Edificio Histórico (con la Rana)"><span>Escuelas Mayores · <em>Edificio Histórico</em> (con la Rana)</span><span class="price">5,00 €</span></label>
+          <label class="check"><input type="checkbox" class="v-chk" data-price="4" data-name="Cielo de Salamanca (bóveda de Fernando Gallego)"><span>Cielo de Salamanca · <em>bóveda de Gallego</em></span><span class="price">4,00 €</span></label>
+          <label class="check"><input type="checkbox" class="v-chk" data-price="3" data-name="Paraninfo y Capilla del Edificio Histórico"><span>Paraninfo y Capilla del Edificio Histórico</span><span class="price">3,00 €</span></label>
+          <label class="check"><input type="checkbox" class="v-chk" data-price="6" data-name="Colegio Arzobispo Fonseca — visita patrimonial"><span>Colegio Arzobispo Fonseca · visita patrimonial</span><span class="price">6,00 €</span></label>
+          <label class="check"><input type="checkbox" class="v-chk" data-price="3" data-name="Casa-Museo Unamuno"><span>Casa-Museo Unamuno</span><span class="price">3,00 €</span></label>
+          <label class="check"><input type="checkbox" class="v-chk" data-price="5" data-name="Palacio de Anaya — Facultad de Filología"><span>Palacio de Anaya · Facultad de Filología</span><span class="price">5,00 €</span></label>
+          <label class="check"><input type="checkbox" class="v-chk" data-price="4" data-name="Biblioteca General Histórica"><span>Biblioteca General Histórica</span><span class="price">4,00 €</span></label>
+          <label class="check"><input type="checkbox" class="v-chk" data-price="5" data-name="Museo del Comercio y de la Industria"><span>Museo del Comercio y de la Industria</span><span class="price">5,00 €</span></label>
+          <label class="check"><input type="checkbox" class="v-chk" data-price="4" data-name="Huerto de Calixto y Melibea · ruta literaria"><span>Huerto de Calixto y Melibea · ruta literaria</span><span class="price">4,00 €</span></label>
+          <label class="check"><input type="checkbox" class="v-chk" data-price="7" data-name="Pack completo — Edificio Histórico + Cielo + Fonseca"><span><strong>Pack completo patrimonial</strong></span><span class="price">7,00 €</span></label>
+        </div>
+        <div class="field-row" style="margin-top:1rem">
+          <div class="field"><label>Guía oficial / intérprete <span class="opt">opcional</span></label>
+            <select id="v_guia">
+              <option value="0">Sin guía</option>
+              <option value="120">Guía oficial USAL · media jornada · 120 €</option>
+              <option value="220">Guía oficial USAL · jornada completa · 220 €</option>
+            </select>
+          </div>
+          <div class="field"><label>Nº de personas (participantes en las visitas)</label><input type="number" id="v_pax" min="0" value="22"></div>
+        </div>
+
+        <!-- Visita a centros específicos -->
+        <div style="margin-top:1.3rem;padding-top:1rem;border-top:1px dashed var(--line)">
+          <h4 style="font-family:var(--font-sans);font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;color:var(--burgundy);margin:0 0 .6rem 0">Visita solicitada a centro específico</h4>
+          <small style="display:block;margin-bottom:.6rem;color:var(--mute)">Si el grupo pide visitar un centro concreto (facultad, instituto de investigación, empresa, museo externo, institución pública...), indíquelo aquí.</small>
+          <div class="field-row three">
+            <div class="field"><label>Nombre del centro</label><input type="text" id="cc_nombre" placeholder="Ej.: IBSAL, Grupo MRS, Museo de Salamanca..."></div>
+            <div class="field"><label>Tipo de centro</label>
+              <select id="cc_tipo">
+                <option value="">— seleccionar —</option>
+                <option value="Centro o instituto de investigación USAL">Centro / instituto de investigación USAL</option>
+                <option value="Facultad o departamento USAL">Facultad / departamento USAL</option>
+                <option value="Empresa">Empresa</option>
+                <option value="Institución pública">Institución pública</option>
+                <option value="Museo externo">Museo externo</option>
+                <option value="Otro">Otro</option>
+              </select>
+            </div>
+            <div class="field"><label>Precio por persona (€) <span class="opt">0 si es gratuita</span></label><input type="number" id="cc_precio" min="0" step="0.01" value="0"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transporte local -->
+      <div class="block">
+        <div class="block-head"><h2>Transporte local</h2><span class="num">ix</span></div>
+        <div class="help"><strong>Servicio externo · IVA incluido.</strong> Traslados dentro de Salamanca o entre ciudades cercanas. El importe se confirma con la empresa de transportes una vez definidas las rutas y horarios.</div>
+        <div class="field-row">
+          <div class="field"><label>Tipo de traslado</label>
+            <select id="tr_tipo">
+              <option value="">— seleccionar —</option>
+              <option value="Aeropuerto Madrid-Barajas ↔ Salamanca (ida y vuelta)">Aeropuerto Madrid-Barajas ↔ Salamanca · ida y vuelta</option>
+              <option value="Aeropuerto Madrid-Barajas → Salamanca (solo ida)">Aeropuerto Madrid-Barajas → Salamanca · solo ida</option>
+              <option value="Salamanca → Aeropuerto Madrid-Barajas (solo vuelta)">Salamanca → Aeropuerto Madrid-Barajas · solo vuelta</option>
+              <option value="Traslados urbanos en Salamanca (hotel ↔ aulas)">Traslados urbanos en Salamanca (hotel ↔ aulas)</option>
+              <option value="Traslado a centro visitado en Salamanca">Traslado a centro visitado en Salamanca</option>
+              <option value="Traslado a centro visitado fuera de Salamanca">Traslado a centro visitado fuera de Salamanca</option>
+              <option value="Traslado a sede de excursión">Traslado a sede de excursión</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
+          <div class="field"><label>Descripción / detalle del recorrido <span class="opt">opcional</span></label>
+            <input type="text" id="tr_desc" placeholder="Ej.: 2 traslados hotel Don Juan ↔ Fonseca...">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Coste del servicio (€ total)</label><input type="number" id="tr_precio" min="0" step="0.01" value="0" placeholder="Importe total del traslado"></div>
+          <div class="field"><label>Otros traslados adicionales (€ total) <span class="opt">opcional</span></label><input type="number" id="tr_otros" min="0" step="0.01" value="0" placeholder="Suma de traslados extra"></div>
+        </div>
+      </div>
+
+      <!-- Excursión -->
+      <div class="block">
+        <div class="block-head"><h2>Excursión de jornada completa <span class="opt" style="font-family:var(--font-sans);font-weight:400;font-size:.85rem;color:var(--mute);text-transform:none">opcional</span></h2><span class="num">x</span></div>
+        <div class="help"><strong>Servicio externo · IVA incluido.</strong> Activar si el programa incluye una salida fuera de Salamanca. La herramienta calcula transporte + entradas + comida por el nº de personas indicado.</div>
+        <label class="toggle-block">
+          <input type="checkbox" id="exc_incluir">
+          <span class="tlabel">Incluir excursión de jornada completa</span>
+          <span class="tprice">activar para completar</span>
+        </label>
+        <div id="exc_det" style="display:none">
+          <div class="field-row">
+            <div class="field"><label>Destino</label>
+              <select id="exc_destino">
+                <option value="Ávila">Ávila · muralla y casco histórico</option>
+                <option value="Segovia">Segovia · acueducto y alcázar</option>
+                <option value="Madrid">Madrid · museos y centro</option>
+                <option value="La Alberca">La Alberca y Sierra de Francia</option>
+                <option value="Las Batuecas">Las Batuecas · naturaleza</option>
+                <option value="Ciudad Rodrigo">Ciudad Rodrigo</option>
+                <option value="Zamora">Zamora · románico</option>
+                <option value="León">León · catedral</option>
+                <option value="otro">Otro destino…</option>
+              </select>
+            </div>
+            <div class="field"><label>Destino personalizado <span class="opt">si aplica</span></label><input type="text" id="exc_destino_otro" placeholder="Ej.: Las Hurdes..."></div>
+          </div>
+          <div class="field-row three">
+            <div class="field"><label>Coste transporte (€ total)</label><input type="number" id="exc_transp" min="0" step="0.01" value="0" placeholder="Autobús día completo"></div>
+            <div class="field"><label>Entradas / museos (€ por persona)</label><input type="number" id="exc_entradas" min="0" step="0.01" value="0"></div>
+            <div class="field"><label>Comida (€ por persona)</label><input type="number" id="exc_comida" min="0" step="0.01" value="0"></div>
+          </div>
+          <div class="field">
+            <label>Nº de personas en la excursión</label>
+            <input type="number" id="exc_pax" min="0" value="22">
+          </div>
+        </div>
+      </div>
+
+      <!-- Alojamiento -->
+      <div class="block">
+        <div class="block-head"><h2>Alojamiento <span class="opt" style="font-family:var(--font-sans);font-weight:400;font-size:.85rem;color:var(--mute);text-transform:none">opcional</span></h2><span class="num">xi</span></div>
+        <div class="help">La USAL puede facilitar alojamiento en <strong>Colegios Mayores</strong> (Fonseca, San Bartolomé, Oviedo), <strong>residencias universitarias</strong> y <strong>hoteles convenidos</strong> del centro de Salamanca. Tarifas orientativas 2026, por persona y noche (habitación doble compartida, desayuno incluido).</div>
+        <div class="field-row">
+          <div class="field"><label>Categoría</label>
+            <select id="al_cat">
+              <option value="0">Sin alojamiento incluido</option>
+              <option value="35">Residencia universitaria · 35 €/persona/noche</option>
+              <option value="55">Colegio Mayor (Fonseca / similares) · 55 €/persona/noche</option>
+              <option value="75">Hotel 3★ convenido · 75 €/persona/noche</option>
+              <option value="110">Hotel 4★ convenido · 110 €/persona/noche</option>
+              <option value="custom">Personalizado</option>
+            </select>
+          </div>
+          <div class="field"><label>Precio personalizado (€/persona/noche) <span class="opt">si aplica</span></label><input type="number" id="al_custom" min="0" step="0.01" value="0"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Nº de personas</label><input type="number" id="al_pax" min="0" value="22"></div>
+          <div class="field"><label>Nº de noches</label><input type="number" id="al_noches" min="0" value="0"></div>
+        </div>
+        <div class="iva-note">El alojamiento en hoteles lleva IVA 10 %, que se considera incluido en las tarifas mostradas. Las plazas en Colegios Mayores pueden estar exentas según convenio; se confirma en la oferta final.</div>
+      </div>
+
+      <!-- Observaciones -->
+      <div class="block">
+        <div class="block-head"><h2>Observaciones y requisitos especiales</h2><span class="num">xii</span></div>
+        <div class="help">Espacio libre para indicar particularidades: intolerancias alimentarias, accesibilidad, materiales específicos, certificaciones adicionales, etc. La lista definitiva de participantes se aportará una vez confirmada la inscripción.</div>
+        <div class="field">
+          <textarea id="obs" rows="4" placeholder="Escriba aquí cualquier información relevante para preparar la oferta definitiva..."></textarea>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Resumen -->
+    <aside class="summary print-hide" id="summaryCard">
+      <div class="summary-head">
+        <div class="sub">Resumen del presupuesto</div>
+        <h3>Totales en vivo</h3>
+      </div>
+      <div class="summary-body">
+        <div class="summary-line" data-k="docencia"><span class="lbl">Docencia</span><span class="val">0,00 €</span></div>
+        <div class="summary-line" data-k="visita"><span class="lbl">Visita técnica docente</span><span class="val">0,00 €</span></div>
+        <div class="summary-line" data-k="coord"><span class="lbl">Coordinación académica</span><span class="val">0,00 €</span></div>
+        <div class="summary-line" data-k="simu"><span class="lbl">Simuladores IA</span><span class="val">0,00 €</span></div>
+        <div class="summary-line" data-k="desp"><span class="lbl">Desplazamiento a Colombia</span><span class="val">0,00 €</span></div>
+        <div class="summary-line" data-k="aulas"><span class="lbl">Aulas (IVA 21 % incl.)</span><span class="val">0,00 €</span></div>
+        <div class="summary-line" data-k="restau"><span class="lbl">Restauración</span><span class="val">0,00 €</span></div>
+        <div class="summary-line" data-k="material"><span class="lbl">Material didáctico</span><span class="val">0,00 €</span></div>
+        <div class="summary-line" data-k="visitas"><span class="lbl">Visitas y centros</span><span class="val">0,00 €</span></div>
+        <div class="summary-line" data-k="transp"><span class="lbl">Transporte local</span><span class="val">0,00 €</span></div>
+        <div class="summary-line" data-k="exc"><span class="lbl">Excursión</span><span class="val">0,00 €</span></div>
+        <div class="summary-line" data-k="aloj"><span class="lbl">Alojamiento</span><span class="val">0,00 €</span></div>
+
+        <div class="summary-line subtotal"><span class="lbl">Subtotal</span><span class="val" id="sum_sub">0,00 €</span></div>
+        <div class="summary-line iva"><span class="lbl">Servicios educativos: exentos IVA</span><span class="val">—</span></div>
+        <div class="summary-line iva"><span class="lbl">Aulas y externos: IVA ya incorporado</span><span class="val">—</span></div>
+        <div class="summary-line total"><span class="lbl">TOTAL</span><span class="val" id="sum_total">0,00 €</span></div>
+      </div>
+
+      <div class="summary-cop">
+        <div class="lbl">Equivalente en pesos colombianos</div>
+        <div class="cop-val" id="sum_cop">$ 0 COP</div>
+        <div class="rate">
+          <span class="rate-badge" id="rate_badge">cargando…</span>
+          <span>1 € = </span>
+          <input type="number" id="rate_input" step="0.01" value="4800">
+          <span>COP</span>
+          <button type="button" id="rate_refresh" class="btn btn-secondary" style="padding:.2rem .5rem;font-size:.7rem;letter-spacing:.05em">↻ actualizar</button>
+        </div>
+      </div>
+
+      <div class="flash" id="flashMsg"></div>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="btnEmail">✉ Enviar al profesor Matías-Pereda</button>
+        <button class="btn btn-gold" id="btnPrint">⎙ Imprimir / Guardar PDF</button>
+        <button class="btn btn-secondary" id="btnCopy">⧉ Copiar resumen</button>
+        <button class="btn btn-secondary" id="btnClear" style="font-size:.75rem">↺ Limpiar formulario</button>
+      </div>
+    </aside>
+
+  </div>
+</section>
+
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container footer-grid">
+    <div>
+      <strong>Jorge Matías-Pereda</strong>
+      Profesor Dpto. Administración y Economía de la Empresa<br>
+      Universidad de Salamanca · Centro de Formación Permanente<br>
+      Cursos con certificación oficial USAL
+    </div>
+    <div>
+      <strong>Contacto directo</strong>
+      Email: <a href="mailto:mpereda@usal.es">mpereda@usal.es</a><br>
+      WhatsApp: <a href="https://wa.me/34677403639">+34 677 403 639</a>
+    </div>
+    <div>
+      <strong>Convenio</strong>
+      Viajar de Colombia — IAC<br>
+      <em>International Academic Connexion</em><br>
+      Grupos universitarios latinoamericanos
+    </div>
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script>
+/* Utilidades */
+const $ = (s, c=document) => c.querySelector(s);
+const $$ = (s, c=document) => Array.from(c.querySelectorAll(s));
+
+const fmtEUR = (n) => {
+  if (isNaN(n)) n = 0;
+  const neg = n < 0 ? '-' : '';
+  n = Math.abs(n);
+  const fixed = n.toFixed(2);
+  const [i, d] = fixed.split('.');
+  return neg + i.replace(/\B(?=(\d{3})+(?!\d))/g,'.') + ',' + d + ' €';
+};
+const fmtCOP = (n) => {
+  if (isNaN(n)) n = 0;
+  const i = Math.round(n).toString();
+  return '$ ' + i.replace(/\B(?=(\d{3})+(?!\d))/g,'.') + ' COP';
+};
+const num = (id) => {
+  const el = $(id);
+  if (!el) return 0;
+  const v = parseFloat(el.value || 0);
+  return isNaN(v) ? 0 : v;
+};
+const val = (id) => {
+  const el = $(id);
+  return el ? (el.value || '').trim() : '';
+};
+const chk = (id) => {
+  const el = $(id);
+  return !!(el && el.checked);
+};
+
+/* Estado de totales (temprano para evitar TDZ) */
+const totals = {
+  docencia:0, visita:0, coord:0, simu:0, desp:0, aulas:0, restau:0,
+  material:0, visitas:0, transp:0, exc:0, aloj:0
+};
+
+/* Pestañas */
+$$('.tab').forEach(t => t.addEventListener('click', () => {
+  $$('.tab').forEach(x => x.classList.remove('active'));
+  $$('.pane').forEach(x => x.classList.remove('active'));
+  t.classList.add('active');
+  $('#pane-' + t.dataset.tab).classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}));
+
+/* Espacios según preferencia */
+const espaciosMap = {
+  coste: [
+    { v:'Aula 11.3 · Multiusos I+D+i',  p:110 },
+    { v:'Aula 11.2 · Multiusos I+D+i',  p:110 },
+    { v:'Aula 12.1 · Multiusos I+D+i',  p:110 },
+    { v:'Sala de Juntas · Multiusos I+D+i', p:150 }
+  ],
+  centro: [
+    { v:'Aula estándar · Edificio Fonseca (bonificada)', p:225 },
+    { v:'Aula con equipamiento AV · Fonseca', p:275 },
+    { v:'Salón de Actos · Fonseca', p:450 }
+  ],
+  historico: [
+    { v:'Aula Salinas · Edificio Histórico', p:550 },
+    { v:'Aula Magna · Edificio Histórico', p:700 },
+    { v:'Salón del Rectorado · Edificio Histórico', p:900 },
+    { v:'Sala de la Biblioteca Histórica (consultar)', p:0 }
+  ],
+  flex: [
+    { v:'A determinar según disponibilidad', p:0 }
+  ]
+};
+function rellenarEspacios(){
+  const pref = val('#a_pref');
+  const sel = $('#a_espacio');
+  if (!sel) return;
+  sel.innerHTML = '';
+  (espaciosMap[pref] || []).forEach(e => {
+    const o = document.createElement('option');
+    o.value = e.v;
+    o.textContent = e.v + (e.p ? ` · ${e.p} €/día` : ' · consultar');
+    o.dataset.price = e.p;
+    sel.appendChild(o);
+  });
+  const first = (espaciosMap[pref] || [])[0];
+  if (first && first.p) $('#a_tarifa').value = first.p;
+  recompute();
+}
+$('#a_pref').addEventListener('change', rellenarEspacios);
+$('#a_espacio').addEventListener('change', () => {
+  const sel = $('#a_espacio');
+  const p = parseFloat(sel.selectedOptions[0]?.dataset.price || 0);
+  if (p) $('#a_tarifa').value = p;
+  recompute();
+});
+rellenarEspacios();
+
+/* Toggles con despliegue */
+$('#exc_incluir').addEventListener('change', e => {
+  $('#exc_det').style.display = e.target.checked ? 'block' : 'none';
+  recompute();
+});
+$('#co_incluir').addEventListener('change', e => {
+  $('#co_det').style.display = e.target.checked ? 'block' : 'none';
+  recompute();
+});
+
+/* Cálculo de totales */
+function recompute(){
+  totals.docencia = num('#d_horas') * num('#d_tarifa');
+  totals.visita   = num('#d_visita') * num('#d_tarifa');
+  totals.coord    = chk('#t_coord') ? 300 : 0;
+  totals.simu     = chk('#t_simu') ? num('#f_alumnos') * 35 : 0;
+
+  // Desplazamiento a Colombia: (billete + noches*alojamiento + días*dieta + seguro) * nº docentes
+  if (chk('#co_incluir')) {
+    const dias    = num('#co_dias');
+    const noches  = Math.max(dias - 1, 0);
+    const unitario = num('#co_billete') + noches * num('#co_aloj') + dias * num('#co_dieta') + num('#co_seguro');
+    totals.desp = unitario * num('#co_ndoc');
+  } else totals.desp = 0;
+
+  // Aulas
+  const base = num('#a_tarifa') * num('#a_dias');
+  const exenc = num('#a_exenc');
+  totals.aulas = base * (1 - exenc) * 1.21;
+
+  // Restauración
+  let rUnit = val('#r_tipo');
+  if (rUnit === 'custom') rUnit = num('#r_custom');
+  else rUnit = parseFloat(rUnit) || 0;
+  totals.restau = rUnit * num('#r_pax') * num('#r_dias');
+
+  // Material
+  const mC = num('#m_cuadernos') * 2;
+  const mO = num('#m_otros_precio');
+  const mcTot = $('#m_cuadernos_tot'); if (mcTot) mcTot.textContent = fmtEUR(mC);
+  const moTot = $('#m_otros_tot'); if (moTot) moTot.textContent = fmtEUR(mO);
+  totals.material = mC + mO;
+
+  // Visitas + centro específico
+  let vEntradas = 0;
+  $$('.v-chk:checked').forEach(cb => { vEntradas += parseFloat(cb.dataset.price) || 0; });
+  const pax = num('#v_pax');
+  const guia = num('#v_guia');
+  const centroPrecio = num('#cc_precio');
+  totals.visitas = (vEntradas * pax) + guia + (centroPrecio * pax);
+
+  // Transporte (tipo + otros)
+  totals.transp = num('#tr_precio') + num('#tr_otros');
+
+  // Excursión
+  if (chk('#exc_incluir')) {
+    totals.exc = num('#exc_transp') + (num('#exc_entradas') + num('#exc_comida')) * num('#exc_pax');
+  } else totals.exc = 0;
+
+  // Alojamiento
+  let alUnit = val('#al_cat');
+  if (alUnit === 'custom') alUnit = num('#al_custom');
+  else alUnit = parseFloat(alUnit) || 0;
+  totals.aloj = alUnit * num('#al_pax') * num('#al_noches');
+
+  // Render
+  let grand = 0;
+  Object.keys(totals).forEach(k => {
+    const line = $(`[data-k="${k}"]`);
+    if (line) {
+      const v = totals[k];
+      line.querySelector('.val').textContent = fmtEUR(v);
+      line.classList.toggle('zero', v === 0);
+      grand += v;
+    }
+  });
+  const sub = $('#sum_sub'); if (sub) sub.textContent = fmtEUR(grand);
+  const tot = $('#sum_total'); if (tot) tot.textContent = fmtEUR(grand);
+
+  const rate = num('#rate_input') || 4800;
+  const cop = $('#sum_cop'); if (cop) cop.textContent = fmtCOP(grand * rate);
+
+  return grand;
+}
+
+document.addEventListener('input', recompute);
+document.addEventListener('change', recompute);
+
+/* Tipo de cambio EUR→COP */
+async function fetchRate(){
+  const badge = $('#rate_badge');
+  if (!badge) return;
+  badge.textContent = 'cargando…';
+  badge.classList.remove('live');
+  try {
+    const r = await fetch('https://open.er-api.com/v6/latest/EUR', { cache:'no-store' });
+    const data = await r.json();
+    const cop = data?.rates?.COP;
+    if (!cop) throw new Error('no rate');
+    $('#rate_input').value = cop.toFixed(2);
+    badge.textContent = 'en vivo · ' + new Date().toLocaleDateString('es-ES');
+    badge.classList.add('live');
+    recompute();
+  } catch(e) {
+    badge.textContent = 'valor manual (API no disponible)';
+  }
+}
+$('#rate_refresh').addEventListener('click', fetchRate);
+fetchRate();
+
+/* Resúmenes textuales */
+function buildBudgetSummary(){
+  const rate = num('#rate_input') || 4800;
+  const grand = recompute();
+  const hoy = new Date().toLocaleDateString('es-ES');
+  const lines = [];
+  lines.push('PRESUPUESTO PRELIMINAR · FORMACIÓN PERMANENTE USAL 2026');
+  lines.push('========================================================');
+  lines.push(`Fecha de emisión: ${hoy}`);
+  lines.push('');
+  lines.push('DATOS DEL GRUPO');
+  lines.push(`  Agencia / entidad: ${val('#f_agencia') || '—'}`);
+  lines.push(`  Universidad: ${val('#f_universidad') || '—'}`);
+  lines.push(`  Contacto: ${val('#f_contacto') || '—'} · ${val('#f_email') || ''} · ${val('#f_tel') || ''}`);
+  lines.push(`  Fechas: ${val('#f_fecha_ini') || '—'} a ${val('#f_fecha_fin') || '—'} (${num('#f_dias')} días)`);
+  lines.push(`  Estudiantes: ${num('#f_alumnos')} · Acompañantes: ${num('#f_acomp')}`);
+  lines.push('  (Lista definitiva de participantes se adjuntará antes del inicio del curso)');
+  lines.push('');
+  lines.push('DESGLOSE');
+  const fila = (lbl, v) => ('  ' + lbl).padEnd(44,'.') + fmtEUR(v).padStart(14);
+  if (totals.docencia) lines.push(fila(`Docencia (${num('#d_horas')} h × ${num('#d_tarifa')}€)`, totals.docencia));
+  if (totals.visita)   lines.push(fila(`Visita técnica docente (${num('#d_visita')} h)`, totals.visita));
+  if (totals.coord)    lines.push(fila(`Coordinación académica`, totals.coord));
+  if (totals.simu)     lines.push(fila(`Simuladores IA (${num('#f_alumnos')} × 35€)`, totals.simu));
+  if (totals.desp) {
+    lines.push(fila(`Desplazamiento a Colombia (${num('#co_ndoc')} doc. × ${num('#co_dias')} días${val('#co_ciudad') ? ', ' + val('#co_ciudad') : ''})`, totals.desp));
+  }
+  if (totals.aulas)    lines.push(fila(`Aulas: ${val('#a_espacio')} (${num('#a_dias')} jorn., exenc. ${Math.round(num('#a_exenc')*100)}%, IVA incl.)`, totals.aulas));
+  if (totals.restau)   lines.push(fila(`Restauración (${num('#r_pax')}pax × ${num('#r_dias')} días)`, totals.restau));
+  if (totals.material) lines.push(fila(`Material: ${num('#m_cuadernos')} cuadernos` + (val('#m_otros_desc') ? ' + ' + val('#m_otros_desc') : ''), totals.material));
+  if (totals.visitas)  {
+    const visitas = $$('.v-chk:checked').map(c => c.dataset.name).join('; ');
+    lines.push(fila(`Visitas y centros (${num('#v_pax')} pax)`, totals.visitas));
+    if (visitas) lines.push('    · ' + visitas);
+    if (val('#cc_nombre')) lines.push(`    · Centro específico: ${val('#cc_nombre')} (${val('#cc_tipo') || 'tipo no indicado'})`);
+  }
+  if (totals.transp) {
+    const tipo = val('#tr_tipo') || 'no especificado';
+    lines.push(fila(`Transporte: ${tipo}`, totals.transp));
+    if (val('#tr_desc')) lines.push('    · ' + val('#tr_desc'));
+  }
+  if (totals.exc) {
+    const dest = val('#exc_destino') === 'otro' ? val('#exc_destino_otro') : val('#exc_destino');
+    lines.push(fila(`Excursión: ${dest}`, totals.exc));
+  }
+  if (totals.aloj) {
+    lines.push(fila(`Alojamiento (${num('#al_pax')} pax × ${num('#al_noches')} noches)`, totals.aloj));
+  }
+  lines.push('  ' + '─'.repeat(56));
+  lines.push(fila(`TOTAL`, grand));
+  lines.push(`  Equivalente: ${fmtCOP(grand * rate)}  (1€ = ${rate.toFixed(2)} COP)`);
+  lines.push('');
+  lines.push('NOTAS');
+  lines.push('  · Servicios educativos (docencia, coord., simuladores) exentos de IVA (art. 20.Uno.9º Ley 37/1992).');
+  lines.push('  · Aulas: IVA 21% incorporado en el importe mostrado.');
+  lines.push('  · Restauración y servicios externos (incluido desplazamiento a Colombia): IVA en origen incluido.');
+  lines.push('  · Exención del 100% sobre aulas requiere tramitación ante el Vicerrectorado de Economía.');
+  lines.push('  · Cotización preliminar sujeta a confirmación por el CFP-USAL.');
+  const obs = val('#obs');
+  if (obs) { lines.push(''); lines.push('OBSERVACIONES'); lines.push('  ' + obs.split('\n').join('\n  ')); }
+  lines.push('');
+  lines.push('Jorge Matías-Pereda · mpereda@usal.es · WhatsApp +34 677 403 639');
+  return lines.join('\n');
+}
+
+function buildProposalSummary(){
+  const areas = $$('.p-area:checked').map(c => c.value);
+  const cert = document.querySelector('input[name="p_cert"]:checked')?.value || '';
+  const lines = [];
+  lines.push('PROPUESTA DE CURSO · FORMACIÓN PERMANENTE USAL 2026');
+  lines.push('====================================================');
+  lines.push(`Fecha: ${new Date().toLocaleDateString('es-ES')}`);
+  lines.push('');
+  lines.push('INSTITUCIÓN SOLICITANTE');
+  lines.push(`  Universidad: ${val('#p_univ') || '—'}`);
+  lines.push(`  País/Ciudad: ${val('#p_pais') || '—'}`);
+  lines.push(`  Contacto: ${val('#p_cont') || '—'} (${val('#p_cargo') || '—'}) · ${val('#p_email') || ''}`);
+  lines.push(`  Agencia intermediaria: ${val('#p_agencia') || '—'}`);
+  lines.push('');
+  lines.push('CURSO PROPUESTO');
+  lines.push(`  Título: ${val('#p_titulo') || '—'}`);
+  lines.push(`  Horas: ${num('#p_horas')}`);
+  lines.push(`  Idioma: ${val('#p_idioma')}`);
+  lines.push(`  Modalidad: ${val('#p_mod')}`);
+  lines.push(`  Fechas preferidas: ${val('#p_fini') || '—'} a ${val('#p_ffin') || '—'}`);
+  lines.push(`  Nº de viajes previstos a España: ${val('#p_viajes')}`);
+  lines.push(`  Áreas: ${areas.length ? areas.join('; ') : '—'}`);
+  lines.push('');
+  lines.push('CONTENIDOS');
+  lines.push('  ' + (val('#p_contenido') || '—').split('\n').join('\n  '));
+  lines.push('');
+  lines.push('PERFIL DE ESTUDIANTES');
+  lines.push(`  Número estimado: ${num('#p_nalum')} · Nivel: ${val('#p_nivel')} · Edad media: ${val('#p_edad') || '—'}`);
+  lines.push('  Procedencia: ' + (val('#p_proc') || '—').split('\n').join('\n    '));
+  lines.push('  (Lista definitiva de participantes: se adjuntará tras confirmación, al menos 15 días antes del inicio)');
+  lines.push('');
+  lines.push('OBJETIVOS Y CERTIFICACIÓN');
+  lines.push(`  Certificación deseada: ${cert}`);
+  lines.push('  Objetivos: ' + (val('#p_objs') || '—').split('\n').join('\n    '));
+  const com = val('#p_coment');
+  if (com) { lines.push(''); lines.push('COMENTARIOS ADICIONALES'); lines.push('  ' + com.split('\n').join('\n  ')); }
+  lines.push('');
+  lines.push('Enviado desde el formulario de propuestas de curso · JMP/USAL 2026');
+  return lines.join('\n');
+}
+
+/* Acciones */
+function showFlash(id, msg, ok=false){
+  const f = $(id);
+  if (!f) return;
+  f.textContent = msg;
+  f.classList.add('show');
+  if (ok) f.classList.add('ok'); else f.classList.remove('ok');
+  clearTimeout(f._t);
+  f._t = setTimeout(() => f.classList.remove('show'), 6000);
+}
+
+$('#btnPrint').addEventListener('click', () => window.print());
+$('#btnPrint2').addEventListener('click', () => window.print());
+
+$('#btnEmail').addEventListener('click', () => {
+  const agencia = val('#f_agencia') || 'Grupo';
+  const universidad = val('#f_universidad') || '';
+  const subject = `Presupuesto preliminar — ${agencia}${universidad ? ' / ' + universidad : ''} — ${val('#f_fecha_ini') || '2026'}`;
+  const body = buildBudgetSummary();
+  const mailto = `mailto:mpereda@usal.es?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  if (mailto.length > 1900) {
+    navigator.clipboard.writeText(body).then(() => {
+      showFlash('#flashMsg', 'Resumen demasiado largo para email automático. Copiado al portapapeles — péguelo en un correo a mpereda@usal.es.', true);
+    });
+    return;
+  }
+  window.location.href = mailto;
+  showFlash('#flashMsg', 'Abriendo su cliente de correo con el resumen pre-rellenado…', true);
+});
+
+$('#btnEmail2').addEventListener('click', () => {
+  const univ = val('#p_univ') || 'Institución';
+  const titulo = val('#p_titulo') || 'Curso a medida';
+  const subject = `Propuesta de curso — ${titulo} — ${univ}`;
+  const body = buildProposalSummary();
+  const mailto = `mailto:mpereda@usal.es?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  if (mailto.length > 1900) {
+    navigator.clipboard.writeText(body).then(() => {
+      showFlash('#flashMsg2', 'Contenido copiado al portapapeles — péguelo en un correo a mpereda@usal.es.', true);
+    });
+    return;
+  }
+  window.location.href = mailto;
+  showFlash('#flashMsg2', 'Abriendo su cliente de correo con la propuesta pre-rellenada…', true);
+});
+
+$('#btnCopy').addEventListener('click', async () => {
+  const text = buildBudgetSummary();
+  try {
+    await navigator.clipboard.writeText(text);
+    showFlash('#flashMsg', 'Resumen copiado al portapapeles.', true);
+  } catch(e) {
+    showFlash('#flashMsg', 'No se pudo copiar automáticamente. Use Imprimir o Enviar por email.');
+  }
+});
+
+$('#btnClear').addEventListener('click', () => {
+  if (!confirm('¿Limpiar todos los campos del presupuesto?')) return;
+  $$('#pane-budget input').forEach(i => {
+    if (i.type === 'checkbox' || i.type === 'radio') i.checked = false;
+    else i.value = '';
+  });
+  $$('#pane-budget select').forEach(s => s.selectedIndex = 0);
+  const obs = $('#obs'); if (obs) obs.value = '';
+  $('#co_det').style.display = 'none';
+  $('#exc_det').style.display = 'none';
+  rellenarEspacios();
+});
+
+$('#btnReset').addEventListener('click', () => {
+  if (!confirm('¿Limpiar todos los campos de la propuesta?')) return;
+  $$('#pane-proposal input').forEach(i => {
+    if (i.type === 'checkbox') i.checked = false;
+    else if (i.type === 'radio') i.checked = i.defaultChecked;
+    else i.value = i.defaultValue || '';
+  });
+  $$('#pane-proposal textarea').forEach(t => t.value = '');
+  $$('#pane-proposal select').forEach(s => s.selectedIndex = 0);
+});
+
+// Primer cálculo
+recompute();
+</script>
+
+</body>
+</html>
