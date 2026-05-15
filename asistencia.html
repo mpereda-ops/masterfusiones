@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Asistencia – USAL</title>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #f0f4f1;
+  --surface:   #ffffff;
+  --card:      #ffffff;
+  --border:    #dde8de;
+  --border2:   #c4d9c6;
+  --green:     #16a34a;
+  --green-lt:  #dcfce7;
+  --green-mid: #86efac;
+  --green-bg:  #f0fdf4;
+  --red:       #dc2626;
+  --red-lt:    #fee2e2;
+  --amber:     #d97706;
+  --amber-lt:  #fef3c7;
+  --blue:      #2563eb;
+  --blue-lt:   #dbeafe;
+  --text:      #1a2e1c;
+  --text2:     #4b6b4e;
+  --text3:     #7d9e80;
+  --shadow:    0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+  --r:         12px;
+  --sans:      'Inter', sans-serif;
+  --mono:      'JetBrains Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* ── HEADER ── */
+.header {
+  background: var(--green);
+  color: #fff;
+  padding: 14px 16px 12px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 8px rgba(22,163,74,.25);
+}
+.header-top {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 3px;
+}
+.logo {
+  background: rgba(255,255,255,.22);
+  font-family: var(--mono);
+  font-size: 10px; font-weight: 700;
+  padding: 3px 8px; border-radius: 5px;
+  letter-spacing: .5px; flex-shrink: 0;
+}
+.header h1 { font-size: 12px; font-weight: 700; line-height: 1.3; }
+.header-sub { font-size: 10px; opacity: .75; font-family: var(--mono); }
+
+/* ── DAY TABS ── */
+.tabs-wrap {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 12px;
+  display: flex; gap: 4px;
+}
+.tab {
+  flex: 1; padding: 10px 4px 8px;
+  background: none; border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--text3); font-family: var(--sans);
+  font-size: 12px; font-weight: 600;
+  cursor: pointer; text-align: center; transition: all .15s;
+}
+.tab.active { color: var(--green); border-bottom-color: var(--green); }
+.tab .dn { display: block; font-size: 20px; font-weight: 800; font-family: var(--mono); line-height: 1.1; }
+.tab .dc { display: block; font-size: 9px; margin-top: 1px; font-family: var(--mono); }
+
+/* ── MAIN ── */
+.main { padding: 12px 12px 80px; }
+
+/* ── SCANNER ── */
+.scan-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.scan-top {
+  padding: 12px 14px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+.scan-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--text3); }
+.scan-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--green); color: #fff;
+  border: none; border-radius: 8px;
+  padding: 8px 16px; font-family: var(--sans);
+  font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: all .15s;
+}
+.scan-btn:active { transform: scale(.97); }
+.scan-btn.stop { background: var(--red); }
+#reader { width: 100%; background: #111; }
+#reader video { display: block; width: 100%; }
+.scan-hint { padding: 8px 14px; font-size: 11px; color: var(--text3); text-align: center; font-family: var(--mono); }
+
+/* ── STATS ── */
+.stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 12px; }
+.stat {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 10px 6px; text-align: center;
+  box-shadow: var(--shadow);
+}
+.stat .sn { display: block; font-size: 26px; font-weight: 800; font-family: var(--mono); line-height: 1; }
+.stat .sl { display: block; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--text3); margin-top: 3px; }
+.stat.p .sn { color: var(--green); }
+.stat.a .sn { color: var(--red); }
+.stat.t .sn { color: var(--amber); }
+
+/* ── SEARCH / FILTER ── */
+.search-row { display: flex; gap: 8px; margin-bottom: 8px; }
+.search-input {
+  flex: 1; background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 8px; padding: 9px 12px;
+  font-family: var(--mono); font-size: 13px;
+  color: var(--text); outline: none; box-shadow: var(--shadow);
+  transition: border-color .15s;
+}
+.search-input:focus { border-color: var(--green); }
+.search-input::placeholder { color: var(--text3); }
+
+.chips { display: flex; gap: 6px; margin-bottom: 10px; }
+.chip {
+  padding: 4px 12px; border-radius: 20px;
+  border: 1px solid var(--border2);
+  background: var(--surface); color: var(--text3);
+  font-size: 11px; font-weight: 600; cursor: pointer; transition: all .15s;
+}
+.chip.on { background: var(--green-lt); border-color: var(--green); color: var(--green); }
+
+/* ── LIST ── */
+.list-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); margin-bottom: 7px; padding-left: 2px; }
+.list { display: flex; flex-direction: column; gap: 5px; }
+
+.item {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex; align-items: center; gap: 11px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: background .2s, border-color .2s;
+  -webkit-user-select: none; user-select: none;
+}
+.item:active { transform: scale(.98); }
+
+.item.present {
+  background: var(--green-bg);
+  border-color: var(--green-mid);
+}
+
+/* Flash on new successful scan */
+@keyframes scan-flash {
+  0%   { box-shadow: 0 0 0 0 rgba(22,163,74,.6); border-color: var(--green); }
+  60%  { box-shadow: 0 0 0 12px rgba(22,163,74,.0); }
+  100% { border-color: var(--green-mid); }
+}
+.item.flash { animation: scan-flash .6s ease-out forwards; }
+
+.check {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+  background: var(--bg); border: 2px solid var(--border2);
+  transition: all .2s; color: var(--text3);
+}
+.item.present .check {
+  background: var(--green); border-color: var(--green);
+  color: #fff;
+}
+
+.info { flex: 1; min-width: 0; }
+.iname {
+  font-size: 13px; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  transition: color .2s;
+}
+.item.present .iname { color: var(--green); }
+.iid { font-size: 10px; color: var(--text3); font-family: var(--mono); margin-top: 1px; }
+.irole { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-top: 2px; }
+.role-e { color: var(--text3); }
+.role-d { color: var(--blue); }
+.role-c { color: var(--amber); }
+
+.time-tag {
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  color: var(--green); background: var(--green-lt);
+  padding: 3px 8px; border-radius: 5px; flex-shrink: 0;
+}
+
+/* ── OVERLAY ── */
+.overlay {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 500; pointer-events: none;
+  opacity: 0; transition: opacity .15s;
+}
+.overlay.show { opacity: 1; }
+.ov-box {
+  background: #fff; border-radius: 20px;
+  padding: 28px 36px; text-align: center;
+  box-shadow: 0 8px 40px rgba(0,0,0,.18);
+  border: 3px solid var(--green); min-width: 240px;
+  transform: scale(.88); transition: transform .15s;
+}
+.overlay.show .ov-box { transform: scale(1); }
+.overlay.err .ov-box { border-color: var(--red); }
+.ov-icon { font-size: 46px; line-height: 1; margin-bottom: 8px; }
+.ov-name { font-size: 16px; font-weight: 800; color: var(--text); }
+.ov-sub  { font-size: 11px; color: var(--text3); margin-top: 5px; font-family: var(--mono); }
+
+/* ── BOTTOM ── */
+.bottom {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--surface); border-top: 1px solid var(--border);
+  padding: 8px 12px; display: flex; gap: 7px;
+  box-shadow: 0 -2px 8px rgba(0,0,0,.06); z-index: 100;
+}
+.bbtn {
+  flex: 1; background: var(--bg);
+  border: 1px solid var(--border2); border-radius: 8px;
+  color: var(--text2); font-family: var(--sans); font-size: 11px; font-weight: 600;
+  padding: 8px 4px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  transition: all .15s;
+}
+.bbtn:active { transform: scale(.97); }
+.bbtn.primary { background: var(--green-lt); border-color: var(--green); color: var(--green); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <span class="logo">USAL</span>
+    <h1>Sistemas Inteligentes para la Sostenibilidad Global</h1>
+  </div>
+  <div class="header-sub">Universidad de Salamanca · U. Compensar · Mayo 2026</div>
+</div>
+
+<div class="tabs-wrap">
+  <button class="tab active" onclick="switchDay(0)">
+    <span class="dn">18</span><span>May</span><span class="dc" id="c0">—</span>
+  </button>
+  <button class="tab" onclick="switchDay(1)">
+    <span class="dn">19</span><span>May</span><span class="dc" id="c1">—</span>
+  </button>
+  <button class="tab" onclick="switchDay(2)">
+    <span class="dn">20</span><span>May</span><span class="dc" id="c2">—</span>
+  </button>
+</div>
+
+<div class="main">
+
+  <div class="scan-card">
+    <div class="scan-top">
+      <span class="scan-label">📷 Escáner QR / Código de barras</span>
+      <button class="scan-btn" id="scanBtn" onclick="toggleScanner()">▶ Activar</button>
+    </div>
+    <div id="reader"></div>
+    <div class="scan-hint" id="scanHint">Pulsa «Activar» y enfoca el QR del alumno</div>
+  </div>
+
+  <div class="stats">
+    <div class="stat p"><span class="sn" id="sp">0</span><span class="sl">Presentes</span></div>
+    <div class="stat a"><span class="sn" id="sa">0</span><span class="sl">Ausentes</span></div>
+    <div class="stat t"><span class="sn" id="st">0</span><span class="sl">Total</span></div>
+  </div>
+
+  <div class="search-row">
+    <input class="search-input" id="q" type="text" placeholder="Buscar nombre o cédula…"
+      oninput="render()" autocomplete="off" autocorrect="off" spellcheck="false">
+  </div>
+  <div class="chips">
+    <button class="chip on" onclick="setFilter('all',this)">Todos</button>
+    <button class="chip" onclick="setFilter('present',this)">Presentes</button>
+    <button class="chip" onclick="setFilter('absent',this)">Ausentes</button>
+  </div>
+
+  <div class="list-label" id="ll">Participantes</div>
+  <div class="list" id="list"></div>
+</div>
+
+<!-- OVERLAY -->
+<div class="overlay" id="overlay">
+  <div class="ov-box">
+    <div class="ov-icon" id="oIcon">✅</div>
+    <div class="ov-name" id="oName"></div>
+    <div class="ov-sub"  id="oSub"></div>
+  </div>
+</div>
+
+<div class="bottom">
+  <button class="bbtn" onclick="resetDay()">🔄 Resetear</button>
+  <button class="bbtn primary" onclick="exportCSV()">⬇ CSV</button>
+  <button class="bbtn" onclick="copyReport()">📋 Copiar</button>
+</div>
+
+<script>
+// ─── STUDENTS ───────────────────────────────────────────────
+const S = [
+  ['1031540271','Beltran Galeano','David Santiago','E'],
+  ['1013258461','Cortes Cortes','David Felipe','E'],
+  ['1019122769','Diaz Garcia','Nicolas Giussepe','E'],
+  ['1010057528','Gutierrez Bohorquez','Nicolas','E'],
+  ['1001329358','Hoyos Cruz','Cristian Camilo','E'],
+  ['1000732782','Laguna Martin','Lisa Maria','E'],
+  ['1013686546','Lopez Garcia','Santiago','E'],
+  ['1013102169','Medina Calderon','Juan David','E'],
+  ['1032420204','Melo Patino','Juan Pablo','E'],
+  ['1023163354','Merchan Jaimes','Brayan Julian','E'],
+  ['1012462160','Obando Casiano','Carlos Andres','E'],
+  ['1019145586','Ochoa Parra','Hammer Farid','E'],
+  ['1010239180','Parra Balcazar','Diego Alejandro','E'],
+  ['23498731',  'Poveda Forero','Martha Rocio','E'],
+  ['1000156962','Ruiz Ramirez','Carlos Andres','E'],
+  ['1013594208','Salazar Avila','Llerman David','E'],
+  ['1193565768','Sierra Carrero','Paula Andrea','E'],
+  ['1012430157','Trivino Gutierrez','Daniel Steven','E'],
+  ['1070586962','Velasquez Hernandez','Alan Fernando','E'],
+  ['1126564180','Hurtado Naranjo','Ricardo Renato','E'],
+  ['1052398198','Cristancho Sierra','Norberto','D'],
+  ['79170013',  'Vargas Pachon','Freddy Geovanny','C'],
+];
+const RL = { E:'Estudiante', D:'Docente', C:'Coordinador' };
+const RC = { E:'role-e', D:'role-d', C:'role-c' };
+const DAYS = ['18 mayo 2026','19 mayo 2026','20 mayo 2026'];
+const KEY  = 'asistencia_compensar_v2';
+
+// ─── STATE ──────────────────────────────────────────────────
+let day = 0, filter = 'all';
+let scanner = null, scanning = false;
+let att = load();
+let lastCode = '', lastTs = 0;
+
+function load() {
+  try { const r = localStorage.getItem(KEY); if(r) return JSON.parse(r); } catch(e) {}
+  return [{},{},{}];
+}
+function save() { localStorage.setItem(KEY, JSON.stringify(att)); }
+
+// ─── AUDIO BEEP (Web Audio — sin archivos externos) ─────────
+function beep(ok) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ok) {
+      // Dos tonos ascendentes — pitido de confirmación claro
+      [[0, 880], [140, 1320]].forEach(([delay, freq]) => {
+        const osc = ctx.createOscillator();
+        const gn  = ctx.createGain();
+        osc.connect(gn); gn.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        const t = ctx.currentTime + delay / 1000;
+        gn.gain.setValueAtTime(0, t);
+        gn.gain.linearRampToValueAtTime(0.4, t + 0.01);
+        gn.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+        osc.start(t); osc.stop(t + 0.22);
+      });
+    } else {
+      // Tono grave corto — error
+      const osc = ctx.createOscillator();
+      const gn  = ctx.createGain();
+      osc.connect(gn); gn.connect(ctx.destination);
+      osc.type = 'sawtooth'; osc.frequency.value = 200;
+      gn.gain.setValueAtTime(0.25, ctx.currentTime);
+      gn.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.32);
+    }
+    setTimeout(() => ctx.close(), 800);
+  } catch(e) {}
+}
+
+// ─── SCANNER ────────────────────────────────────────────────
+function toggleScanner() { scanning ? stopScanner() : startScanner(); }
+
+function startScanner() {
+  const btn = document.getElementById('scanBtn');
+  btn.textContent = '⏹ Detener'; btn.classList.add('stop');
+  scanning = true;
+  document.getElementById('scanHint').textContent = 'Cámara activa — enfoca el QR del alumno';
+  scanner = new Html5Qrcode('reader');
+  scanner.start(
+    { facingMode: 'environment' },
+    { fps: 12, qrbox: { width: 280, height: 110 } },
+    onScan, () => {}
+  ).catch(() => {
+    showOverlay('⚠️','Sin acceso a cámara','Permite el permiso en el navegador', true);
+    beep(false); stopScanner();
+  });
+}
+
+function stopScanner() {
+  if (scanner) { scanner.stop().catch(()=>{}); scanner = null; }
+  scanning = false;
+  document.getElementById('reader').innerHTML = '';
+  const btn = document.getElementById('scanBtn');
+  btn.textContent = '▶ Activar'; btn.classList.remove('stop');
+  document.getElementById('scanHint').textContent = 'Pulsa «Activar» y enfoca el QR del alumno';
+}
+
+function onScan(code) {
+  const now = Date.now();
+  if (code === lastCode && now - lastTs < 2000) return;
+  lastCode = code; lastTs = now;
+  const id = code.trim();
+  const st = S.find(s => s[0] === id) || S.find(s => s[0].includes(id) || id.includes(s[0]));
+  if (!st) { showOverlay('❌','No encontrado','Código: ' + id, true); beep(false); return; }
+  markAttendance(st, false);
+}
+
+// ─── ATTENDANCE ──────────────────────────────────────────────
+function markAttendance(st, fromTap) {
+  const [id] = st;
+  const rec = att[day][id];
+  if (rec) {
+    if (fromTap && confirm('¿Quitar asistencia de ' + st[1].split(' ')[0] + '?')) {
+      delete att[day][id]; save(); render(); updateStats();
+    } else if (!fromTap) {
+      showOverlay('ℹ️', st[1].split(' ')[0], 'Ya registrado · ' + rec.time, false);
+      beep(false);
+    }
+    return;
+  }
+  const now = new Date();
+  const time = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+  att[day][id] = { time, ts: Date.now() };
+  save();
+  beep(true);
+  showOverlay('✅', st[1] + ', ' + st[2].split(' ')[0], 'Registrado · ' + time, false);
+  render();
+  updateStats();
+  setTimeout(() => flashItem(id), 30); // after render
+}
+
+function tapStudent(id) {
+  const st = S.find(s => s[0] === id);
+  if (st) markAttendance(st, true);
+}
+
+function flashItem(id) {
+  const el = document.getElementById('i' + id);
+  if (!el) return;
+  el.classList.remove('flash');
+  void el.offsetWidth;
+  el.classList.add('flash');
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  setTimeout(() => el.classList.remove('flash'), 700);
+}
+
+// ─── OVERLAY ────────────────────────────────────────────────
+let ovT = null;
+function showOverlay(icon, name, sub, err) {
+  const ov = document.getElementById('overlay');
+  document.getElementById('oIcon').textContent = icon;
+  document.getElementById('oName').textContent = name;
+  document.getElementById('oSub').textContent  = sub;
+  ov.classList.toggle('err', err);
+  ov.classList.add('show');
+  clearTimeout(ovT);
+  ovT = setTimeout(() => ov.classList.remove('show'), 2200);
+}
+
+// ─── RENDER ─────────────────────────────────────────────────
+function render() {
+  const q = document.getElementById('q').value.toLowerCase().trim();
+  const dd = att[day];
+  const list = document.getElementById('list');
+  list.innerHTML = '';
+  let n = 0;
+  S.forEach(([id, ap, nm, role]) => {
+    const present = !!dd[id];
+    if (filter === 'present' && !present) return;
+    if (filter === 'absent'  &&  present) return;
+    if (q && !ap.toLowerCase().includes(q) && !nm.toLowerCase().includes(q) && !id.includes(q)) return;
+    n++;
+    const rec = dd[id];
+    const el = document.createElement('div');
+    el.className = 'item' + (present ? ' present' : '');
+    el.id = 'i' + id;
+    el.onclick = () => tapStudent(id);
+    el.innerHTML =
+      `<div class="check">${present ? '✓' : ''}</div>` +
+      `<div class="info">` +
+        `<div class="iname">${ap}, ${nm}</div>` +
+        `<div class="iid">${id}</div>` +
+        `<div class="irole ${RC[role]}">${RL[role]}</div>` +
+      `</div>` +
+      (rec ? `<div class="time-tag">${rec.time}</div>` : '');
+    list.appendChild(el);
+  });
+  document.getElementById('ll').textContent = 'Participantes (' + n + ' mostrados)';
+}
+
+function updateStats() {
+  const n = Object.keys(att[day]).length;
+  const t = S.length;
+  document.getElementById('sp').textContent = n;
+  document.getElementById('sa').textContent = t - n;
+  document.getElementById('st').textContent = t;
+  DAYS.forEach((_,i) => {
+    document.getElementById('c' + i).textContent = Object.keys(att[i]).length + '/' + t;
+  });
+}
+
+function switchDay(i) {
+  day = i;
+  document.querySelectorAll('.tab').forEach((t,j) => t.classList.toggle('active', j === i));
+  render(); updateStats();
+}
+
+function setFilter(f, btn) {
+  filter = f;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+  btn.classList.add('on');
+  render();
+}
+
+// ─── EXPORT ─────────────────────────────────────────────────
+function exportCSV() {
+  let csv = 'Dia,Cedula,Apellidos,Nombre,Rol,Hora\n';
+  DAYS.forEach((d, i) => {
+    S.forEach(([id, ap, nm, role]) => {
+      const rec = att[i][id];
+      csv += `"${d}","${id}","${ap}","${nm}","${RL[role]}","${rec ? rec.time : ''}"\n`;
+    });
+  });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['\ufeff'+csv], {type:'text/csv;charset=utf-8'}));
+  a.download = 'asistencia_compensar_mayo2026.csv';
+  a.click();
+}
+
+function copyReport() {
+  const d = att[day];
+  const lines = [
+    'ASISTENCIA — ' + DAYS[day],
+    'Sistemas Inteligentes para la Sostenibilidad Global',
+    'Universidad de Salamanca / U. Compensar', '',
+    'PRESENTES (' + Object.keys(d).length + '/' + S.length + '):',
+    ...S.filter(s => d[s[0]]).map(s => '  ✓ ' + s[1] + ', ' + s[2] + '  [' + d[s[0]].time + ']'),
+    '', 'AUSENTES (' + (S.length - Object.keys(d).length) + '/' + S.length + '):',
+    ...S.filter(s => !d[s[0]]).map(s => '  ✗ ' + s[1] + ', ' + s[2])
+  ];
+  navigator.clipboard.writeText(lines.join('\n'))
+    .then(() => showOverlay('📋','Copiado','Informe en portapapeles', false))
+    .catch(() => alert(lines.join('\n')));
+}
+
+function resetDay() {
+  if (confirm('¿Resetear asistencia del ' + DAYS[day] + '?')) {
+    att[day] = {}; save(); render(); updateStats();
+  }
+}
+
+// ─── INIT ────────────────────────────────────────────────────
+render(); updateStats();
+</script>
+</body>
+</html>
