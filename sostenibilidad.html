@@ -108,9 +108,9 @@ nav{
 .hi{overflow:hidden;position:relative;}
 .hi img{width:100%;height:100%;object-fit:cover;transition:transform 0.6s ease;filter:brightness(0.82) saturate(1.1);}
 .hi:hover img{transform:scale(1.04);filter:brightness(0.9) saturate(1.2);}
-.hi-1{grid-column:1;grid-row:1/3;}/* acero - full left column */
-.hi-2{grid-column:2;grid-row:1;}/* europa - top right */
-.hi-3{grid-column:2;grid-row:2;}/* cafe - bottom right */
+.hi-1{grid-column:1;grid-row:1/3;}
+.hi-2{grid-column:2;grid-row:1;}
+.hi-3{grid-column:2;grid-row:2;}
 .hi-label{
   position:absolute;bottom:0.8rem;left:0.8rem;
   font-family:'Space Grotesk',sans-serif;font-size:0.6rem;font-weight:700;
@@ -176,7 +176,7 @@ nav{
 .wp-s{font-size:0.68rem;color:var(--mu);}
 
 /* ── MATERIAL ── */
-.mg{display:grid;grid-template-columns:52% 48%;gap:1.4rem;}
+.mg{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;}
 @media(max-width:700px){.mg{grid-template-columns:1fr;}}
 .mc{
   background:var(--white);border:1.5px solid var(--bd);
@@ -201,6 +201,26 @@ nav{
 .mc-btn.d{background:var(--teal);color:white;box-shadow:0 4px 12px rgba(27,94,82,0.25);}
 .mc-btn.d:hover{background:var(--tealL);transform:translateY(-2px);}
 .mc-meta{font-family:'Space Grotesk',sans-serif;font-size:0.67rem;color:var(--mu);}
+
+/* ── CASO CARD ── */
+.mc-caso{
+  grid-column:1/-1;
+  flex-direction:row;align-items:center;gap:2.5rem;
+  border-color:rgba(45,128,112,0.35);
+  background:linear-gradient(135deg,var(--white) 60%,rgba(27,94,82,0.03));
+}
+@media(max-width:700px){.mc-caso{flex-direction:column;gap:1.2rem;}}
+.mc-caso:hover{border-color:var(--tealL);}
+.mc-caso .mc-ico-lg{
+  width:72px;height:72px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:2rem;flex-shrink:0;
+  background:rgba(27,94,82,0.08);
+  border:1.5px solid rgba(45,128,112,0.2);
+}
+.mc-caso .mc-head{flex-shrink:0;}
+.mc-caso .mc-body{flex:1;}
+.mc-caso .mc-foot{border-top:none;padding-top:0;flex-shrink:0;}
 
 /* ── ABOUT STRIP ── */
 .about{background:var(--ink);padding:6rem 2.5rem;position:relative;overflow:hidden;}
@@ -377,6 +397,7 @@ footer{padding:2.5rem 2.5rem;border-top:1.5px solid var(--bd);max-width:1200px;m
   <h2 class="sec-h">Presentación<br><em>y referencia académica.</em></h2>
   <p class="sec-sub">El capítulo tiene autonomía total — puedes estudiarlo sin haber asistido. La presentación cubre la jornada completa.</p>
   <div class="mg">
+
     <a class="mc" href="PRESENTACION TALLER SOSTENIBILIDAD MAYO 2026.pdf" download>
       <div style="display:flex;align-items:center;gap:1rem;">
         <div class="mc-ico p">📐</div>
@@ -388,6 +409,7 @@ footer{padding:2.5rem 2.5rem;border-top:1.5px solid var(--bd);max-width:1200px;m
         <span class="mc-meta">35 slides · PDF · USAL 2026</span>
       </div>
     </a>
+
     <a class="mc" href="EstrategiaYSostenibilidad_USAL_mayo_2026 documento docente.pdf" download>
       <div style="display:flex;align-items:center;gap:1rem;">
         <div class="mc-ico d">📖</div>
@@ -399,6 +421,22 @@ footer{padding:2.5rem 2.5rem;border-top:1.5px solid var(--bd);max-width:1200px;m
         <span class="mc-meta">Capítulo completo · USAL 2026</span>
       </div>
     </a>
+
+    <!-- DOSSIER DE CASO — ancho completo -->
+    <a class="mc mc-caso" href="caso.html" target="_blank">
+      <div class="mc-head">
+        <div class="mc-ico-lg">📋</div>
+      </div>
+      <div class="mc-body">
+        <div class="mc-type d" style="margin-bottom:0.3rem;">Dossier de caso · Bloque 4 · Taller integrador</div>
+        <div class="mc-title" style="margin-bottom:0.5rem;">ACERLATAM &amp; CAFECOL — Datos para el análisis estratégico</div>
+        <p class="mc-desc" style="margin:0;">Toda la información factual necesaria para completar el análisis Porter y el Canvas en el simulador del Bloque 4: perfil de empresa, entorno regulatorio (CBAM, CSRD, EUDR), datos sectoriales, panorama competitivo, clientes, situación financiera y línea de tiempo crítica. Leer antes de abrir el simulador.</p>
+      </div>
+      <div class="mc-foot">
+        <a class="mc-btn d" href="caso.html" target="_blank">Abrir dossier →</a>
+      </div>
+    </a>
+
   </div>
 </section>
 
@@ -451,11 +489,11 @@ footer{padding:2.5rem 2.5rem;border-top:1.5px solid var(--bd);max-width:1200px;m
     const n = Math.floor(W * H / 40000) + 8;
     const types = ['tri','rect','hex','line','cross'];
     const palette = [
-      [201,74,26],   // orange
-      [27,94,82],    // teal
-      [61,56,48],    // ink
-      [228,180,120], // warm gold
-      [160,200,180], // mint
+      [201,74,26],
+      [27,94,82],
+      [61,56,48],
+      [228,180,120],
+      [160,200,180],
     ];
     for(let i=0;i<n;i++){
       const col = palette[Math.floor(Math.random()*palette.length)];
@@ -510,7 +548,6 @@ footer{padding:2.5rem 2.5rem;border-top:1.5px solid var(--bd);max-width:1200px;m
     ctx.fillStyle='#FAF8F4';
     ctx.fillRect(0,0,W,H);
 
-    // Subtle diagonal lines in background
     ctx.strokeStyle='rgba(228,223,216,0.4)';
     ctx.lineWidth=1;
     const spacing = 80;
@@ -521,7 +558,6 @@ footer{padding:2.5rem 2.5rem;border-top:1.5px solid var(--bd);max-width:1200px;m
       ctx.stroke();
     }
 
-    // Animated geometric shapes
     shapes.forEach(sh=>{
       const ox = sh.x*W + Math.sin(t*sh.speed+sh.phase)*W*0.05;
       const oy = sh.y*H + Math.cos(t*sh.speed*0.7+sh.phase+1)*H*0.04;
@@ -540,7 +576,6 @@ footer{padding:2.5rem 2.5rem;border-top:1.5px solid var(--bd);max-width:1200px;m
       else if(sh.type==='hex') drawHex(ctx,sh.size);
       else if(sh.type==='cross') drawCross(ctx,sh.size);
       else {
-        // line
         ctx.beginPath();
         ctx.moveTo(-sh.size,0);
         ctx.lineTo(sh.size,0);
@@ -578,3 +613,5 @@ document.querySelectorAll('.sc,.mc,.a-stat').forEach(el=>{
   obs.observe(el);
 });
 </script>
+</body>
+</html>
