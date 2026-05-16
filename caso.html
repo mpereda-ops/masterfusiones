@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dossier de Empresas — SimuLab · Taller de Estrategia</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --paper:#FDFBF7;
+  --paper2:#F5F1EA;
+  --white:#FFFFFF;
+  --rust:#B84A1E;
+  --rust-light:#E8996B;
+  --rust-pale:#FDF2EC;
+  --teal:#174E47;
+  --teal-mid:#2A7A6F;
+  --teal-pale:#EAF4F2;
+  --amber:#C08A1E;
+  --amber-pale:#FDF6E3;
+  --ink:#1C1710;
+  --ink2:#3D3828;
+  --muted:#7A7268;
+  --border:#DDD8CF;
+  --border2:#C8C3BA;
+  --rule: #E8E2DA;
+}
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: white; }
+  .page-break { page-break-before: always; }
+  .card { box-shadow: none; border: 1.5px solid var(--border); }
+  .co-divider { page-break-before: always; padding-top: 2rem; }
+}
+
+html { font-size: 15px; scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: #EDE9E0;
+  color: var(--ink);
+  min-height: 100vh;
+  line-height: 1.7;
+}
+
+/* ── COVER ── */
+.cover {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 4rem 5vw 3rem;
+  position: relative;
+  overflow: hidden;
+}
+.cover::before {
+  content: '';
+  position: absolute;
+  top: -40%; right: -10%;
+  width: 60vw; height: 80vw;
+  background: radial-gradient(ellipse, rgba(184,74,30,0.25) 0%, transparent 65%);
+  pointer-events: none;
+}
+.cover::after {
+  content: '';
+  position: absolute;
+  bottom: -20%; left: -5%;
+  width: 40vw; height: 50vw;
+  background: radial-gradient(ellipse, rgba(23,78,71,0.3) 0%, transparent 65%);
+  pointer-events: none;
+}
+.cover-inner { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; }
+.cover-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.25em;
+  color: var(--rust-light);
+  text-transform: uppercase;
+  margin-bottom: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.cover-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(232,153,107,0.3);
+  max-width: 120px;
+}
+.cover-title {
+  font-family: 'Libre Baskerville', serif;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+  color: var(--paper);
+}
+.cover-title em {
+  font-style: italic;
+  color: var(--rust-light);
+}
+.cover-sub {
+  font-size: 0.92rem;
+  color: rgba(253,251,247,0.65);
+  margin-bottom: 2rem;
+  max-width: 560px;
+  line-height: 1.7;
+}
+.cover-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(253,251,247,0.12);
+}
+.cover-meta-item { font-size: 0.8rem; color: rgba(253,251,247,0.5); }
+.cover-meta-item strong { color: rgba(253,251,247,0.85); display: block; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.15rem; }
+
+/* ── NOTICE BOX ── */
+.notice {
+  max-width: 860px;
+  margin: 2rem auto;
+  padding: 0 2rem;
+}
+.notice-inner {
+  background: var(--amber-pale);
+  border: 2px solid var(--amber);
+  border-radius: 12px;
+  padding: 1.1rem 1.4rem;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+.notice-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 0.1rem; }
+.notice-text { font-size: 0.85rem; color: var(--ink2); line-height: 1.65; }
+.notice-text strong { color: var(--amber); font-weight: 700; }
+
+/* ── MAIN LAYOUT ── */
+.main { max-width: 860px; margin: 0 auto; padding: 0 2rem 6rem; }
+
+/* ── CO SECTION ── */
+.co-section { margin-bottom: 4rem; }
+.co-divider { margin-bottom: 4rem; padding-top: 2rem; border-top: 2.5px solid var(--border2); }
+
+.co-header {
+  background: var(--white);
+  border-radius: 16px 16px 0 0;
+  border: 1.5px solid var(--border);
+  border-bottom: none;
+  padding: 2rem 2rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+.co-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--rust), var(--teal-mid));
+}
+.co-header-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.2rem;
+  margin-bottom: 1.2rem;
+}
+.co-emoji-lg {
+  font-size: 3rem;
+  line-height: 1;
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--paper2);
+  border-radius: 14px;
+  border: 1.5px solid var(--border);
+}
+.co-header-text { flex: 1; }
+.co-name-lg {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 0.2rem;
+}
+.co-sector-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  color: var(--rust);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.co-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.8rem;
+  margin-top: 1.2rem;
+}
+@media(max-width:680px){ .co-kpis { grid-template-columns: repeat(2,1fr); } }
+.kpi {
+  background: var(--paper2);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem 0.9rem;
+  text-align: center;
+}
+.kpi-val {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--rust);
+  line-height: 1.1;
+  margin-bottom: 0.15rem;
+}
+.kpi-label {
+  font-size: 0.65rem;
+  color: var(--muted);
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+/* ── CONTENT BODY ── */
+.co-body {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 16px 16px;
+  padding: 0 2rem 2rem;
+}
+
+/* ── SECTIONS ── */
+.section-block { margin-top: 1.8rem; }
+.section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  color: var(--rust);
+  text-transform: uppercase;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.9rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1.5px solid var(--rule);
+}
+.section-label::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--rust);
+  flex-shrink: 0;
+}
+.section-title {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 0.7rem;
+}
+
+/* ── TEXT BLOCKS ── */
+p.body-text {
+  font-size: 0.88rem;
+  color: var(--ink2);
+  line-height: 1.75;
+  margin-bottom: 0.7rem;
+}
+p.body-text:last-child { margin-bottom: 0; }
+p.body-text strong { color: var(--rust); font-weight: 600; }
+p.body-text em { font-style: italic; color: var(--muted); }
+
+/* ── HIGHLIGHTED BOX ── */
+.highlight-box {
+  background: var(--rust-pale);
+  border: 1.5px solid rgba(184,74,30,0.25);
+  border-left: 3px solid var(--rust);
+  border-radius: 8px;
+  padding: 0.85rem 1.1rem;
+  margin: 0.8rem 0;
+}
+.highlight-box.teal {
+  background: var(--teal-pale);
+  border-color: rgba(23,78,71,0.2);
+  border-left-color: var(--teal-mid);
+}
+.highlight-box p {
+  font-size: 0.83rem;
+  color: var(--ink2);
+  line-height: 1.65;
+  margin-bottom: 0.4rem;
+}
+.highlight-box p:last-child { margin-bottom: 0; }
+.highlight-box strong { color: var(--rust); font-weight: 600; }
+.highlight-box.teal strong { color: var(--teal); }
+.highlight-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 500;
+  margin-bottom: 0.4rem;
+  color: var(--rust);
+}
+.highlight-box.teal .highlight-title { color: var(--teal-mid); }
+
+/* ── DATA TABLE ── */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  margin: 0.6rem 0 0.8rem;
+}
+.data-table th {
+  background: var(--paper2);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0.55rem 0.8rem;
+  text-align: left;
+  border: 1.5px solid var(--border);
+  font-weight: 500;
+}
+.data-table td {
+  padding: 0.55rem 0.8rem;
+  border: 1.5px solid var(--border);
+  color: var(--ink2);
+  vertical-align: top;
+  line-height: 1.5;
+}
+.data-table td:first-child {
+  font-weight: 600;
+  color: var(--ink);
+  background: rgba(245,241,234,0.5);
+  white-space: nowrap;
+  font-size: 0.8rem;
+}
+.data-table tr:nth-child(even) td { background: rgba(245,241,234,0.25); }
+.data-table .td-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--rust);
+  font-weight: 500;
+}
+.data-table .td-neutral { color: var(--muted); font-style: italic; }
+
+/* ── COMPETITOR CARDS ── */
+.comp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin: 0.6rem 0; }
+@media(max-width:580px){ .comp-grid { grid-template-columns: 1fr; } }
+.comp-card {
+  background: var(--paper2);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+}
+.comp-name { font-weight: 700; font-size: 0.84rem; color: var(--ink); margin-bottom: 0.3rem; }
+.comp-country { font-size: 0.72rem; color: var(--muted); margin-bottom: 0.4rem; }
+.comp-badge {
+  display: inline-block;
+  font-size: 0.62rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.comp-badge.green { background: #EAF4F2; border-color: #2A7A6F; color: #174E47; }
+.comp-badge.amber { background: #FDF6E3; border-color: #C08A1E; color: #8A5E10; }
+.comp-badge.red { background: #FDF2EC; border-color: #B84A1E; color: #8C3210; }
+.comp-desc { font-size: 0.75rem; color: var(--ink2); line-height: 1.5; }
+
+/* ── REGULATORY PILLS ── */
+.reg-blocks { display: flex; flex-direction: column; gap: 0.75rem; margin: 0.6rem 0; }
+.reg-block {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  display: flex;
+  gap: 0.9rem;
+  align-items: flex-start;
+}
+.reg-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 0.1rem; }
+.reg-name {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--rust);
+  font-weight: 500;
+  margin-bottom: 0.2rem;
+}
+.reg-full { font-weight: 700; font-size: 0.84rem; color: var(--ink); margin-bottom: 0.3rem; }
+.reg-desc { font-size: 0.78rem; color: var(--ink2); line-height: 1.55; }
+.reg-impact { font-size: 0.74rem; color: var(--rust); font-weight: 600; margin-top: 0.3rem; }
+
+/* ── CHAIN ── */
+.chain {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 0.6rem 0;
+  overflow-x: auto;
+}
+.chain-step {
+  background: var(--paper2);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 0.65rem 0.85rem;
+  flex-shrink: 0;
+  min-width: 110px;
+}
+.chain-step-name { font-size: 0.72rem; font-weight: 700; color: var(--ink); margin-bottom: 0.15rem; }
+.chain-step-desc { font-size: 0.63rem; color: var(--muted); line-height: 1.3; }
+.chain-arrow { font-size: 0.9rem; color: var(--rust); padding: 0 0.4rem; flex-shrink: 0; }
+
+/* ── TIMELINE ── */
+.timeline { margin: 0.6rem 0; }
+.tl-item {
+  display: flex;
+  gap: 0.9rem;
+  padding-bottom: 0.9rem;
+  position: relative;
+}
+.tl-item:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 19px;
+  top: 32px;
+  bottom: 0;
+  width: 1.5px;
+  background: var(--border);
+}
+.tl-dot {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--paper2);
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--muted);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  font-family: 'DM Mono', monospace;
+}
+.tl-dot.urgent { background: #FDF2EC; border-color: var(--rust); color: var(--rust); }
+.tl-dot.done { background: var(--teal-pale); border-color: var(--teal-mid); color: var(--teal-mid); }
+.tl-content { flex: 1; padding-top: 0.5rem; }
+.tl-date { font-size: 0.7rem; font-weight: 700; color: var(--muted); margin-bottom: 0.15rem; font-family: 'DM Mono', monospace; }
+.tl-event { font-size: 0.83rem; color: var(--ink2); line-height: 1.5; }
+.tl-event strong { color: var(--rust); font-weight: 600; }
+
+/* ── CANVAS HINT PREVIEW ── */
+.canvas-preview {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.2fr 1fr 1fr;
+  gap: 0.5rem;
+  margin: 0.6rem 0 0.8rem;
+  font-size: 0.72rem;
+}
+@media(max-width:640px){ .canvas-preview { grid-template-columns: 1fr 1fr; } }
+.cp-block {
+  background: var(--paper2);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem 0.7rem;
+}
+.cp-block.highlight-vp { background: var(--rust-pale); border-color: rgba(184,74,30,0.3); }
+.cp-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rust);
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+}
+.cp-body { font-size: 0.7rem; color: var(--ink2); line-height: 1.4; }
+
+/* ── FINANCIAL TABLE ── */
+.fin-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: 0.83rem;
+}
+.fin-row:last-child { border-bottom: none; }
+.fin-label { color: var(--ink2); font-weight: 500; }
+.fin-val { font-family: 'DM Mono', monospace; color: var(--rust); font-weight: 600; font-size: 0.82rem; }
+.fin-val.neg { color: #B84A1E; }
+.fin-val.pos { color: var(--teal-mid); }
+.fin-val.neutral { color: var(--muted); }
+
+/* ── PRINT BUTTON ── */
+.print-bar {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0.85rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.print-bar-text { font-size: 0.78rem; color: rgba(253,251,247,0.65); }
+.print-bar-text strong { color: var(--rust-light); }
+.btn-print {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: var(--rust);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1.4rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-print:hover { background: #C85A2A; }
+
+/* ── FOOTER ── */
+.co-footer {
+  background: var(--paper2);
+  border: 1.5px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 16px 16px;
+  padding: 0.9rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  color: var(--muted);
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.doc-footer {
+  text-align: center;
+  padding: 2rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+  border-top: 1.5px solid var(--border);
+  margin-top: 3rem;
+}
+
+/* ── DIVIDER LINE ── */
+.rule { height: 1.5px; background: var(--rule); margin: 1.4rem 0; }
+
+/* ── COLS ── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 0.6rem 0; }
+@media(max-width:580px){ .two-col { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- STICKY PRINT BAR -->
+<div class="print-bar no-print">
+  <div class="print-bar-text"><strong>SimuLab · Dossier de Empresas</strong> — Material de trabajo · Taller Bloque 4</div>
+  <button class="btn-print" onclick="window.print()">⬇ Imprimir / Guardar PDF</button>
+</div>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-inner">
+    <div class="cover-label">SimuLab · Universidad de Salamanca · Bloque 4</div>
+    <h1 class="cover-title">Dossier de <em>empresas</em><br>para el análisis estratégico</h1>
+    <p class="cover-sub">Este documento contiene toda la información factual que necesitáis para completar el análisis de Porter y el Business Model Canvas en el simulador. No resuelve el análisis: os proporciona los datos reales del sector, la empresa, sus competidores y el entorno regulatorio para que podáis tomar decisiones fundamentadas.</p>
+    <div class="cover-meta">
+      <div class="cover-meta-item"><strong>Herramienta</strong>SimuLab · Taller de Estrategia</div>
+      <div class="cover-meta-item"><strong>Asignatura</strong>Sistemas Inteligentes para la Sostenibilidad Global</div>
+      <div class="cover-meta-item"><strong>Empresa A</strong>ACERLATAM S.A. · Siderurgia</div>
+      <div class="cover-meta-item"><strong>Empresa B</strong>CAFECOL EXPORT S.A. · Agroindustria</div>
+      <div class="cover-meta-item"><strong>Profesor</strong>Jorge Matías-Pereda · USAL 2026</div>
+    </div>
+  </div>
+</div>
+
+<!-- NOTICE -->
+<div class="notice">
+  <div class="notice-inner">
+    <div class="notice-icon">📌</div>
+    <div class="notice-text">
+      <strong>Cómo usar este documento:</strong> Leed el dossier completo de vuestra empresa antes de abrir el simulador. Los datos os permiten puntuar las variables de Porter con criterio y describir el Canvas con rigor. El simulador no os dirá qué puntuación poner: eso requiere vuestro juicio analítico. <strong>Los datos son reales o realistas; el análisis lo hacéis vosotros.</strong>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--  EMPRESA A — ACERLATAM                         -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="co-section" id="acerlatam">
+
+  <div class="co-header">
+    <div class="co-header-top">
+      <div class="co-emoji-lg">🏭</div>
+      <div class="co-header-text">
+        <div class="co-sector-tag">Empresa A · Siderurgia · Colombia → Europa</div>
+        <div class="co-name-lg">ACERLATAM S.A.</div>
+        <p style="font-size:0.84rem;color:var(--muted);margin-top:0.3rem;">Tercer productor de acero estructural de Colombia. Exporta a constructoras e industria en España, Alemania y Francia. Exposición directa al mecanismo CBAM y a las cadenas de suministro CSRD.</p>
+      </div>
+    </div>
+    <div class="co-kpis">
+      <div class="kpi"><div class="kpi-val">$480M</div><div class="kpi-label">Facturación anual</div></div>
+      <div class="kpi"><div class="kpi-val">38%</div><div class="kpi-label">Exporta a la UE</div></div>
+      <div class="kpi"><div class="kpi-val">42t</div><div class="kpi-label">CO₂ por t de acero</div></div>
+      <div class="kpi"><div class="kpi-val">4.200</div><div class="kpi-label">Empleados directos</div></div>
+    </div>
+  </div>
+
+  <div class="co-body">
+
+    <!-- 1. PERFIL EMPRESA -->
+    <div class="section-block">
+      <div class="section-label">01 — Perfil de la empresa</div>
+      <p class="body-text">ACERLATAM S.A. fue fundada en 1978 en Medellín. Opera dos plantas siderúrgicas —en Medellín y Buenaventura— con capacidad combinada de 2,1 millones de toneladas anuales. El 62% de la producción se vende en el mercado doméstico colombiano (constructoras, obras públicas, industria automotriz); el 38% restante —aproximadamente 800.000 toneladas— se exporta a Europa.</p>
+      <p class="body-text">El proceso de producción principal es el <strong>horno de arco eléctrico (EAF)</strong> alimentado principalmente por chatarra de acero, lo que le otorga una ventaja relativa frente a los altos hornos de carbón, pero sus emisiones de 42t CO₂ por tonelada siguen siendo significativamente superiores al estándar europeo de acero "verde" (<12t CO₂/t). La electricidad que consume proviene en un 68% de la red eléctrica colombiana, que tiene una mezcla energética con alta proporción de hidroeléctrica pero también térmica.</p>
+      <p class="body-text">Tres de sus cinco principales clientes europeos —dos constructoras alemanas y una española— han comunicado por escrito que están evaluando proveedores alternativos con menor huella de carbono, en el contexto de sus propios compromisos Net Zero para 2035.</p>
+    </div>
+
+    <div class="rule"></div>
+
+    <!-- 2. ENTORNO REGULATORIO -->
+    <div class="section-block">
+      <div class="section-label">02 — Entorno regulatorio europeo (presión directa sobre ACERLATAM)</div>
+      <div class="reg-blocks">
+        <div class="reg-block">
+          <div class="reg-icon">💶</div>
+          <div>
+            <div class="reg-name">CBAM</div>
+            <div class="reg-full">Mecanismo de Ajuste en Frontera por Carbono — Carbon Border Adjustment Mechanism</div>
+            <div class="reg-desc">Desde octubre 2023 (fase de transición) y plenamente vigente desde 2026. Los importadores europeos de acero, cemento, aluminio, fertilizantes e hidrógeno deben declarar las emisiones incorporadas en los productos importados y comprar certificados de carbono equivalentes al precio del EU ETS. El precio del CO₂ en el EU ETS oscila entre €60–95/tonelada de CO₂. Con 42t CO₂ por tonelada de acero, ACERLATAM encarece cada tonelada de acero en aproximadamente <strong>€2.520–3.990 en costes de carbono</strong> para el importador europeo.</div>
+            <div class="reg-impact">⚠ Impacto directo en precio competitivo · Entra en plena vigencia 2026</div>
+          </div>
+        </div>
+        <div class="reg-block">
+          <div class="reg-icon">📋</div>
+          <div>
+            <div class="reg-name">CSRD</div>
+            <div class="reg-full">Directiva de Información Corporativa de Sostenibilidad — Corporate Sustainability Reporting Directive</div>
+            <div class="reg-desc">Exige a las grandes empresas europeas reportar sus emisiones de Alcance 1, 2 y <strong>3 (cadena de suministro)</strong>. Las constructoras alemanas y españolas que compran a ACERLATAM deben reportar las emisiones del acero que usan. Esto genera presión directa: el cliente necesita datos verificados de emisiones de sus proveedores y, en muchos casos, está obligado a reducir esas emisiones Scope 3 para cumplir sus propios objetivos. <strong>No es una preferencia comercial; es una obligación legal del cliente europeo.</strong></div>
+            <div class="reg-impact">⚠ El cliente europeo traslada la presión regulatoria a sus proveedores</div>
+          </div>
+        </div>
+        <div class="reg-block">
+          <div class="reg-icon">🏦</div>
+          <div>
+            <div class="reg-name">EU ETS · Taxonomía Verde</div>
+            <div class="reg-full">Sistema de Comercio de Emisiones · Taxonomía de actividades sostenibles</div>
+            <div class="reg-desc">La Taxonomía Verde de la UE define qué actividades son "sostenibles" a efectos de financiación. El acero con huella >2,3t CO₂/t de acero crudo está excluido de la clasificación verde. Esto afecta al coste del capital de los proyectos de construcción europeos que usan acero no verde: los bancos europeos aplican condiciones más estrictas a proyectos que no cumplen criterios de taxonomía. Indirectamente, presiona a las constructoras a usar acero verde para acceder a financiación en mejores condiciones.</div>
+            <div class="reg-impact">⚠ Impacto indirecto vía coste de capital de los clientes</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rule"></div>
+
+    <!-- 3. SECTOR SIDERÚRGICO -->
+    <div class="section-block">
+      <div class="section-label">03 — Datos del sector siderúrgico global y europeo</div>
+      <table class="data-table">
+        <tr><th>Indicador</th><th>Dato</th><th>Fuente / Contexto</th></tr>
+        <tr><td>Producción mundial de acero</td><td class="td-val">~1.900 Mt/año</td><td>China produce el 54% (WorldSteel 2024)</td></tr>
+        <tr><td>Emisiones medias acero convencional</td><td class="td-val">1,85 t CO₂/t acero</td><td>Proceso BF-BOF (alto horno + convertidor)</td></tr>
+        <tr><td>Emisiones acero EAF (chatarra)</td><td class="td-val">0,4–0,6 t CO₂/t acero</td><td>Depende de la mezcla eléctrica del país</td></tr>
+        <tr><td>Emisiones "acero verde" (H₂ verde)</td><td class="td-val">&lt;0,1 t CO₂/t acero</td><td>Tecnología en escala comercial desde 2024</td></tr>
+        <tr><td>Precio acero laminado en caliente (HRC)</td><td class="td-val">~$620–680/t</td><td>Mercado europeo, mayo 2026</td></tr>
+        <tr><td>Diferencial "acero verde" sobre HRC estándar</td><td class="td-val">+$180–240/t</td><td>Premium mercado europeo (estimación WorldSteel)</td></tr>
+        <tr><td>Demanda de acero verde en UE 2030 (proyección)</td><td class="td-val">~15–22% del total</td><td>McKinsey, European Steel Association 2024</td></tr>
+        <tr><td>Precio EU ETS (CO₂)</td><td class="td-val">€72–91/t CO₂</td><td>Promedio 2025; rango 2026 estimado €80–110</td></tr>
+        <tr><td>Coste instalación DRI-EAF con H₂ verde</td><td class="td-val">$800M–1.200M</td><td>Por planta de 1 Mt/año capacidad</td></tr>
+      </table>
+
+      <div class="highlight-box">
+        <div class="highlight-title">¿Qué significa esto para ACERLATAM?</div>
+        <p>ACERLATAM usa horno de arco eléctrico (EAF), que es menos sucio que el alto horno tradicional. Sin embargo, sus 42t CO₂/t de acero son muy superiores al promedio EAF global (0,4–0,6t), lo que sugiere que la mezcla eléctrica que consume o los procesos auxiliares generan emisiones adicionales significativas. <strong>Este dato es clave para el análisis Porter.</strong></p>
+      </div>
+    </div>
+
+    <div class="rule"></div>
+
+    <!-- 4. COMPETIDORES -->
+    <div class="section-block">
+      <div class="section-label">04 — Panorama competitivo: proveedores alternativos de acero para Europa</div>
+      <p class="body-text">Los clientes europeos de ACERLATAM tienen alternativas reales. Conocerlas es esencial para valorar la fuerza de los compradores y la amenaza de sustitutos.</p>
+      <div class="comp-grid">
+        <div class="comp-card">
+          <div class="comp-name">ArcelorMittal (Europa)</div>
+          <div class="comp-country">🇪🇺 Luxemburgo / multinacional</div>
+          <div><span class="comp-badge green">Acero verde en desarrollo</span></div>
+          <div class="comp-desc">Mayor productor de acero del mundo fuera de China. Ha anunciado €10.000M en inversión en acero verde (DRI-H₂). Su planta en Gijón (España) ya produce acero verde en escala piloto. El cliente europeo que compra a ArcelorMittal puede mantenerse en la UE y reducir su huella Scope 3.</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name">SSAB (Hybrit)</div>
+          <div class="comp-country">🇸🇪 Suecia</div>
+          <div><span class="comp-badge green">Acero verde certificado</span></div>
+          <div class="comp-desc">Primera empresa en producir acero sin carbono a escala comercial con tecnología HYBRIT (hidrógeno verde). Precio premium del 20–30% sobre el acero convencional. Clientes como Volvo y Scania ya usan su acero. Alta demanda, capacidad limitada hasta 2030.</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name">Tata Steel (India/UK)</div>
+          <div class="comp-country">🇮🇳 India</div>
+          <div><span class="comp-badge amber">Transición en curso</span></div>
+          <div class="comp-desc">Planta en Port Talbot (Gales) en conversión a EAF. Alta escala, precios competitivos. Presencia establecida en Europa. Sus emisiones actuales son altas, pero el plan de conversión está avanzado y parcialmente financiado con subvenciones del gobierno británico.</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name">Siderúrgicas brasileñas (Gerdau, CSN)</div>
+          <div class="comp-country">🇧🇷 Brasil</div>
+          <div><span class="comp-badge amber">Menor coste, mayor huella</span></div>
+          <div class="comp-desc">Competidores directos de ACERLATAM en precio y geografía. Similares emisiones. También afectados por CBAM. Su ventaja principal es la escala y la logística (cercanía a puertos atlánticos). No ofrecen ventaja en sostenibilidad respecto a ACERLATAM.</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name">Acero reciclado europeo (EAF local)</div>
+          <div class="comp-country">🇩🇪 🇫🇷 🇪🇸 Europa</div>
+          <div><span class="comp-badge green">Baja huella, mayor coste</span></div>
+          <div class="comp-desc">Miniacerías europeas con EAF y electricidad renovable. Emisiones &lt;0,3t CO₂/t. Exentas de CBAM. Coste laboral 3–4x superior. Capacidad instalada limitada, pero crecimiento acelerado por inversión verde en la UE. Sustituto más claro a medio plazo.</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name">Madera estructural / CLT</div>
+          <div class="comp-country">🇨🇦 🇦🇹 🇫🇮 Europa + América del Norte</div>
+          <div><span class="comp-badge green">Sustituto sostenible</span></div>
+          <div class="comp-desc">La madera contralaminada (CLT) y otros materiales de construcción de madera están ganando cuota en construcción residencial y comercial de hasta 8 pisos. Captura CO₂. Regulación europea cada vez más favorable. Sustituto parcial, no total, del acero estructural.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rule"></div>
+
+    <!-- 5. PROVEEDORES -->
+    <div class="section-block">
+      <div class="section-label">05 — Proveedores y cadena de suministro de ACERLATAM</div>
+      <div class="chain">
+        <div class="chain-step"><div class="chain-step-name">Chatarra metálica</div><div class="chain-step-desc">Proveedores locales + importación. Mercado volátil. Precio indexado.</div></div>
+        <div class="chain-arrow">→</div>
+        <div class="chain-step"><div class="chain-step-name">Energía eléctrica</div><div class="chain-step-desc">Red nacional. 68% hidro, 32% térmica. Sin garantía de origen renovable.</div></div>
+        <div class="chain-arrow">→</div>
+        <div class="chain-step"><div class="chain-step-name">Aleantes + refractarios</div><div class="chain-step-desc">Importados. Manganeso, silicio, cal. Proveedores Brasil y Chile.</div></div>
+        <div class="chain-arrow">→</div>
+        <div class="chain-step"><div class="chain-step-name">Producción EAF</div><div class="chain-step-desc">Planta Medellín + Buenaventura. 2,1 Mt capacidad.</div></div>
+        <div class="chain-arrow">→</div>
+        <div class="chain-step"><div class="chain-step-name">Logística export.</div><div class="chain-step-desc">Puerto de Buenaventura → 18–22 días a puertos europeos.</div></div>
+        <div class="chain-arrow">→</div>
+        <div class="chain-step"><div class="chain-step-name">Clientes UE</div><div class="chain-step-desc">5 clientes princ. Constructoras ES/DE/FR. Contratos 1–3 años.</div></div>
+      </div>
+
+      <div class="two-col">
+        <div class="highlight-box">
+          <div class="highlight-title">Datos de proveedores clave</div>
+          <p><strong>Chatarra:</strong> El 80% se abastece localmente (Colombia). El precio de chatarra ha aumentado un 34% en tres años por mayor demanda global de reciclaje. ACERLATAM no tiene contratos de largo plazo con sus principales proveedores de chatarra.</p>
+          <p><strong>Energía:</strong> No tiene PPA (Power Purchase Agreement) de energía renovable. Paga tarifa industrial estándar de la red colombiana. Obtener garantías de origen renovable requeriría negociar PPAs bilaterales o instalar generación propia.</p>
+        </div>
+        <div class="highlight-box teal">
+          <div class="highlight-title">Dependencias críticas</div>
+          <p><strong>Certificación de huella:</strong> Para vender en Europa bajo CBAM necesita auditores acreditados de emisiones. Solo hay 3 empresas en Colombia con acreditación ISO 14064 para siderurgia.</p>
+          <p><strong>Aleantes importados:</strong> Silicio y manganeso vienen de Brasil y Chile. No hay alternativa colombiana a corto plazo. Si aumentan los costes logísticos, afecta directamente a márgenes.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="rule"></div>
+
+    <!-- 6. CLIENTES -->
+    <div class="section-block">
+      <div class="section-label">06 — Perfil de clientes europeos y exigencias de sostenibilidad</div>
+      <table class="data-table">
+        <tr><th>Cliente</th><th>País</th><th>Volumen comprado</th><th>Compromiso Net Zero</th><th>Situación actual</th></tr>
+        <tr>
+          <td>Baugruppe Rhein GmbH</td>
+          <td>🇩🇪 Alemania</td>
+          <td class="td-val">~180.000 t/año</td>
+          <td>Net Zero 2035 (público, SBTi)</td>
+          <td style="font-size:0.78rem;color:#B84A1E;">Ha enviado carta solicitando plan de descarbonización en 6 meses o revisará contrato</td>
+        </tr>
+        <tr>
+          <td>Constructiva Ibérica S.L.</td>
+          <td>🇪🇸 España</td>
+          <td class="td-val">~210.000 t/año</td>
+          <td>Net Zero 2040 (interno)</td>
+          <td style="font-size:0.78rem;color:#C08A1E;">Solicita datos verificados de emisiones Scope 3 para sus informes CSRD. Sin ultimátum aún.</td>
+        </tr>
+        <tr>
+          <td>Acier Construction France</td>
+          <td>🇫🇷 Francia</td>
+          <td class="td-val">~95.000 t/año</td>
+          <td>Sin compromiso público</td>
+          <td style="font-size:0.78rem;color:#2A7A6F;">Relación estable. Negocia precio anualmente. No ha mencionado exigencias ESG en la última renovación.</td>
+        </tr>
+        <tr>
+          <td>Faber Industrie SpA</td>
+          <td>🇩🇪 Alemania</td>
+          <td class="td-val">~60.000 t/año</td>
+          <td>Net Zero 2030 (agresivo)</td>
+          <td style="font-size:0.78rem;color:#B84A1E;">Ya ha iniciado proceso de selección de nuevos proveedores de acero verde. No ha renovado el contrato que vence en dic. 2026.</td>
+        </tr>
+        <tr>
+          <td>Nordic Build Solutions</td>
+          <td>🇩🇪 Alemania</td>
+          <td class="td-val">~50.000 t/año</td>
+          <td>Net Zero 2035 (SBTi)</td>
+          <td style="font-size:0.78rem;color:#C08A1E;">Ha solicitado cotización paralela a SSAB (acero verde sueco). Compra a ACERLATAM por precio, no por preferencia de sostenibilidad.</td>
+        </tr>
+      </table>
+
+      <div class="highlight-box">
+        <div class="highlight-title">Conclusión sobre el poder de compradores — datos para reflexionar</div>
+        <p>3 de 5 clientes europeos tienen compromisos Net Zero con fecha, respaldados por la CSRD (obligatoria). El CBAM hace que el coste del acero de alta huella suba para el importador europeo entre €2.500 y €4.000/t. Dos clientes ya están buscando alternativas activamente. El mercado de alternativas verdes (SSAB, ArcelorMittal verde, EAF europeo) existe y está creciendo.</p>
+      </div>
+    </div>
+
+    <div class="rule"></div>
+
+    <!-- 7. SITUACIÓN FINANCIERA -->
+    <div class="section-block">
+      <div class="section-label">07 — Situación financiera y capacidad de inversión</div>
+      <div class="two-col">
+        <div>
+          <div class="fin-row"><span class="fin-label">Facturación anual</span><span class="fin-val">$480M</span></div>
+          <div class="fin-row"><span class="fin-label">EBITDA 2025</span><span class="fin-val pos">$48M (10%)</span></div>
+          <div class="fin-row"><span class="fin-label">Deuda financiera</span><span class="fin-val neg">$210M</span></div>
+          <div class="fin-row"><span class="fin-label">Ratio deuda/EBITDA</span><span class="fin-val neutral">4,4x (alto)</span></div>
+          <div class="fin-row"><span class="fin-label">Calificación crediticia</span><span class="fin-val neutral">BB− (S&P)</span></div>
+          <div class="fin-row"><span class="fin-label">Inversión posible sin ampliación de capital</span><span class="fin-val">~$30M/año</span></div>
+        </div>
+        <div class="highlight-box" style="margin:0;">
+          <div class="highlight-title">Barrera de inversión</div>
+          <p>Transformar una planta siderúrgica a acero verde (DRI + H₂ verde) cuesta entre $800M y $1.200M por planta. ACERLATAM tiene dos plantas. Con una capacidad de inversión libre de ~$30M anuales y un ratio de deuda ya elevado (4,4x EBITDA), <strong>la capacidad financiera propia es muy limitada.</strong> Necesitaría financiación verde externa, partners o desinversión de activos.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="rule"></div>
+
+    <!-- 8. TIMELINE REGULATORIO -->
+    <div class="section-block">
+      <div class="section-label">08 — Línea de tiempo crítica para la toma de decisiones</div>
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-dot done">2023</div>
+          <div class="tl-content">
+            <div class="tl-date">Oct. 2023 — Dic. 2025</div>
+            <div class="tl-event">Fase de transición CBAM: los importadores europeos <strong>declaran</strong> las emisiones incorporadas pero aún no pagan certificados de carbono.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot urgent">HOY</div>
+          <div class="tl-content">
+            <div class="tl-date">Enero 2026 — en vigor</div>
+            <div class="tl-event"><strong>CBAM plena vigencia:</strong> los importadores europeos pagan certificados de carbono por las emisiones del acero importado. Precio: ~€80–95/t CO₂. Para ACERLATAM: encarece cada tonelada exportada a Europa en ~€3.360–3.990 para el comprador europeo.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot urgent">6m</div>
+          <div class="tl-content">
+            <div class="tl-date">Dic. 2026</div>
+            <div class="tl-event">Vencimiento contrato con Faber Industrie SpA (60.000 t/año). Cliente ya en proceso de selección de proveedor alternativo. <strong>Si no hay propuesta creíble, el contrato se pierde.</strong></div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot urgent">1a</div>
+          <div class="tl-content">
+            <div class="tl-date">Jun. 2027 (plazo Baugruppe)</div>
+            <div class="tl-event">Baugruppe Rhein GmbH (180.000 t/año, el mayor cliente) ha dado <strong>6 meses para presentar un plan de descarbonización creíble</strong>. Si no lo hay, inicia proceso de sustitución de proveedor.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot">3a</div>
+          <div class="tl-content">
+            <div class="tl-date">2028–2029</div>
+            <div class="tl-event">Plena aplicación CSRD a todas las grandes empresas europeas: cualquier constructora que use acero de ACERLATAM tendrá que reportar y reducir esas emisiones Scope 3. La presión se vuelve sistémica.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot">5a</div>
+          <div class="tl-content">
+            <div class="tl-date">2030</div>
+            <div class="tl-event">Objetivo de reducción de emisiones de la UE: -55% respecto a 1990. Fecha Net Zero de dos clientes europeos de ACERLATAM. Mercado de acero verde proyectado en 15–22% del consumo europeo total.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rule"></div>
+
+    <!-- 9. CANVAS DATOS -->
+    <div class="section-block">
+      <div class="section-label">09 — Datos para el Business Model Canvas</div>
+      <p class="body-text">Los datos siguientes describen el modelo de negocio <em>actual</em> de ACERLATAM. Usadlos para rellenar los bloques del Canvas en el simulador. <strong>El simulador os pedirá que penséis en cuáles son los más vulnerables ante la transición sostenible: ese juicio es vuestro.</strong></p>
+
+      <table class="data-table" style="margin-bottom:1rem;">
+        <tr><th>Bloque Canvas</th><th>Descripción (modelo actual)</th></tr>
+        <tr>
+          <td>Socios Clave</td>
+          <td>Proveedores de chatarra metálica (mercado spot, sin contratos LP). Distribuidores de energía eléctrica (red nacional). Agentes comerciales en España, Alemania y Francia. Empresa logística especializada en acero (Puerto Buenaventura). Auditoras ambientales (solo 3 con acreditación ISO 14064 en Colombia).</td>
+        </tr>
+        <tr>
+          <td>Actividades Clave</td>
+          <td>Producción de acero mediante EAF (fundición, laminación, acabado). Gestión de la cadena de suministro de chatarra. Exportación y certificación de calidad. Gestión de relaciones comerciales con clientes europeos. Control de calidad siderúrgico (ISO 9001 certificado). Cumplimiento CBAM (desde 2026): declaración de emisiones incorporadas.</td>
+        </tr>
+        <tr>
+          <td>Recursos Clave</td>
+          <td>Dos plantas siderúrgicas (Medellín + Buenaventura). Capacidad instalada 2,1 Mt/año. 4.200 empleados (alta especialización técnica). Contratos con 5 clientes europeos (valor ~$182M/año). Marca consolidada en Colombia. Know-how técnico siderúrgico de 40+ años.</td>
+        </tr>
+        <tr>
+          <td>Propuesta de Valor</td>
+          <td>Acero estructural de alta resistencia (grados S235, S355, S460). Precio competitivo respecto a productores europeos (15–20% más barato antes de CBAM). Calidad certificada (ISO, EN 10025). Capacidad de suministro de grandes volúmenes. <em>Sin diferenciación en sostenibilidad.</em></td>
+        </tr>
+        <tr>
+          <td>Relación con Clientes</td>
+          <td>Contratos de suministro de 1 a 3 años. Gestores de cuenta por cliente. Relaciones de largo plazo (3 clientes llevan más de 8 años). Visitas técnicas anuales a plantas de clientes. Soporte técnico para especificaciones de producto.</td>
+        </tr>
+        <tr>
+          <td>Canales</td>
+          <td>Venta directa a constructoras e industria europea (sin intermediarios para grandes cuentas). Agentes comerciales para nuevos mercados y contratos menores. Portales de licitación de compras industriales europeas. Ferias sectoriales (EuroBLECH, BAU München).</td>
+        </tr>
+        <tr>
+          <td>Segmentos de Clientes</td>
+          <td>Grandes constructoras europeas (principal): 5 clientes, España, Alemania y Francia. Constructoras colombianas (mercado doméstico): obra pública, vivienda, industrial. Industria manufacturera colombiana: automotriz, maquinaria. Distribuidores de acero en Colombia.</td>
+        </tr>
+        <tr>
+          <td>Estructura de Costes</td>
+          <td>Chatarra (mayor coste, ~40% del COGS). Energía eléctrica (~22% del COGS). Mano de obra directa (~18%). Aleantes y refractarios (~8%). Logística y transporte internacional (~7%). Mantenimiento industrial (~5%). Costes administrativos y comerciales.</td>
+        </tr>
+        <tr>
+          <td>Fuentes de Ingreso</td>
+          <td>Venta de acero por tonelada (precio referenciado al mercado HRC europeo ± prima por calidad). Contratos de precio fijo trimestral con grandes clientes. Mercado doméstico a precio spot. Sin ingresos por servicios adicionales.</td>
+        </tr>
+      </table>
+    </div>
+
+  </div><!-- /co-body -->
+
+  <div class="co-footer">
+    <span>🏭 ACERLATAM S.A. · Dossier de análisis estratégico</span>
+    <span style="font-family:'DM Mono',monospace;font-size:0.62rem;">SimuLab · USAL 2026 · Bloque 4</span>
+  </div>
+
+</div><!-- /co-section acerlatam -->
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--  EMPRESA B — CAFECOL EXPORT                    -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="co-section co-divider" id="cafecol">
+
+  <div class="co-header">
+    <div class="co-header-top">
+      <div class="co-emoji-lg">☕</div>
+      <div class="co-header-text">
+        <div class="co-sector-tag">Empresa B · Agroindustria · Colombia → Europa</div>
+        <div class="co-name-lg">CAFECOL EXPORT S.A.</div>
+        <p style="font-size:0.84rem;color:var(--muted);margin-top:0.3rem;">Exportador de café premium colombiano con 12.000 fincas cafeteras en red. El 72% de sus ventas van a Europa, donde la EUDR (Regulación Europea de Deforestación) exige trazabilidad GPS de cada lote desde enero 2025.</p>
+      </div>
+    </div>
+    <div class="co-kpis">
+      <div class="kpi"><div class="kpi-val">$180M</div><div class="kpi-label">Facturación anual</div></div>
+      <div class="kpi"><div class="kpi-val">72%</div><div class="kpi-label">Exporta a la UE</div></div>
+      <div class="kpi"><div class="kpi-val">12.000</div><div class="kpi-label">Fincas en red</div></div>
+      <div class="kpi"><div class="kpi-val">6 meses</div><div class="kpi-label">Plazo para certificar EUDR</div></div>
+    </div>
+  </div>
+
+  <div class="co-body">
+
+    <!-- 1. PERFIL -->
+    <div class="section-block">
+      <div class="section-label">01 — Perfil de la empresa</div>
+      <p class="body-text">CAFECOL EXPORT S.A. fue fundada en 1991 en Bogotá. Opera como exportador e intermediario de café premium colombiano: compra café en pergamino o trillado a 12.000 familias cafeteras distribuidas en los departamentos de Huila, Nariño, Cauca y Antioquia, procesa y clasifica el café en su planta de Bogotá y lo exporta a importadores, tostadores y marcas europeas.</p>
+      <p class="body-text">El 72% de su facturación —aproximadamente $130M— proviene de ventas a Europa: principalmente Alemania, Países Bajos, Italia y España. El 28% restante abastece el mercado norteamericano y asiático. <strong>CAFECOL no es el productor del café: actúa como integrador de la cadena entre las familias cafeteras y los compradores internacionales.</strong> Su valor diferencial histórico ha sido la selección de calidad y la relación con productores en zonas de origen reconocido (Huila, Nariño).</p>
+      <p class="body-text">La Regulación Europea de Deforestación (EUDR) en plena vigencia desde enero 2025 exige que <strong>cada lote de café exportado a la UE venga acompañado de geolocalización GPS verificada de la parcela donde se cultivó</strong>, demostrando que no procede de tierra deforestada después de diciembre 2020. Certificar las 12.000 fincas de su red —muchas de ellas pequeñas parcelas sin conectividad ni documentación formal— en el plazo disponible es el mayor reto operativo de la historia de la empresa.</p>
+    </div>
+
+    <div class="rule"></div>
+
+    <!-- 2. EUDR -->
+    <div class="section-block">
+      <div class="section-label">02 — Regulación EUDR y su impacto en CAFECOL</div>
+      <div class="reg-blocks">
+        <div class="reg-block">
+          <div class="reg-icon">🌳</div>
+          <div>
+            <div class="reg-name">EUDR</div>
+            <div class="reg-full">Regulación Europea de Deforestación — EU Deforestation Regulation (2023/1115)</div>
+            <div class="reg-desc">En vigor desde enero 2025. Aplica a café, cacao, soja, aceite de palma, madera, caucho, ganado y sus derivados. Prohíbe vender en la UE productos que provengan de tierras deforestadas después del 31 de diciembre de 2020. Los exportadores e importadores deben presentar una Declaración de Diligencia Debida (DDD) con: <strong>(1) coordenadas GPS de las parcelas de producción, (2) documentación que certifique la legalidad de la producción, (3) evaluación de riesgo de deforestación</strong>. El incumplimiento puede implicar confiscación del lote en frontera y sanciones a importador y exportador.</div>
+            <div class="reg-impact">⚠ Sin DDD válida, el café no puede entrar en la UE · Entrada en vigor enero 2025</div>
+          </div>
+        </div>
+        <div class="reg-block">
+          <div class="reg-icon">📱</div>
+          <div>
+            <div class="reg-name">Trazabilidad GPS — el reto operativo</div>
+            <div class="reg-full">12.000 fincas · muchas sin smartphone ni conectividad</div>
+            <div class="reg-desc">La EUDR exige coordenadas GPS de cada parcela cafetera donde se producen los granos de cada lote exportado. CAFECOL trabaja con 12.000 fincas, de las cuales: <strong>~35% son fincas con más de 5 hectáreas</strong> (más fáciles de geolocalizar y documentar), <strong>~65% son minifincas de 1–4 ha</strong>, muchas en zonas de ladera sin señal estable, cuyos propietarios no tienen smartphone o tienen dificultades para operar apps de geolocalización. El coste estimado de certificación por finca: $80–150 (visita técnica, toma de coordenadas, documentación). Coste total estimado: $1M–1,8M solo en geolocalización.</div>
+            <div class="reg-impact">⚠ Coste estimado total de cumplimiento EUDR: $2,5M–4M en los próximos 6 meses</div>
+          </div>
+        </div>
+        <div class="reg-block">
+          <div class="reg-icon">📋</div>
+          <div>
+            <div class="reg-name">CSRD (indirecto)</div>
+            <div class="reg-full">Corporate Sustainability Reporting Directive — impacto vía clientes</div>
+            <div class="reg-desc">Los grandes tostadores y cadenas de distribución europeas (Illy, Lavazza, Nestlé, JDE Peet's, supermercados Lidl/Aldi/Carrefour) están obligados a reportar su huella de sostenibilidad en la cadena de suministro. Esto se traduce en exigencias adicionales a sus proveedores de café: certificaciones Rainforest Alliance, Fairtrade, reportes de bienestar de productores, datos de emisiones del cultivo y transporte.</div>
+            <div class="reg-impact">⚠ Los clientes europeos trasladarán exigencias adicionales más allá de la EUDR</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rule"></div>
+
+    <!-- 3. SECTOR CAFETERO -->
+    <div class="section-block">
+      <div class="section-label">03 — Datos del sector cafetero global y colombiano</div>
+      <table class="data-table">
+        <tr><th>Indicador</th><th>Dato</th><th>Contexto</th></tr>
+        <tr><td>Producción mundial de café</td><td class="td-val">~170 M sacos/año</td><td>Arabica 60%, Robusta 40% (ICO 2024)</td></tr>
+        <tr><td>Colombia: producción anual</td><td class="td-val">~14 M sacos/año</td><td>3er productor mundial (tras Brasil y Vietnam)</td></tr>
+        <tr><td>Precio café arábica (C-Market)</td><td class="td-val">$2.20–2.80/lb</td><td>Bolsa de Nueva York, mayo 2026. Histórico alto.</td></tr>
+        <tr><td>Prima café premium / especialidad</td><td class="td-val">+$0.30–1.80/lb</td><td>Sobre el precio C-Market, según certificación</td></tr>
+        <tr><td>Prima Rainforest Alliance</td><td class="td-val">+$0.10–0.25/lb</td><td>Certificación de sostenibilidad más extendida</td></tr>
+        <tr><td>Prima Fairtrade</td><td class="td-val">Precio mínimo $1.80/lb</td><td>+ prima social $0.20/lb para la cooperativa</td></tr>
+        <tr><td>Consumo café en la UE</td><td class="td-val">~45 M sacos/año</td><td>Mayor importador mundial (ICO 2024)</td></tr>
+        <tr><td>% café en UE con certificación sostenible</td><td class="td-val">~28% (2024)</td><td>Subiendo 3-4% anual. Meta 2030: 50%</td></tr>
+        <tr><td>Coste trazabilidad EUDR por finca (estimado)</td><td class="td-val">$80–150/finca</td><td>Visita técnica, GPS, documentación, plataforma</td></tr>
+        <tr><td>Plataformas trazabilidad disponibles</td><td class="td-val">5–7 en mercado</td><td>Transparency One, Sourcemap, TrusTrace, etc. Precios variables.</td></tr>
+      </table>
+
+      <div class="highlight-box teal">
+        <div class="highlight-title">El contexto de precios — una doble presión</div>
+        <p>El precio del café arábica en el C-Market está en máximos históricos (~$2.50/lb en mayo 2026). Esto es favorable para los productores, pero también eleva el coste de compra de CAFECOL. <strong>Al mismo tiempo, la EUDR añade costes de cumplimiento de $2,5–4M en 6 meses.</strong> La rentabilidad se comprime por los dos lados: más coste de materia prima + coste de cumplimiento regulatorio.</p>
+      </div>
+    </div>
+
+    <div class="rule"></div>
+
+    <!-- 4. COMPETIDORES -->
+    <div class="section-block">
+      <div class="section-label">04 — Panorama competitivo: otros exportadores de café que venden en Europa</div>
+      <div class="comp-grid">
+        <div class="comp-card">
+          <div class="comp-name">Exportadores brasileños (COOXUPÉ, Olam)</div>
+          <div class="comp-country">🇧🇷 Brasil</div>
+          <div><span class="comp-badge amber">Gran escala, avanzando en EUDR</span></div>
+          <div class="comp-desc">Brasil es el mayor productor mundial. Sus grandes cooperativas ya tienen sistemas de trazabilidad GPS para la mayoría de fincas. Café Arabica y Robusta. Ventaja en precio y escala. Desventaja en calidad premium vs. Colombia. Ya han invertido fuertemente en cumplimiento EUDR.</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name">Federación Nacional de Cafeteros (FNC)</div>
+          <div class="comp-country">🇨🇴 Colombia</div>
+          <div><span class="comp-badge green">Competidor directo con ventajas</span></div>
+          <div class="comp-desc">La FNC ya tiene sistemas de trazabilidad implementados para muchas de sus cooperativas. La marca "Café de Colombia" tiene reconocimiento global. Tiene financiación pública y apoyo institucional para EUDR. CAFECOL compite directamente con ella por los mismos compradores europeos.</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name">Volcafe / ED&F Man (multinacional)</div>
+          <div class="comp-country">🌍 Multinacional</div>
+          <div><span class="comp-badge green">Trazabilidad avanzada</span></div>
+          <div class="comp-desc">Trader global con operaciones en 30+ países. Ya tiene plataformas propietarias de trazabilidad. Puede ofrecer café de múltiples orígenes según las necesidades del comprador europeo. Recursos para el cumplimiento EUDR muy superiores a CAFECOL.</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name">Exportadores etiopes / kenianos</div>
+          <div class="comp-country">🇪🇹 🇰🇪 África Oriental</div>
+          <div><span class="comp-badge amber">Café especialidad, EUDR compleja</span></div>
+          <div class="comp-desc">Café de especialidad reconocido globalmente. Compiten en el segmento premium. También afectados por EUDR (aunque zonas de cultivo difieren). Menor amenaza de deforestación en algunas zonas, lo que simplifica el cumplimiento. Mercado de tostadores artesanales europeos.</div>
+        </tr>
+        <div class="comp-card">
+          <div class="comp-name">Café certificado Fairtrade / orgánico</div>
+          <div class="comp-country">🌍 Múltiples orígenes</div>
+          <div><span class="comp-badge green">Sustituto premium sostenible</span></div>
+          <div class="comp-desc">Si CAFECOL no certifica a tiempo, los compradores europeos pueden sustituir su café por orígenes que YA tienen certificación Fairtrade u orgánica, que ya implica cierta trazabilidad. Es un sustituto funcional con prima de precio aceptable para el comprador.</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name">Startups de café con trazabilidad blockchain</div>
+          <div class="comp-country">🌍 Emergentes</div>
+          <div><span class="comp-badge amber">Nicho sostenible, crecimiento rápido</span></div>
+          <div class="comp-desc">Empresas como Bext360, Moyee Coffee o Atomo que usan trazabilidad blockchain y venta directa a tostadores. Escala pequeña hoy, pero capturan el segmento de compradores que quieren transparencia total. Amenazan el modelo de intermediario de CAFECOL a largo plazo.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rule"></div>
+
+    <!-- 5. PROVEEDORES -->
+    <div class="section-block">
+      <div class="section-label">05 — Red de proveedores: las 12.000 fincas cafeteras</div>
+      <p class="body-text">La red de proveedores de CAFECOL es su activo más valioso y su mayor vulnerabilidad ante la EUDR. A diferencia de un proveedor industrial, los 12.000 caficultores son familias independientes con las que CAFECOL tiene relaciones de compraventa, no contratos de suministro formal en la mayoría de casos.</p>
+
+      <div class="two-col">
+        <div>
+          <table class="data-table">
+            <tr><th>Segmento de fincas</th><th>Nº fincas</th><th>Situación EUDR</th></tr>
+            <tr><td>Grandes (>10 ha)</td><td class="td-val">~600</td><td style="color:#2A7A6F;font-size:0.77rem;">Más fácil de geolocalizar. ~40% ya georreferenciadas.</td></tr>
+            <tr><td>Medianas (5–10 ha)</td><td class="td-val">~3.600</td><td style="color:#C08A1E;font-size:0.77rem;">Proceso en curso. Requiere visitas técnicas.</td></tr>
+            <tr><td>Pequeñas (1–4 ha)</td><td class="td-val">~7.800</td><td style="color:#B84A1E;font-size:0.77rem;">Reto principal. Muchas sin smartphone ni docs formales.</td></tr>
+          </table>
+        </div>
+        <div class="highlight-box" style="margin:0;">
+          <div class="highlight-title">¿Por qué es tan difícil certificar las 12.000 fincas?</div>
+          <p><strong>Conectividad:</strong> el 40% de las fincas pequeñas no tiene cobertura móvil estable. Se necesitan técnicos con GPS portátil.</p>
+          <p><strong>Documentación:</strong> muchos propietarios no tienen escritura formal de su parcela; solo posesión de hecho.</p>
+          <p><strong>Lealtad:</strong> CAFECOL no tiene contratos exclusivos con la mayoría de caficultores. Si el proceso es engorroso, pueden vender a otra empresa.</p>
+        </div>
+      </div>
+
+      <div class="highlight-box teal" style="margin-top:0.8rem;">
+        <div class="highlight-title">Coste del proceso de certificación EUDR — estimación CAFECOL</div>
+        <p><strong>Geolocalización GPS + visita técnica:</strong> 12.000 fincas × $100 promedio = <strong>$1,2M</strong></p>
+        <p><strong>Plataforma de trazabilidad digital (suscripción anual):</strong> <strong>$180.000–350.000/año</strong></p>
+        <p><strong>Equipo técnico de campo (30 técnicos × 6 meses):</strong> <strong>~$450.000</strong></p>
+        <p><strong>Documentación legal y auditorías:</strong> <strong>~$300.000</strong></p>
+        <p>Total estimado: <strong>$2,1M–2,3M</strong> solo para cumplimiento básico EUDR. El margen operativo de CAFECOL es ~$18M/año.</p>
+      </div>
+    </div>
+
+    <div class="rule"></div>
+
+    <!-- 6. CLIENTES -->
+    <div class="section-block">
+      <div class="section-label">06 — Perfil de clientes europeos y exigencias de sostenibilidad</div>
+      <table class="data-table">
+        <tr><th>Cliente</th><th>País</th><th>Volumen</th><th>Exigencias sostenibilidad</th><th>Situación actual</th></tr>
+        <tr>
+          <td>Rösterei Hamburg GmbH (tostador)</td>
+          <td>🇩🇪 Alemania</td>
+          <td class="td-val">~18.000 sacos/año</td>
+          <td>EUDR + Rainforest Alliance</td>
+          <td style="font-size:0.78rem;color:#B84A1E;">Ha comunicado que solo comprará café con DDD EUDR válida desde enero 2025. Pidiendo también certificación RA.</td>
+        </tr>
+        <tr>
+          <td>JDE Peet's (distribuidor)</td>
+          <td>🇳🇱 Países Bajos</td>
+          <td class="td-val">~42.000 sacos/año</td>
+          <td>EUDR + política propia Net Positive Coffee</td>
+          <td style="font-size:0.78rem;color:#C08A1E;">Acepta lotes sin DDD hasta junio 2025 (prórroga interna). A partir de julio 2025, solo compra con DDD. Tiene proveedores alternativos en Brasil listos.</td>
+        </tr>
+        <tr>
+          <td>Caffè Italico (tostador premium)</td>
+          <td>🇮🇹 Italia</td>
+          <td class="td-val">~9.500 sacos/año</td>
+          <td>EUDR + certificación orgánica preferida</td>
+          <td style="font-size:0.78rem;color:#2A7A6F;">Valora mucho el origen Huila/Nariño. Dispuesto a esperar 4–5 meses para DDD si CAFECOL da garantías del proceso en curso.</td>
+        </tr>
+        <tr>
+          <td>Lidl European Sourcing</td>
+          <td>🇩🇪 Alemania</td>
+          <td class="td-val">~55.000 sacos/año</td>
+          <td>EUDR + Rainforest Alliance obligatorio</td>
+          <td style="font-size:0.78rem;color:#B84A1E;">Contrato suspendido preventivamente desde enero 2025 hasta que CAFECOL certifique. Ha solicitado plan con hitos concretos.</td>
+        </tr>
+        <tr>
+          <td>Café Direct España</td>
+          <td>🇪🇸 España</td>
+          <td class="td-val">~6.000 sacos/año</td>
+          <td>Fairtrade + EUDR</td>
+          <td style="font-size:0.78rem;color:#2A7A6F;">Volumen menor. Comprador fiel con relación de 12 años. Acepta plan de certificación gradual. Paga prima Fairtrade si se certifica.</td>
+        </tr>
+      </table>
+
+      <div class="highlight-box">
+        <div class="highlight-title">Lo que dicen los números sobre el poder de los compradores</div>
+        <p>Dos clientes (Lidl + JDE Peet's) representan el <strong>75% de las ventas europeas</strong>. Ambos tienen EUDR como requisito no negociable y alternativas de suministro disponibles (Brasil ya certificado). Los clientes no solo tienen poder de negociación: tienen <strong>obligación legal</strong> de exigir DDD, lo que hace la presión no discrecional.</p>
+      </div>
+    </div>
+
+    <div class="rule"></div>
+
+    <!-- 7. FINANCIERO -->
+    <div class="section-block">
+      <div class="section-label">07 — Situación financiera</div>
+      <div class="two-col">
+        <div>
+          <div class="fin-row"><span class="fin-label">Facturación anual</span><span class="fin-val">$180M</span></div>
+          <div class="fin-row"><span class="fin-label">Margen operativo</span><span class="fin-val pos">$18M (10%)</span></div>
+          <div class="fin-row"><span class="fin-label">Deuda financiera</span><span class="fin-val neg">$22M</span></div>
+          <div class="fin-row"><span class="fin-label">Ratio deuda/EBITDA</span><span class="fin-val neutral">1,2x (moderado)</span></div>
+          <div class="fin-row"><span class="fin-label">Coste estimado EUDR (6 meses)</span><span class="fin-val neg">$2,1–2,3M</span></div>
+          <div class="fin-row"><span class="fin-label">Ingresos en riesgo (Lidl suspendido)</span><span class="fin-val neg">~$42M/año</span></div>
+        </div>
+        <div class="highlight-box" style="margin:0;">
+          <div class="highlight-title">La cuenta del coste de la inacción</div>
+          <p>Si Lidl y JDE Peet's no renuevan sus contratos, CAFECOL pierde $97M en ventas europeas anuales (~75% de sus ventas en Europa). Su margen de $18M no cubre ni un trimestre de esa pérdida. <strong>La inacción en EUDR no es una opción financieramente viable.</strong></p>
+          <p>El coste de cumplimiento (~$2,3M) es solo el 12,7% del margen anual: doloroso pero absorbible si se hace con rapidez.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="rule"></div>
+
+    <!-- 8. TIMELINE -->
+    <div class="section-block">
+      <div class="section-label">08 — Línea de tiempo crítica</div>
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-dot done">2023</div>
+          <div class="tl-content">
+            <div class="tl-date">Jun. 2023</div>
+            <div class="tl-event">Aprobación del Reglamento EUDR. Fecha de corte de deforestación: <strong>31 diciembre 2020</strong>. Las parcelas con deforestación posterior a esa fecha no pueden proveer café a Europa.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot urgent">HOY</div>
+          <div class="tl-content">
+            <div class="tl-date">Enero 2025 — en vigor (prórroga hasta dic. 2025 para PYMES)</div>
+            <div class="tl-event">EUDR plena vigencia para grandes operadores. <strong>CAFECOL tiene volumen que lo clasifica como "gran operador"</strong>. La prórroga para PYMES no aplica automáticamente. Lidl ha suspendido el contrato; JDE Peet's ha dado prórroga interna hasta julio 2025.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot urgent">-3m</div>
+          <div class="tl-content">
+            <div class="tl-date">Jul. 2025 (plazo JDE Peet's)</div>
+            <div class="tl-event">JDE Peet's exige DDD EUDR válida para seguir comprando. Son 42.000 sacos/año, el <strong>segundo mayor cliente</strong>. Sin certificación, se activa cláusula de sustitución de proveedor.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot urgent">+6m</div>
+          <div class="tl-content">
+            <div class="tl-date">Dic. 2025 — nueva prórroga vence</div>
+            <div class="tl-event">La prórroga general de la EUDR para PYMES vence. Ningún exportador puede vender café a la UE sin DDD válida. <strong>Las 12.000 fincas deben estar certificadas o CAFECOL pierde el 72% de su facturación.</strong></div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot">2026</div>
+          <div class="tl-content">
+            <div class="tl-date">2026 en adelante</div>
+            <div class="tl-event">CSRD de tostadores y distribuidores europeos genera exigencias adicionales: huella de carbono del cultivo, bienestar de productores, datos de agua. El cumplimiento EUDR será solo el primer peldaño de una escalera de exigencias creciente.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rule"></div>
+
+    <!-- 9. CANVAS -->
+    <div class="section-block">
+      <div class="section-label">09 — Datos para el Business Model Canvas</div>
+      <p class="body-text">Los datos siguientes describen el modelo de negocio <em>actual</em> de CAFECOL. Usadlos para rellenar los bloques del Canvas en el simulador. <strong>Recordad que el Canvas describe el modelo actual, no el ideal.</strong></p>
+
+      <table class="data-table">
+        <tr><th>Bloque Canvas</th><th>Descripción (modelo actual)</th></tr>
+        <tr>
+          <td>Socios Clave</td>
+          <td>12.000 familias cafeteras (proveedores clave, sin contratos de exclusividad). Cooperativas locales (intermediaría la compra en zonas remotas). Empresa de certificación Rainforest Alliance (solo parte de la red). Transitarios y agentes aduaneros exportación. Planta de trilla y proceso en Bogotá (propia o subcontratada). Certificadoras EUDR (incipiente, en proceso de contratación).</td>
+        </tr>
+        <tr>
+          <td>Actividades Clave</td>
+          <td>Compra y selección de café en origen. Control de calidad (catación, clasificación por defectos). Procesado (trilla, clasificación, empaquetado). Gestión de la cadena logística de exportación. Relaciones con compradores europeos (negociación de contratos y precio). Gestión de certificaciones (Rainforest, Fairtrade, orgánico en proceso). <em>Nuevo: certificación EUDR en curso (gestión campo, plataforma digital).</em></td>
+        </tr>
+        <tr>
+          <td>Recursos Clave</td>
+          <td>Red de 12.000 caficultores en zonas de origen premium (Huila, Nariño, Cauca, Antioquia). Know-how de selección y catación. Contratos con compradores europeos (algunos de largo plazo). Planta de procesado en Bogotá. Equipo técnico de campo (actualmente ~15 técnicos). Marca de calidad Colombia. <em>Nuevo: plataforma de trazabilidad GPS (en implementación).</em></td>
+        </tr>
+        <tr>
+          <td>Propuesta de Valor</td>
+          <td>Café premium colombiano de origen reconocido (Huila, Nariño). Variedad, proceso y perfil sensorial diferenciado. Trazabilidad a finca (parcial, en proceso de completarse para EUDR). Certificación de calidad. Capacidad de suministro de volúmenes significativos con consistencia. <em>La propuesta de valor de sostenibilidad está incompleta: EUDR en proceso, Rainforest Alliance solo en parte de la red.</em></td>
+        </tr>
+        <tr>
+          <td>Relación con Clientes</td>
+          <td>Contratos de suministro anuales o de campaña con grandes compradores (JDE Peet's, Lidl). Relaciones personales de largo plazo con tostadores medianos (Caffè Italico, Café Direct). Comunicación directa vía gerentes comerciales. Sin plataforma digital de cliente. Negociación de precio vinculada al C-Market + prima por calidad.</td>
+        </tr>
+        <tr>
+          <td>Canales</td>
+          <td>Venta directa a importadores y tostadores europeos (mayoría del volumen). Ferias del sector (SCA, World Coffee Expo). Agentes comerciales en Europa (para nuevos mercados). Participación en programas de origen de tostadores premium (visitas a finca, storytelling de productor). Sin canal digital de venta directo al consumidor.</td>
+        </tr>
+        <tr>
+          <td>Segmentos de Clientes</td>
+          <td>Grandes distribuidores europeos (Lidl, JDE Peet's): volumen, precio competitivo. Tostadores medianos premium (Rösterei Hamburg, Caffè Italico): calidad, origen, historia. Tostadores de especialidad: menor volumen, mayor prima. Mercado norteamericano (28%): importadores especializados. <em>CAFECOL sirve segmentos distintos con necesidades distintas.</em></td>
+        </tr>
+        <tr>
+          <td>Estructura de Costes</td>
+          <td>Precio de compra del café a caficultores (~60–65% del coste total, vinculado al C-Market). Procesado y trilla (~8%). Mano de obra campo y técnicos (~7%). Certificaciones y auditorías (~3%). Logística de exportación y flete marítimo (~9%). Costes comerciales y administrativos (~8%). <em>Nuevo: coste de cumplimiento EUDR (~$2,3M a amortizar en 2025).</em></td>
+        </tr>
+        <tr>
+          <td>Fuentes de Ingreso</td>
+          <td>Venta de café exportado por saco de 60kg (precio: C-Market + prima de calidad). Contratos de precio fijo campaña con grandes compradores. Precio spot con tostadores de especialidad (mayor prima). Sin ingresos por servicios adicionales de trazabilidad o datos. <em>Potencial no explotado: certificaciones (Fairtrade, orgánico) podrían añadir $0,10–1,80/lb adicional en ingresos.</em></td>
+        </tr>
+      </table>
+    </div>
+
+  </div><!-- /co-body -->
+
+  <div class="co-footer">
+    <span>☕ CAFECOL EXPORT S.A. · Dossier de análisis estratégico</span>
+    <span style="font-family:'DM Mono',monospace;font-size:0.62rem;">SimuLab · USAL 2026 · Bloque 4</span>
+  </div>
+
+</div><!-- /co-section cafecol -->
+
+<!-- FOOTER -->
+<div class="doc-footer">
+  <strong style="color:var(--rust);">SimuLab</strong> · Taller de Estrategia Aplicada — Bloque 4<br>
+  Prof. Jorge Matías-Pereda · Departamento de Administración y Economía de la Empresa · Universidad de Salamanca · 2026<br>
+  <span style="font-size:0.65rem;margin-top:0.3rem;display:block;">Los datos de empresas y cifras de este documento son realistas y basados en fuentes públicas del sector. Están adaptados con fines pedagógicos.</span>
+</div>
+
+</div><!-- /main -->
+
+</body>
+</html>
