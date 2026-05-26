@@ -1,0 +1,1907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SimuLab-AI · Organizational Simulation Platform</title>
+<meta name="description" content="A simulation platform where leadership teams rehearse decisions, conflicts, negotiations and strategic moves under pressure — on scenarios calibrated to their own organization.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper:        #f6f1e8;
+  --paper-2:      #fbf8f1;
+  --paper-soft:   #efe9dd;
+  --ink:          #1a1612;
+  --ink-soft:     #2c2620;
+  --text-2:       #5a534a;
+  --text-3:       #8a8276;
+  --rule:         #d9d0bf;
+  --rule-2:       #c8bda6;
+  --cinnabar:     #c8541f;
+  --cinnabar-2:   #b54a18;
+  --cinnabar-3:   #d96531;
+  --dark-bg:      #1a1612;
+  --dark-bg-2:    #221d18;
+  --dark-bg-3:    #2c2620;
+  --dark-text:    #ede4d3;
+  --dark-text-2:  #c4baa8;
+  --dark-text-3:  #8a8276;
+  --dark-rule:    #3a3328;
+  --dark-rule-2:  #4a4232;
+  --font-display: 'Instrument Serif', 'Times New Roman', serif;
+  --font-body:    'Inter Tight', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+*::selection { background: var(--cinnabar); color: var(--paper); }
+html { scroll-behavior: smooth; }
+html, body {
+  background: var(--paper); color: var(--ink);
+  font-family: var(--font-body); font-weight: 400; font-size: 16px;
+  line-height: 1.6; -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility; overflow-x: hidden;
+}
+body::before {
+  content: ''; position: fixed; inset: 0;
+  pointer-events: none; z-index: 1000; opacity: 0.035;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  mix-blend-mode: multiply;
+}
+img { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: 0; background: none; color: inherit; }
+
+/* ═══════════ NAV ═══════════ */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 18px 48px;
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink);
+  transition: background 300ms, backdrop-filter 300ms, border-color 300ms, color 300ms;
+  border-bottom: 1px solid transparent;
+}
+.nav.scrolled { background: rgba(246, 241, 232, 0.86); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom-color: var(--rule); }
+.nav.on-dark { color: var(--dark-text); }
+.nav.on-dark.scrolled { background: rgba(26, 22, 18, 0.84); border-bottom-color: var(--dark-rule); }
+.nav-brand { display: flex; align-items: center; gap: 10px; }
+.nav-dot { width: 6px; height: 6px; background: var(--cinnabar); border-radius: 50%; }
+.nav-right { display: flex; gap: 24px; align-items: center; }
+.nav-links { display: flex; gap: 22px; }
+.nav-links a { color: var(--text-2); transition: color 200ms; }
+.nav-links a:hover { color: var(--ink); }
+.nav.on-dark .nav-links a { color: var(--dark-text-2); }
+.nav.on-dark .nav-links a:hover { color: var(--dark-text); }
+.lang-toggle { display: flex; gap: 3px; align-items: center;
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.18em;
+  border: 1px solid var(--rule-2); border-radius: 2px; padding: 5px 8px; }
+.nav.on-dark .lang-toggle { border-color: var(--dark-rule-2); }
+.lang-btn { color: var(--text-3); padding: 0 4px; transition: color 200ms; }
+.lang-btn.active { color: var(--cinnabar); }
+.lang-btn:hover { color: var(--ink); }
+.nav.on-dark .lang-btn { color: var(--dark-text-3); }
+.nav.on-dark .lang-btn.active { color: var(--cinnabar-3); }
+.nav.on-dark .lang-btn:hover { color: var(--dark-text); }
+.lang-sep { color: var(--text-3); }
+.nav.on-dark .lang-sep { color: var(--dark-text-3); }
+.nav-cta {
+  padding: 8px 14px; border: 1px solid var(--cinnabar);
+  border-radius: 2px; color: var(--cinnabar) !important;
+  background: transparent; transition: all 200ms;
+}
+.nav-cta:hover { background: var(--cinnabar); color: var(--paper) !important; }
+.nav.on-dark .nav-cta { color: var(--cinnabar-3) !important; border-color: var(--cinnabar-3); }
+.nav.on-dark .nav-cta:hover { background: var(--cinnabar); color: var(--dark-text) !important; border-color: var(--cinnabar); }
+
+/* ═══════════ COMMON ═══════════ */
+.btn {
+  font-family: var(--font-body); font-size: 14px; font-weight: 500;
+  padding: 14px 24px; border-radius: 2px; letter-spacing: -0.005em;
+  transition: all 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  display: inline-block; border: 0;
+}
+.btn-primary { background: var(--cinnabar); color: var(--paper); }
+.btn-primary:hover { background: var(--cinnabar-2); transform: translateY(-1px); }
+.btn-ghost { background: transparent; color: var(--ink); border: 1px solid var(--rule-2); }
+.btn-ghost:hover { border-color: var(--ink); }
+.on-dark .btn-ghost, .dark-section .btn-ghost { color: var(--dark-text); border-color: var(--dark-rule-2); }
+.on-dark .btn-ghost:hover, .dark-section .btn-ghost:hover { border-color: var(--dark-text-2); }
+
+.reveal { opacity: 0; transform: translateY(22px);
+  transition: opacity 950ms cubic-bezier(0.2, 0.8, 0.2, 1), transform 950ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-d-1 { transition-delay: 100ms; }
+.reveal-d-2 { transition-delay: 220ms; }
+.reveal-d-3 { transition-delay: 340ms; }
+.reveal-d-4 { transition-delay: 460ms; }
+.reveal-d-5 { transition-delay: 580ms; }
+
+.kicker {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--cinnabar); letter-spacing: 0.2em; font-weight: 500;
+  text-transform: uppercase; margin-bottom: 24px; display: block;
+}
+.title {
+  font-family: var(--font-display); font-weight: 400;
+  font-size: clamp(44px, 5.8vw, 88px); line-height: 1;
+  letter-spacing: -0.024em; color: var(--ink);
+  margin-bottom: 40px; max-width: 18ch;
+}
+.title em { font-style: italic; }
+.title .dot { color: var(--cinnabar); }
+.lede {
+  font-size: 20px; line-height: 1.5; color: var(--text-2);
+  max-width: 64ch; font-weight: 300; margin-bottom: 48px;
+  letter-spacing: -0.003em;
+}
+.prose {
+  font-size: 17px; line-height: 1.75; color: var(--text-2); max-width: 64ch;
+}
+.prose + .prose { margin-top: 22px; }
+.prose em {
+  font-family: var(--font-display); font-style: italic;
+  color: var(--ink); font-size: 19px; letter-spacing: -0.01em;
+}
+.dark-section { background: var(--dark-bg); color: var(--dark-text); }
+.dark-section .title { color: var(--dark-text); }
+.dark-section .lede { color: var(--dark-text-2); }
+.dark-section .prose { color: var(--dark-text-2); }
+.dark-section .prose em { color: var(--dark-text); }
+.dark-section .kicker { color: var(--cinnabar-3); }
+
+/* ═══════════ HERO ═══════════ */
+.hero { position: relative; min-height: 100vh; display: flex; align-items: flex-end; overflow: hidden; }
+.hero-bg { position: absolute; inset: -10% 0; z-index: 1; will-change: transform; }
+.hero-bg img { width: 100%; height: 100%; object-fit: cover;
+  filter: contrast(1.04) saturate(0.95) brightness(0.66); }
+.hero-overlay { position: absolute; inset: 0; z-index: 2;
+  background:
+    linear-gradient(180deg, rgba(26,22,18,0.5) 0%, rgba(26,22,18,0.2) 35%, rgba(26,22,18,0.7) 75%, rgba(26,22,18,0.95) 100%),
+    radial-gradient(ellipse at 30% 70%, rgba(200, 84, 31, 0.06), transparent 60%);
+}
+.hero-content {
+  position: relative; z-index: 3; width: 100%;
+  padding: 0 64px 96px; max-width: 1400px; margin: 0 auto;
+}
+.hero-kicker {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--cinnabar-3); text-transform: uppercase;
+  letter-spacing: 0.22em; font-weight: 500; margin-bottom: 28px;
+  opacity: 0; animation: fadeUp 900ms cubic-bezier(0.2, 0.8, 0.2, 1) 300ms forwards;
+}
+.hero-headline {
+  font-family: var(--font-display); font-weight: 400;
+  font-size: clamp(58px, 8vw, 132px); line-height: 0.94;
+  letter-spacing: -0.028em; color: var(--dark-text);
+  margin-bottom: 32px; max-width: 18ch;
+  opacity: 0; animation: fadeUp 1100ms cubic-bezier(0.2, 0.8, 0.2, 1) 500ms forwards;
+}
+.hero-headline em { font-style: italic; }
+.hero-headline .dot { color: var(--cinnabar); }
+.hero-lede {
+  font-size: clamp(18px, 1.5vw, 22px); line-height: 1.45;
+  color: var(--dark-text-2); max-width: 60ch;
+  font-weight: 300; margin-bottom: 44px;
+  opacity: 0; animation: fadeUp 900ms cubic-bezier(0.2, 0.8, 0.2, 1) 750ms forwards;
+}
+.hero-actions {
+  display: flex; gap: 14px; align-items: center; flex-wrap: wrap;
+  opacity: 0; animation: fadeUp 900ms cubic-bezier(0.2, 0.8, 0.2, 1) 950ms forwards;
+}
+.hero-scroll {
+  position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); z-index: 3;
+  font-family: var(--font-mono); font-size: 10px; text-transform: uppercase;
+  letter-spacing: 0.22em; color: var(--dark-text-3);
+  opacity: 0; animation: fadeIn 1000ms 1300ms forwards;
+}
+.hero-scroll::after {
+  content: ''; display: block; width: 1px; height: 28px;
+  background: var(--dark-text-3); margin: 14px auto 0;
+  animation: scrollLine 2.4s ease-in-out infinite;
+}
+@keyframes scrollLine {
+  0%, 100% { transform: scaleY(0.3); transform-origin: top; opacity: 0.4; }
+  50% { transform: scaleY(1); opacity: 1; }
+}
+
+/* ═══════════ SECTIONS ═══════════ */
+.section { padding: 140px 64px; max-width: 1280px; margin: 0 auto; position: relative; }
+.section-wide { max-width: 1400px; padding: 140px 64px; margin: 0 auto; position: relative; }
+.problem { padding: 160px 64px; max-width: 1100px; margin: 0 auto; }
+
+/* ═══════════ PLATFORM (4 STEPS) ═══════════ */
+.platform-wrap { background: var(--paper-soft); }
+.platform { padding: 140px 64px; max-width: 1280px; margin: 0 auto; }
+.platform-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 64px 80px; margin-top: 72px;
+}
+.step-num {
+  font-family: var(--font-display); font-size: 64px; line-height: 1;
+  color: var(--cinnabar); letter-spacing: -0.025em;
+  margin-bottom: 8px; font-variant-numeric: tabular-nums;
+}
+.step-tag {
+  font-family: var(--font-mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.22em;
+  color: var(--text-3); margin-bottom: 20px;
+}
+.step-title {
+  font-family: var(--font-display); font-size: 30px; line-height: 1.1;
+  letter-spacing: -0.015em; color: var(--ink); margin-bottom: 16px;
+}
+.step-text { font-size: 16px; line-height: 1.7; color: var(--text-2); max-width: 52ch; }
+
+/* ═══════════ WHAT THE PLATFORM DOES ═══════════ */
+.what-platform {
+  padding: 160px 64px; max-width: 1400px; margin: 0 auto;
+}
+.what-header {
+  display: grid; grid-template-columns: 1.4fr 1fr;
+  gap: 80px; align-items: end; margin-bottom: 72px;
+}
+.what-header-text {
+  font-size: 16px; line-height: 1.7;
+  color: var(--text-2); max-width: 48ch;
+}
+.what-sublabel {
+  font-family: var(--font-mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.22em;
+  color: var(--text-3); margin-bottom: 24px;
+  padding-bottom: 16px; border-bottom: 1px solid var(--rule);
+}
+.what-sublabel span { color: var(--cinnabar); margin-right: 8px; }
+
+.example-cards {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 24px; margin-bottom: 96px;
+}
+.example-card {
+  position: relative; overflow: hidden;
+  border-radius: 2px; padding: 32px 28px 28px;
+  min-height: 320px; display: flex; flex-direction: column;
+  transition: transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.example-card:hover { transform: translateY(-3px); }
+.example-card.dark { background: var(--dark-bg); color: var(--dark-text); }
+.example-card.light { background: var(--paper-soft); color: var(--ink); border: 1px solid var(--rule); }
+.example-card-tag {
+  font-family: var(--font-mono); font-size: 9px;
+  text-transform: uppercase; letter-spacing: 0.22em;
+  color: var(--cinnabar-3); margin-bottom: 18px; font-weight: 500;
+}
+.example-card.light .example-card-tag { color: var(--cinnabar); }
+.example-card-title {
+  font-family: var(--font-display); font-size: 32px;
+  line-height: 1.05; letter-spacing: -0.018em;
+  margin-bottom: 14px; max-width: 12ch;
+}
+.example-card-text {
+  font-size: 13px; line-height: 1.55; opacity: 0.85;
+  margin-bottom: 24px; max-width: 30ch;
+}
+.example-card-cta {
+  font-family: var(--font-mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.18em;
+  padding: 10px 14px; border: 1px solid currentColor;
+  border-radius: 2px; opacity: 0.85;
+  display: inline-block; transition: all 200ms;
+  align-self: flex-start; margin-bottom: 28px;
+}
+.example-card-cta:hover { opacity: 1; background: rgba(200,84,31,0.1); border-color: var(--cinnabar); color: var(--cinnabar); }
+.example-card.dark .example-card-cta:hover { color: var(--cinnabar-3); border-color: var(--cinnabar-3); }
+.example-card-svg {
+  position: absolute; right: -20px; top: 40px;
+  width: 60%; height: 60%; opacity: 0.85;
+  pointer-events: none;
+}
+.example-card-bottom {
+  margin-top: auto; padding-top: 18px;
+  border-top: 1px solid;
+  border-color: var(--dark-rule);
+}
+.example-card.light .example-card-bottom { border-color: var(--rule); }
+.example-card-bottom-label {
+  font-family: var(--font-mono); font-size: 9px;
+  text-transform: uppercase; letter-spacing: 0.22em;
+  opacity: 0.6; margin-bottom: 10px;
+}
+.bar-row { display: flex; gap: 4px; }
+.bar { width: 22px; height: 6px; background: rgba(140, 130, 110, 0.3); }
+.bar.on { background: var(--cinnabar); }
+.example-card.light .bar { background: var(--rule-2); }
+.example-card.light .bar.on { background: var(--cinnabar); }
+
+/* Conceptual representations */
+.concept-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px;
+}
+.concept-block { }
+.concept-num {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--cinnabar); letter-spacing: 0.12em;
+  font-weight: 500; margin-bottom: 4px;
+}
+.concept-title {
+  font-family: var(--font-display); font-size: 24px;
+  line-height: 1.1; letter-spacing: -0.015em;
+  color: var(--ink); margin-bottom: 20px;
+}
+.concept-visual {
+  background: var(--paper-soft);
+  border: 1px solid var(--rule);
+  border-radius: 2px; padding: 20px;
+  margin-bottom: 20px;
+  min-height: 200px;
+  display: flex; align-items: center; justify-content: center;
+}
+.concept-text {
+  font-size: 13px; line-height: 1.6; color: var(--text-2);
+}
+
+/* ═══════════ PROOF BAND ═══════════ */
+.proof {
+  background: var(--dark-bg-2); padding: 96px 64px;
+  border-top: 1px solid var(--dark-rule);
+  border-bottom: 1px solid var(--dark-rule);
+}
+.proof-inner { max-width: 1280px; margin: 0 auto; }
+.proof-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  flex-wrap: wrap; gap: 24px; margin-bottom: 64px;
+}
+.proof-label {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--cinnabar-3); letter-spacing: 0.22em;
+  text-transform: uppercase; font-weight: 500;
+}
+.proof-headline {
+  font-family: var(--font-display); font-size: clamp(28px, 3vw, 40px);
+  line-height: 1.1; color: var(--dark-text);
+  letter-spacing: -0.015em; max-width: 50ch;
+}
+.proof-headline em { font-style: italic; }
+.proof-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 1px; background: var(--dark-rule);
+}
+.proof-cell {
+  background: var(--dark-bg-2);
+  padding: 36px 28px;
+}
+.proof-num {
+  font-family: var(--font-display); font-size: 56px;
+  line-height: 1; color: var(--cinnabar-3);
+  letter-spacing: -0.025em; margin-bottom: 8px;
+  font-variant-numeric: tabular-nums;
+}
+.proof-text {
+  font-size: 13px; line-height: 1.5; color: var(--dark-text-2);
+}
+
+/* ═══════════ CATALOG (5 FAMILIES) ═══════════ */
+.catalog { padding: 160px 64px; max-width: 1280px; margin: 0 auto; }
+.catalog-img { position: relative; overflow: hidden;
+  margin-top: 64px; margin-bottom: 80px;
+  border: 1px solid var(--rule); aspect-ratio: 21/9;
+}
+.catalog-img img { width: 100%; height: 100%; object-fit: cover;
+  filter: contrast(1.03) saturate(0.94); }
+
+.family { padding: 56px 0; border-top: 1px solid var(--rule); }
+.family:last-child { border-bottom: 1px solid var(--rule); }
+.family-header {
+  display: grid; grid-template-columns: 100px 1fr;
+  gap: 40px; margin-bottom: 32px;
+}
+.family-code {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--cinnabar); letter-spacing: 0.18em; font-weight: 500;
+  padding-top: 8px;
+}
+.family-name {
+  font-family: var(--font-display); font-size: 36px;
+  line-height: 1.1; letter-spacing: -0.018em; color: var(--ink);
+  margin-bottom: 14px;
+}
+.family-desc {
+  font-size: 16px; line-height: 1.6; color: var(--text-2);
+  max-width: 60ch;
+}
+.family-mods {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 24px; margin-left: 140px;
+}
+.module-card {
+  padding: 24px 22px;
+  border-left: 1px solid var(--rule);
+  transition: border-color 220ms;
+}
+.module-card:hover { border-color: var(--cinnabar); }
+.module-code {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-3); letter-spacing: 0.18em;
+  margin-bottom: 10px; font-weight: 500;
+}
+.module-name {
+  font-family: var(--font-display); font-size: 22px;
+  line-height: 1.15; color: var(--ink);
+  margin-bottom: 12px; letter-spacing: -0.015em;
+}
+.module-text {
+  font-size: 13px; line-height: 1.55; color: var(--text-2);
+  margin-bottom: 14px;
+}
+.module-meta {
+  font-family: var(--font-mono); font-size: 9px;
+  text-transform: uppercase; letter-spacing: 0.18em;
+  color: var(--text-3);
+}
+
+/* ═══════════ TWIN (DARK) ═══════════ */
+.twin-wrap { background: var(--dark-bg); }
+.twin { padding: 160px 0; max-width: 1400px; margin: 0 auto; }
+.twin-header, .twin-blocks, .twin-closer { padding: 0 64px; }
+.twin-header { max-width: 1100px; margin: 0 auto; }
+.twin-img-row { margin: 80px 0; padding: 0 64px; }
+.twin-img-row img { width: 100%; filter: contrast(1.05) saturate(0.95);
+  border: 1px solid var(--dark-rule); }
+.twin-blocks { max-width: 1280px; margin: 0 auto;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 60px; }
+.twin-block-label {
+  font-family: var(--font-mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.22em;
+  color: var(--cinnabar-3); margin-bottom: 18px;
+}
+.twin-block-title {
+  font-family: var(--font-display); font-size: 26px;
+  line-height: 1.15; letter-spacing: -0.018em;
+  color: var(--dark-text); margin-bottom: 18px;
+}
+.twin-block-text { font-size: 15px; line-height: 1.7; color: var(--dark-text-2); }
+.twin-closer { max-width: 1100px; margin: 100px auto 0;
+  border-top: 1px solid var(--dark-rule);
+  padding-top: 72px; text-align: center;
+}
+.twin-closer-text {
+  font-family: var(--font-display); font-style: italic;
+  font-size: clamp(28px, 3.5vw, 44px); line-height: 1.25;
+  letter-spacing: -0.015em; color: var(--dark-text);
+  max-width: 30ch; margin: 0 auto;
+}
+
+/* ═══════════ APPLICATIONS ═══════════ */
+.apps-wrap { background: var(--paper-soft); }
+.apps { padding: 160px 64px; max-width: 1400px; margin: 0 auto; }
+.apps-header { max-width: 1280px; margin: 0 auto; }
+.apps-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px;
+  margin-top: 80px; max-width: 1280px; margin-left: auto; margin-right: auto;
+}
+.app-card { background: var(--paper); border: 1px solid var(--rule); overflow: hidden;
+  transition: transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1), border-color 300ms;
+}
+.app-card:hover { transform: translateY(-4px); border-color: var(--cinnabar); }
+.app-img { width: 100%; height: 240px; overflow: hidden; position: relative; }
+.app-img img { width: 100%; height: 100%; object-fit: cover;
+  filter: contrast(1.03) saturate(0.92);
+  transition: transform 1200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.app-card:hover .app-img img { transform: scale(1.04); }
+.app-body { padding: 32px 32px 36px; }
+.app-tag {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--cinnabar); letter-spacing: 0.2em;
+  text-transform: uppercase; margin-bottom: 14px;
+}
+.app-title {
+  font-family: var(--font-display); font-size: 30px;
+  line-height: 1.1; letter-spacing: -0.018em;
+  color: var(--ink); margin-bottom: 16px;
+}
+.app-text { font-size: 15px; line-height: 1.7; color: var(--text-2); }
+
+/* ═══════════ ACADEMIC ═══════════ */
+.academic { padding: 160px 0; background: var(--paper); }
+.academic-inner {
+  max-width: 1280px; margin: 0 auto; padding: 0 64px;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 80px; align-items: center;
+}
+.academic-img { position: relative; overflow: hidden;
+  border: 1px solid var(--rule); aspect-ratio: 3/2;
+}
+.academic-img img { width: 100%; height: 100%; object-fit: cover;
+  filter: contrast(1.04) saturate(0.95);
+}
+.academic-quote {
+  font-family: var(--font-display); font-style: italic;
+  font-size: 24px; line-height: 1.35; color: var(--ink);
+  letter-spacing: -0.012em; margin: 32px 0 0;
+  padding-left: 24px; border-left: 2px solid var(--cinnabar);
+  max-width: 48ch;
+}
+
+/* ═══════════ TEAM ═══════════ */
+.team { padding: 160px 64px; max-width: 1100px; margin: 0 auto; }
+.team-prose {
+  font-size: 18px; line-height: 1.7; color: var(--text-2); max-width: 62ch;
+}
+.team-prose + .team-prose { margin-top: 22px; }
+.team-prose em {
+  font-family: var(--font-display); font-style: italic;
+  color: var(--ink); font-size: 20px; letter-spacing: -0.01em;
+}
+.team-pillars {
+  margin-top: 72px; padding-top: 48px;
+  border-top: 1px solid var(--rule);
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 40px 64px;
+}
+.pillar-label {
+  font-family: var(--font-mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.22em;
+  color: var(--cinnabar); margin-bottom: 12px;
+}
+.pillar-text { font-size: 16px; line-height: 1.65; color: var(--text-2); }
+.pillar-text strong { color: var(--ink); font-weight: 500; }
+
+/* ═══════════ TECH SPEC ═══════════ */
+.techspec-wrap { background: var(--paper-soft); border-top: 1px solid var(--rule); }
+.techspec { padding: 96px 64px; max-width: 1280px; margin: 0 auto; }
+.techspec-header { margin-bottom: 48px; }
+.techspec-label {
+  font-family: var(--font-mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.22em;
+  color: var(--text-3); margin-bottom: 12px;
+}
+.techspec-title {
+  font-family: var(--font-display); font-size: 28px;
+  line-height: 1.1; color: var(--ink);
+  letter-spacing: -0.015em; max-width: 40ch;
+}
+.techspec-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 32px; padding-top: 32px; border-top: 1px solid var(--rule);
+}
+.spec-label {
+  font-family: var(--font-mono); font-size: 9px;
+  text-transform: uppercase; letter-spacing: 0.2em;
+  color: var(--text-3); margin-bottom: 10px;
+}
+.spec-text { font-size: 13px; line-height: 1.55; color: var(--text-2); }
+.spec-text strong { color: var(--ink); font-weight: 500; }
+
+/* ═══════════ CTA FINAL ═══════════ */
+.cta-final {
+  position: relative; min-height: 80vh;
+  display: flex; align-items: center; overflow: hidden;
+}
+.cta-bg { position: absolute; inset: 0; z-index: 1; will-change: transform; }
+.cta-bg img { width: 100%; height: 100%; object-fit: cover;
+  filter: contrast(1.05) saturate(0.92) brightness(0.85); }
+.cta-overlay { position: absolute; inset: 0; z-index: 2;
+  background: linear-gradient(90deg, rgba(26,22,18,0.94) 0%, rgba(26,22,18,0.55) 55%, rgba(26,22,18,0.2) 100%);
+}
+.cta-content {
+  position: relative; z-index: 3;
+  padding: 120px 64px; max-width: 1280px; margin: 0 auto; width: 100%;
+}
+.cta-kicker {
+  font-family: var(--font-mono); font-size: 11px;
+  text-transform: uppercase; letter-spacing: 0.22em;
+  color: var(--cinnabar-3); margin-bottom: 28px; font-weight: 500;
+}
+.cta-headline {
+  font-family: var(--font-display); font-size: clamp(44px, 5.5vw, 80px);
+  line-height: 0.98; letter-spacing: -0.022em;
+  color: var(--dark-text); margin-bottom: 36px; max-width: 18ch;
+}
+.cta-headline em { font-style: italic; }
+.cta-headline .dot { color: var(--cinnabar); }
+.cta-text {
+  font-size: 19px; line-height: 1.5; color: var(--dark-text-2);
+  max-width: 54ch; margin-bottom: 48px; font-weight: 300;
+}
+.cta-actions { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+
+/* ═══════════ FOOTER ═══════════ */
+.footer { background: var(--dark-bg-2); color: var(--dark-text-2);
+  padding: 72px 64px 40px; border-top: 1px solid var(--dark-rule);
+}
+.footer-inner { max-width: 1280px; margin: 0 auto;
+  display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 64px;
+  padding-bottom: 56px; border-bottom: 1px solid var(--dark-rule);
+}
+.footer-brand h3 {
+  font-family: var(--font-display); font-size: 32px; line-height: 1;
+  color: var(--dark-text); margin-bottom: 8px;
+  font-weight: 400; letter-spacing: -0.015em;
+}
+.footer-brand p:first-of-type {
+  font-family: var(--font-mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.18em;
+  color: var(--cinnabar-3); margin-bottom: 18px;
+}
+.footer-brand p { font-size: 14px; color: var(--dark-text-2); max-width: 42ch; line-height: 1.6; }
+.footer-col h4 {
+  font-family: var(--font-mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.22em;
+  color: var(--dark-text-3); margin-bottom: 20px; font-weight: 500;
+}
+.footer-col ul { list-style: none; }
+.footer-col li { font-size: 13px; line-height: 2.05; color: var(--dark-text-2); }
+.footer-col li a { transition: color 200ms; }
+.footer-col li a:hover, .footer-col li button:hover { color: var(--cinnabar-3); }
+.footer-bottom { max-width: 1280px; margin: 28px auto 0;
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-family: var(--font-mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.18em; color: var(--dark-text-3);
+}
+
+/* ═══════════ KEYFRAMES ═══════════ */
+@keyframes fadeIn { to { opacity: 1; } }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════ RESPONSIVE ═══════════ */
+@media (max-width: 1024px) {
+  .nav { padding: 16px 24px; }
+  .nav-links { display: none; }
+  .hero-content, .section, .section-wide, .problem, .platform, .what-platform, .proof, .catalog, .twin-header, .twin-img-row, .twin-blocks, .twin-closer, .academic-inner, .apps, .team, .techspec, .cta-content, .footer { padding-left: 24px; padding-right: 24px; }
+  .platform-grid { grid-template-columns: 1fr; gap: 48px; }
+  .what-header { grid-template-columns: 1fr; gap: 32px; }
+  .example-cards { grid-template-columns: 1fr; }
+  .concept-grid { grid-template-columns: repeat(2, 1fr); gap: 40px; }
+  .proof-grid { grid-template-columns: repeat(2, 1fr); }
+  .family-mods { grid-template-columns: 1fr; margin-left: 0; }
+  .family-header { grid-template-columns: 1fr; gap: 16px; }
+  .twin-blocks { grid-template-columns: 1fr; gap: 48px; }
+  .academic-inner { grid-template-columns: 1fr; gap: 48px; }
+  .apps-grid { grid-template-columns: 1fr; }
+  .team-pillars { grid-template-columns: 1fr; gap: 32px; }
+  .techspec-grid { grid-template-columns: repeat(2, 1fr); }
+  .footer-inner { grid-template-columns: 1fr; gap: 40px; }
+  .footer-bottom { flex-direction: column; gap: 12px; align-items: flex-start; }
+}
+@media (max-width: 640px) {
+  .concept-grid { grid-template-columns: 1fr; }
+  .proof-grid { grid-template-columns: 1fr; }
+  .techspec-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ NAV ═══════════ -->
+<nav class="nav on-dark" id="nav">
+  <a href="#" class="nav-brand">
+    <span class="nav-dot"></span>
+    <span>SimuLab-AI</span>
+  </a>
+  <div class="nav-right">
+    <div class="nav-links">
+      <a href="#platform" data-i18n="nav.platform">Platform</a>
+      <a href="#catalog" data-i18n="nav.catalog">Catalog</a>
+      <a href="#twin" data-i18n="nav.twin">Twin</a>
+      <a href="#apps" data-i18n="nav.apps">Who uses it</a>
+    </div>
+    <div class="lang-toggle" role="group" aria-label="Language">
+      <button class="lang-btn active" data-lang="en">EN</button>
+      <span class="lang-sep">·</span>
+      <button class="lang-btn" data-lang="es">ES</button>
+    </div>
+    <a href="#cta" class="nav-cta" data-i18n="nav.cta">Request walkthrough</a>
+  </div>
+</nav>
+
+<!-- ═══════════ HERO ═══════════ -->
+<section class="hero">
+  <div class="hero-bg" id="heroBg"><img src="img/hero.jpg" alt=""></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-kicker" data-i18n="hero.kicker">SimuLab-AI · Organizational Simulation Platform</div>
+    <h1 class="hero-headline">
+      <em data-i18n="hero.h1.em">Train decisions</em><br>
+      <span data-i18n="hero.h1.rest">before reality demands them</span><span class="dot">.</span>
+    </h1>
+    <p class="hero-lede" data-i18n="hero.lede">A simulation platform where leadership teams rehearse decisions, conflicts, negotiations and strategic moves under pressure — on scenarios calibrated to their own organization. AI-driven characters. Live behavioral metrics. Expert-led preparation.</p>
+    <div class="hero-actions">
+      <a href="#cta" class="btn btn-primary" data-i18n="hero.cta1">Request a live walkthrough →</a>
+      <a href="#what" class="btn btn-ghost" data-i18n="hero.cta2">See the platform</a>
+    </div>
+  </div>
+  <div class="hero-scroll" data-i18n="hero.scroll">Scroll</div>
+</section>
+
+<!-- ═══════════ § 01 · THE PROBLEM ═══════════ -->
+<section class="problem" id="problem">
+  <span class="kicker reveal" data-i18n="prob.kicker">§ 01 · The problem</span>
+  <h2 class="title reveal reveal-d-1">
+    <span data-i18n="prob.t1">The most expensive decisions</span><br>
+    <em data-i18n="prob.t2">are made without rehearsal</em><span class="dot">.</span>
+  </h2>
+  <p class="prose reveal reveal-d-2" data-i18n="prob.p1">Critical organizational decisions — restructuring a team, closing a negotiation, entering a new market, defusing a conflict — get made once, in real time, with consequences that compound for years. Most leaders face them armed with theory they once memorized and never practiced.</p>
+  <p class="prose reveal reveal-d-3" data-i18n="prob.p2">Pilots don't fly that way. Surgeons don't operate that way. <em>Organizational decision-makers shouldn't either.</em></p>
+  <p class="prose reveal reveal-d-3" data-i18n="prob.p3">SimuLab-AI is a simulation environment where those decisions get rehearsed before they're made for real. AI-driven characters react. Behavioral metrics move. Consequences unfold. And the theoretical framework that explains each decision arrives in the moment, not before.</p>
+</section>
+
+<!-- ═══════════ § 02 · THE PLATFORM ═══════════ -->
+<div class="platform-wrap">
+<section class="platform" id="platform">
+  <span class="kicker reveal" data-i18n="plat.kicker">§ 02 · The platform</span>
+  <h2 class="title reveal reveal-d-1">
+    <span data-i18n="plat.t1">Four layers.</span><br>
+    <em data-i18n="plat.t2">One rehearsal system</em><span class="dot">.</span>
+  </h2>
+  <p class="lede reveal reveal-d-2" data-i18n="plat.lede">Every SimuLab-AI program combines four layers. Separately, they already exist in different industries. Together, they form a coherent rehearsal environment for organizational decisions.</p>
+
+  <div class="platform-grid">
+    <div class="reveal reveal-d-1">
+      <div class="step-num">01</div>
+      <div class="step-tag" data-i18n="plat.s1.tag">Foundation</div>
+      <h3 class="step-title" data-i18n="plat.s1.title">Expert-led preparation</h3>
+      <p class="step-text" data-i18n="plat.s1.text">Each simulator is preceded by hours of preparation delivered by senior professionals from the relevant field — negotiators, mediators, foreign trade operators, innovation leads, executives in active practice. Duration adjusts to the program, from four to twenty hours.</p>
+    </div>
+    <div class="reveal reveal-d-2">
+      <div class="step-num">02</div>
+      <div class="step-tag" data-i18n="plat.s2.tag">Practice</div>
+      <h3 class="step-title" data-i18n="plat.s2.title">Live simulation</h3>
+      <p class="step-text" data-i18n="plat.s2.text">The participant enters a calibrated scenario with characters, dynamic metrics and a running clock. AI-driven characters react in real time. Behavioral consequences become visible. The scenario evolves with every decision.</p>
+    </div>
+    <div class="reveal reveal-d-3">
+      <div class="step-num">03</div>
+      <div class="step-tag" data-i18n="plat.s3.tag">Feedback</div>
+      <h3 class="step-title" data-i18n="plat.s3.title">Behavioral analysis</h3>
+      <p class="step-text" data-i18n="plat.s3.text">After each decision the system returns the underlying decision logic, the precedent literature, and the second-order consequences. Not content to study. A mirror of what just happened, in the moment.</p>
+    </div>
+    <div class="reveal reveal-d-4">
+      <div class="step-num">04</div>
+      <div class="step-tag" data-i18n="plat.s4.tag">Intelligence</div>
+      <h3 class="step-title" data-i18n="plat.s4.title">Decision intelligence</h3>
+      <p class="step-text" data-i18n="plat.s4.text">Every decision is logged. Participants receive a personalized analytical report; the program owner receives an aggregated rubric across cohorts. Patterns of behavior, recurring blind spots, organizational dynamics become measurable.</p>
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- ═══════════ § 03 · WHAT THE PLATFORM DOES ═══════════ -->
+<section class="what-platform" id="what">
+  <div class="what-header">
+    <div class="reveal">
+      <span class="kicker" data-i18n="what.kicker">§ 03 · The platform</span>
+      <h2 class="title">
+        <span data-i18n="what.t1">A platform for complex</span><br>
+        <em data-i18n="what.t2">human decisions</em><span class="dot">.</span>
+      </h2>
+    </div>
+    <div class="what-header-text reveal reveal-d-2" data-i18n="what.intro">SimuLab-AI combines AI, behavioral simulation and evidence-based design to create living training environments. Not content. Not slides. Real dynamic systems that react to decisions, adapt to people and evolve over time.</div>
+  </div>
+
+  <div class="what-sublabel reveal"><span data-i18n="what.sublabel.span">Example categories</span> <span data-i18n="what.sublabel.text">— generic representations, not actual product screens</span></div>
+
+  <!-- THREE EXAMPLE CATEGORY CARDS -->
+  <div class="example-cards">
+
+    <!-- Card 1: Team Alignment (DARK) -->
+    <div class="example-card dark reveal">
+      <div class="example-card-tag" data-i18n="ex.c1.tag">Leadership & teams</div>
+      <h3 class="example-card-title" data-i18n="ex.c1.title">Team Alignment</h3>
+      <p class="example-card-text" data-i18n="ex.c1.text">Navigate tensions, build trust and lead teams through change.</p>
+      <a href="#catalog" class="example-card-cta" data-i18n="ex.c1.cta">Explore scenarios →</a>
+      <svg class="example-card-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <g stroke="rgba(196,186,168,0.25)" stroke-width="0.8" fill="none">
+          <line x1="60" y1="80" x2="110" y2="50"/>
+          <line x1="60" y1="80" x2="100" y2="120"/>
+          <line x1="110" y1="50" x2="160" y2="70"/>
+          <line x1="100" y1="120" x2="160" y2="70"/>
+          <line x1="100" y1="120" x2="80" y2="160"/>
+          <line x1="80" y1="160" x2="160" y2="140"/>
+          <line x1="160" y1="70" x2="160" y2="140"/>
+          <line x1="60" y1="80" x2="80" y2="160"/>
+        </g>
+        <circle cx="60" cy="80" r="6" fill="#8a8276"/>
+        <circle cx="110" cy="50" r="9" fill="#c8541f"/>
+        <circle cx="160" cy="70" r="5" fill="#c4baa8"/>
+        <circle cx="100" cy="120" r="11" fill="#c8541f" opacity="0.9"/>
+        <circle cx="160" cy="140" r="7" fill="#7d7468"/>
+        <circle cx="80" cy="160" r="5" fill="#a59a86"/>
+        <circle cx="135" cy="105" r="3" fill="#c8bda6" opacity="0.6"/>
+      </svg>
+      <div class="example-card-bottom">
+        <div class="example-card-bottom-label" data-i18n="ex.c1.metric">Scenario complexity</div>
+        <div class="bar-row">
+          <span class="bar on"></span><span class="bar on"></span><span class="bar on"></span>
+          <span class="bar on"></span><span class="bar on"></span><span class="bar"></span><span class="bar"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2: Market Entry (LIGHT) -->
+    <div class="example-card light reveal reveal-d-1">
+      <div class="example-card-tag" data-i18n="ex.c2.tag">Strategic decision-making</div>
+      <h3 class="example-card-title" data-i18n="ex.c2.title">Market Entry</h3>
+      <p class="example-card-text" data-i18n="ex.c2.text">Assess opportunities, rivals and risks in uncertain environments.</p>
+      <a href="#catalog" class="example-card-cta" data-i18n="ex.c2.cta">Explore scenarios →</a>
+      <svg class="example-card-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="115" cy="80" r="60" fill="none" stroke="#c4baa8" stroke-width="0.6" opacity="0.4"/>
+        <path d="M55 80 Q70 60 80 75 Q90 50 100 65 Q110 30 125 55 Q140 65 155 50 Q170 70 180 60" fill="none" stroke="#c4baa8" stroke-width="0.7" opacity="0.5"/>
+        <path d="M20 170 L40 130 L60 145 L85 100 L110 130 L140 90 L165 115 L195 95 L195 200 L20 200 Z" fill="#5a534a" opacity="0.55"/>
+        <path d="M20 180 L50 150 L70 165 L95 130 L120 150 L150 120 L175 140 L195 125 L195 200 L20 200 Z" fill="#3a3328" opacity="0.45"/>
+        <circle cx="85" cy="100" r="3" fill="#c8541f"/>
+        <text x="92" y="98" font-family="JetBrains Mono" font-size="11" fill="#1a1612">+12%</text>
+        <circle cx="120" cy="150" r="3" fill="#c8541f"/>
+        <text x="127" y="148" font-family="JetBrains Mono" font-size="11" fill="#1a1612">+7%</text>
+        <circle cx="175" cy="140" r="3" fill="#c8541f"/>
+        <text x="180" y="138" font-family="JetBrains Mono" font-size="11" fill="#1a1612">-3%</text>
+      </svg>
+      <div class="example-card-bottom">
+        <div class="example-card-bottom-label" data-i18n="ex.c2.metric">Uncertainty level</div>
+        <div class="bar-row">
+          <span class="bar on"></span><span class="bar on"></span><span class="bar on"></span>
+          <span class="bar on"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3: Business Model Evolution (DARK) -->
+    <div class="example-card dark reveal reveal-d-2">
+      <div class="example-card-tag" data-i18n="ex.c3.tag">Innovation & transformation</div>
+      <h3 class="example-card-title" data-i18n="ex.c3.title">Business Model Evolution</h3>
+      <p class="example-card-text" data-i18n="ex.c3.text">Experiment, learn and adapt your business model.</p>
+      <a href="#catalog" class="example-card-cta" data-i18n="ex.c3.cta">Explore scenarios →</a>
+      <svg class="example-card-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="100" cy="70" r="42" fill="none" stroke="#c4baa8" stroke-width="0.8" opacity="0.7"/>
+        <circle cx="75" cy="115" r="42" fill="none" stroke="#c4baa8" stroke-width="0.8" opacity="0.7"/>
+        <circle cx="125" cy="115" r="42" fill="none" stroke="#c4baa8" stroke-width="0.8" opacity="0.7"/>
+        <path d="M 100 73 A 42 42 0 0 1 122 105 A 42 42 0 0 1 78 105 A 42 42 0 0 1 100 73 Z" fill="#c8541f" opacity="0.65"/>
+        <text x="100" y="35" font-family="JetBrains Mono" font-size="8" fill="#c4baa8" text-anchor="middle" letter-spacing="1.5">TECHNOLOGY</text>
+        <text x="40" y="170" font-family="JetBrains Mono" font-size="8" fill="#c4baa8" text-anchor="middle" letter-spacing="1.5">CUSTOMER</text>
+        <text x="170" y="170" font-family="JetBrains Mono" font-size="8" fill="#c4baa8" text-anchor="middle" letter-spacing="1.5">VALUE</text>
+      </svg>
+      <div class="example-card-bottom">
+        <div class="example-card-bottom-label" data-i18n="ex.c3.metric">Adaptation potential</div>
+        <div class="bar-row">
+          <span class="bar on"></span><span class="bar on"></span><span class="bar on"></span>
+          <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="what-sublabel reveal" style="margin-top: 32px;"><span data-i18n="what.sublabel2.span">What the platform does</span> <span data-i18n="what.sublabel2.text">— conceptual representations</span></div>
+
+  <!-- FOUR CONCEPTUAL BLOCKS -->
+  <div class="concept-grid">
+
+    <!-- 01 Scenario in Progress -->
+    <div class="concept-block reveal">
+      <div class="concept-num">01</div>
+      <h3 class="concept-title" data-i18n="conc.01.title">Scenario in progress</h3>
+      <div class="concept-visual">
+        <svg viewBox="0 0 240 180" width="100%" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <g stroke="#c4baa8" stroke-width="0.6" stroke-dasharray="2,3" fill="none">
+            <line x1="60" y1="50" x2="120" y2="40"/>
+            <line x1="120" y1="40" x2="180" y2="60"/>
+            <line x1="180" y1="60" x2="160" y2="130"/>
+            <line x1="160" y1="130" x2="80" y2="130"/>
+            <line x1="80" y1="130" x2="60" y2="50"/>
+            <line x1="60" y1="50" x2="160" y2="130"/>
+            <line x1="120" y1="40" x2="80" y2="130"/>
+          </g>
+          <circle cx="60" cy="50" r="14" fill="#efe9dd" stroke="#8a8276" stroke-width="0.8"/>
+          <text x="60" y="54" font-family="Instrument Serif" font-size="10" fill="#5a534a" text-anchor="middle">A</text>
+          <circle cx="120" cy="40" r="14" fill="#efe9dd" stroke="#c8541f" stroke-width="1.2"/>
+          <text x="120" y="44" font-family="Instrument Serif" font-size="10" fill="#5a534a" text-anchor="middle">B</text>
+          <circle cx="180" cy="60" r="14" fill="#efe9dd" stroke="#8a8276" stroke-width="0.8"/>
+          <text x="180" y="64" font-family="Instrument Serif" font-size="10" fill="#5a534a" text-anchor="middle">C</text>
+          <circle cx="80" cy="130" r="14" fill="#efe9dd" stroke="#8a8276" stroke-width="0.8"/>
+          <text x="80" y="134" font-family="Instrument Serif" font-size="10" fill="#5a534a" text-anchor="middle">D</text>
+          <circle cx="160" cy="130" r="14" fill="#efe9dd" stroke="#8a8276" stroke-width="0.8"/>
+          <text x="160" y="134" font-family="Instrument Serif" font-size="10" fill="#5a534a" text-anchor="middle">E</text>
+          <rect x="195" y="35" width="35" height="14" rx="2" fill="#1a1612"/>
+          <text x="200" y="45" font-family="JetBrains Mono" font-size="7" fill="#ede4d3">CHAT</text>
+        </svg>
+      </div>
+      <p class="concept-text" data-i18n="conc.01.text">A living environment where team members interact, information flows and tensions emerge naturally. You observe, understand and act.</p>
+    </div>
+
+    <!-- 02 Decision & Consequences -->
+    <div class="concept-block reveal reveal-d-1">
+      <div class="concept-num">02</div>
+      <h3 class="concept-title" data-i18n="conc.02.title">Decision & consequences</h3>
+      <div class="concept-visual">
+        <svg viewBox="0 0 260 180" width="100%" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <text x="12" y="20" font-family="JetBrains Mono" font-size="7" fill="#8a8276" letter-spacing="1" data-i18n-svg="conc.02.dec">YOUR DECISION</text>
+          <rect x="10" y="28" width="100" height="50" fill="none" stroke="#d9d0bf" stroke-width="0.8"/>
+          <rect x="14" y="36" width="92" height="2" fill="#5a534a"/>
+          <rect x="14" y="42" width="82" height="2" fill="#5a534a"/>
+          <rect x="14" y="48" width="68" height="2" fill="#5a534a"/>
+          <text x="142" y="20" font-family="JetBrains Mono" font-size="7" fill="#8a8276" letter-spacing="1" data-i18n-svg="conc.02.cons">CONSEQUENCES</text>
+          <line x1="140" y1="38" x2="250" y2="38" stroke="#d9d0bf" stroke-width="0.5"/>
+          <text x="145" y="50" font-family="Inter Tight" font-size="8" fill="#1a1612">Team morale</text>
+          <text x="245" y="50" font-family="JetBrains Mono" font-size="8" fill="#c8541f" text-anchor="end">−15%</text>
+          <line x1="140" y1="56" x2="250" y2="56" stroke="#d9d0bf" stroke-width="0.5"/>
+          <text x="145" y="68" font-family="Inter Tight" font-size="8" fill="#1a1612">Market position</text>
+          <text x="245" y="68" font-family="JetBrains Mono" font-size="8" fill="#5a534a" text-anchor="end">+8%</text>
+          <line x1="140" y1="74" x2="250" y2="74" stroke="#d9d0bf" stroke-width="0.5"/>
+          <text x="145" y="86" font-family="Inter Tight" font-size="8" fill="#1a1612">Time to market</text>
+          <text x="245" y="86" font-family="JetBrains Mono" font-size="8" fill="#c8541f" text-anchor="end">+3w</text>
+          <line x1="140" y1="92" x2="250" y2="92" stroke="#d9d0bf" stroke-width="0.5"/>
+          <text x="145" y="104" font-family="Inter Tight" font-size="8" fill="#1a1612">Financial impact</text>
+          <text x="245" y="104" font-family="JetBrains Mono" font-size="8" fill="#c8541f" text-anchor="end">−7%</text>
+          <rect x="10" y="125" width="50" height="20" fill="#1a1612"/>
+          <text x="35" y="138" font-family="Inter Tight" font-size="8" fill="#ede4d3" text-anchor="middle">Confirm</text>
+          <rect x="66" y="125" width="50" height="20" fill="none" stroke="#1a1612" stroke-width="0.8"/>
+          <text x="91" y="138" font-family="Inter Tight" font-size="8" fill="#1a1612" text-anchor="middle">Review</text>
+        </svg>
+      </div>
+      <p class="concept-text" data-i18n="conc.02.text">Every decision generates ripple effects across the system. The platform anticipates, simulates and reveals consequences — short and long term.</p>
+    </div>
+
+    <!-- 03 Evolution Report -->
+    <div class="concept-block reveal reveal-d-2">
+      <div class="concept-num">03</div>
+      <h3 class="concept-title" data-i18n="conc.03.title">Evolution report</h3>
+      <div class="concept-visual">
+        <svg viewBox="0 0 260 180" width="100%" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <text x="12" y="20" font-family="JetBrains Mono" font-size="7" fill="#8a8276" letter-spacing="1" data-i18n-svg="conc.03.perf">PERFORMANCE OVER TIME</text>
+          <line x1="20" y1="100" x2="240" y2="100" stroke="#d9d0bf" stroke-width="0.5"/>
+          <line x1="20" y1="100" x2="20" y2="30" stroke="#d9d0bf" stroke-width="0.5"/>
+          <path d="M20 90 L60 75 L100 80 L140 60 L180 50 L220 35" fill="none" stroke="#c8541f" stroke-width="1.6"/>
+          <path d="M20 85 L60 82 L100 70 L140 75 L180 65 L220 60" fill="none" stroke="#5a534a" stroke-width="1.2"/>
+          <path d="M20 95 L60 92 L100 88 L140 85 L180 82 L220 78" fill="none" stroke="#8a8276" stroke-width="0.8" stroke-dasharray="2,2"/>
+          <circle cx="220" cy="35" r="2.5" fill="#c8541f"/>
+          <text x="12" y="130" font-family="JetBrains Mono" font-size="6" fill="#8a8276" letter-spacing="1" data-i18n-svg="conc.03.key">KEY INSIGHTS</text>
+          <circle cx="14" cy="142" r="2" fill="#5a534a"/>
+          <text x="22" y="145" font-family="Inter Tight" font-size="8" fill="#1a1612" data-i18n-svg="conc.03.k1">Trust improved in last 2 cycles</text>
+          <circle cx="14" cy="156" r="2" fill="#c8541f"/>
+          <text x="22" y="159" font-family="Inter Tight" font-size="8" fill="#1a1612" data-i18n-svg="conc.03.k2">Cross-functional alignment remains low</text>
+        </svg>
+      </div>
+      <p class="concept-text" data-i18n="conc.03.text">After each simulation, you receive a clear report showing what evolved, what didn't and why. Data converted into insight for real learning.</p>
+    </div>
+
+    <!-- 04 Organizational Calibration -->
+    <div class="concept-block reveal reveal-d-3">
+      <div class="concept-num">04</div>
+      <h3 class="concept-title" data-i18n="conc.04.title">Organizational calibration</h3>
+      <div class="concept-visual">
+        <svg viewBox="0 0 260 180" width="100%" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <text x="12" y="18" font-family="JetBrains Mono" font-size="7" fill="#8a8276" letter-spacing="1" data-i18n-svg="conc.04.dna">ORGANIZATIONAL DNA</text>
+          <g transform="translate(70, 100)">
+            <polygon points="0,-50 47.6,-15.5 29.4,40.5 -29.4,40.5 -47.6,-15.5" fill="none" stroke="#d9d0bf" stroke-width="0.6"/>
+            <polygon points="0,-35 33.3,-10.8 20.6,28.3 -20.6,28.3 -33.3,-10.8" fill="none" stroke="#d9d0bf" stroke-width="0.5"/>
+            <polygon points="0,-20 19,-6.2 11.8,16.2 -11.8,16.2 -19,-6.2" fill="none" stroke="#d9d0bf" stroke-width="0.4"/>
+            <polygon points="0,-40 38,-12 22,32 -28,28 -28,-8" fill="#c8541f" opacity="0.35" stroke="#c8541f" stroke-width="1"/>
+            <circle cx="0" cy="-40" r="2.5" fill="#c8541f"/>
+            <circle cx="38" cy="-12" r="2.5" fill="#c8541f"/>
+            <circle cx="22" cy="32" r="2.5" fill="#c8541f"/>
+            <circle cx="-28" cy="28" r="2.5" fill="#c8541f"/>
+            <circle cx="-28" cy="-8" r="2.5" fill="#c8541f"/>
+          </g>
+          <text x="150" y="45" font-family="Inter Tight" font-size="8" fill="#1a1612" data-i18n-svg="conc.04.a1">Decision speed</text>
+          <line x1="150" y1="50" x2="250" y2="50" stroke="#d9d0bf" stroke-width="0.5"/>
+          <circle cx="225" cy="50" r="2.5" fill="#c8541f"/>
+          <text x="150" y="73" font-family="Inter Tight" font-size="8" fill="#1a1612" data-i18n-svg="conc.04.a2">Risk tolerance</text>
+          <line x1="150" y1="78" x2="250" y2="78" stroke="#d9d0bf" stroke-width="0.5"/>
+          <circle cx="195" cy="78" r="2.5" fill="#c8541f"/>
+          <text x="150" y="101" font-family="Inter Tight" font-size="8" fill="#1a1612" data-i18n-svg="conc.04.a3">Collaboration</text>
+          <line x1="150" y1="106" x2="250" y2="106" stroke="#d9d0bf" stroke-width="0.5"/>
+          <circle cx="240" cy="106" r="2.5" fill="#c8541f"/>
+          <text x="150" y="129" font-family="Inter Tight" font-size="8" fill="#1a1612" data-i18n-svg="conc.04.a4">Innovation</text>
+          <line x1="150" y1="134" x2="250" y2="134" stroke="#d9d0bf" stroke-width="0.5"/>
+          <circle cx="210" cy="134" r="2.5" fill="#c8541f"/>
+          <text x="150" y="157" font-family="Inter Tight" font-size="8" fill="#1a1612" data-i18n-svg="conc.04.a5">Hierarchy level</text>
+          <line x1="150" y1="162" x2="250" y2="162" stroke="#d9d0bf" stroke-width="0.5"/>
+          <circle cx="180" cy="162" r="2.5" fill="#c8541f"/>
+        </svg>
+      </div>
+      <p class="concept-text" data-i18n="conc.04.text">The platform adapts to your organization. We calibrate culture, structure and priorities to create scenarios that feel real and relevant.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════ § 04 · PROOF ═══════════ -->
+<section class="proof dark-section">
+  <div class="proof-inner">
+    <div class="proof-header reveal">
+      <span class="proof-label" data-i18n="proof.label">§ 04 · Deployed today</span>
+      <h2 class="proof-headline">
+        <em data-i18n="proof.h1">Built and being tested</em><br>
+        <span data-i18n="proof.h2">in real academic and corporate environments</span>
+      </h2>
+    </div>
+    <div class="proof-grid">
+      <div class="proof-cell reveal">
+        <div class="proof-num">08</div>
+        <div class="proof-text" data-i18n="proof.c1">Simulators across the eight core domains of organizational decision-making.</div>
+      </div>
+      <div class="proof-cell reveal reveal-d-1">
+        <div class="proof-num">04</div>
+        <div class="proof-text" data-i18n="proof.c2">Countries with active or pipeline cohorts: Spain, Costa Rica, Colombia, Mexico.</div>
+      </div>
+      <div class="proof-cell reveal reveal-d-2">
+        <div class="proof-num">14</div>
+        <div class="proof-text" data-i18n="proof.c3">Live behavioral metrics tracked across every decision, every cycle.</div>
+      </div>
+      <div class="proof-cell reveal reveal-d-3">
+        <div class="proof-num">USAL</div>
+        <div class="proof-text" data-i18n="proof.c4">Institutional partner. Optional certification through the Centro de Formación Permanente.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ § 05 · CATALOG (5 FAMILIES) ═══════════ -->
+<section class="catalog" id="catalog">
+  <span class="kicker reveal" data-i18n="cat.kicker">§ 05 · Catalog</span>
+  <h2 class="title reveal reveal-d-1">
+    <span data-i18n="cat.t1">Five domains.</span><br>
+    <em data-i18n="cat.t2">Eight rehearsal environments</em><span class="dot">.</span>
+  </h2>
+  <p class="lede reveal reveal-d-2" data-i18n="cat.lede">The catalog is organized by the kind of organizational problem it trains for, not by academic subject. Each family contains one to three rehearsal environments, each one running standalone or as a module of a longer program.</p>
+
+  <div class="catalog-img reveal">
+    <img src="img/catalog.jpg" alt="">
+  </div>
+
+  <!-- Family 1 -->
+  <div class="family reveal">
+    <div class="family-header">
+      <div class="family-code">F·01</div>
+      <div>
+        <h3 class="family-name" data-i18n="fam.01.name">Leadership & Teams</h3>
+        <p class="family-desc" data-i18n="fam.01.desc">Where teams fracture or come together. Conflict, trust, difficult conversations, alignment under pressure.</p>
+      </div>
+    </div>
+    <div class="family-mods">
+      <div class="module-card">
+        <div class="module-code">M-01</div>
+        <h4 class="module-name" data-i18n="fam.01.m1.name">Conflict Management</h4>
+        <p class="module-text" data-i18n="fam.01.m1.text">Diagnosis, mediation and resolution of conflicts within teams and across departments.</p>
+        <div class="module-meta" data-i18n="fam.01.m1.meta">8 h prep + 60–90 min</div>
+      </div>
+      <div class="module-card">
+        <div class="module-code">M-02</div>
+        <h4 class="module-name" data-i18n="fam.01.m2.name">High-Performance Teams</h4>
+        <p class="module-text" data-i18n="fam.01.m2.text">Leading a five-person team through five project phases under shifting pressure.</p>
+        <div class="module-meta" data-i18n="fam.01.m2.meta">10 h prep + 75–110 min</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Family 2 -->
+  <div class="family reveal">
+    <div class="family-header">
+      <div class="family-code">F·02</div>
+      <div>
+        <h3 class="family-name" data-i18n="fam.02.name">Strategic Decision-Making</h3>
+        <p class="family-desc" data-i18n="fam.02.desc">Negotiation, uncertainty, stakeholder pressure. The decisions that don't allow rehearsal in reality.</p>
+      </div>
+    </div>
+    <div class="family-mods">
+      <div class="module-card">
+        <div class="module-code">M-03</div>
+        <h4 class="module-name" data-i18n="fam.02.m1.name">Principled Negotiation</h4>
+        <p class="module-text" data-i18n="fam.02.m1.text">Interests vs positions, BATNA, ZOPA, calibrated concessions. Commercial, labor and institutional applications.</p>
+        <div class="module-meta" data-i18n="fam.02.m1.meta">10 h prep + 75–110 min</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Family 3 -->
+  <div class="family reveal">
+    <div class="family-header">
+      <div class="family-code">F·03</div>
+      <div>
+        <h3 class="family-name" data-i18n="fam.03.name">Cross-border & Multicultural</h3>
+        <p class="family-desc" data-i18n="fam.03.desc">The operations and negotiations that happen across cultures, regulations and timezones — where context decides outcome.</p>
+      </div>
+    </div>
+    <div class="family-mods">
+      <div class="module-card">
+        <div class="module-code">M-04</div>
+        <h4 class="module-name" data-i18n="fam.03.m1.name">Multicultural Negotiation</h4>
+        <p class="module-text" data-i18n="fam.03.m1.text">Hierarchical distance, high/low context, monochronic time, religious and gender frames. Calibrated for MENA, GCC, LATAM, Asia.</p>
+        <div class="module-meta" data-i18n="fam.03.m1.meta">12 h prep + 90–120 min</div>
+      </div>
+      <div class="module-card">
+        <div class="module-code">M-05</div>
+        <h4 class="module-name" data-i18n="fam.03.m2.name">International Trade</h4>
+        <p class="module-text" data-i18n="fam.03.m2.text">Market selection, Incoterms 2020, payment methods, customs, regulation, documentary management.</p>
+        <div class="module-meta" data-i18n="fam.03.m2.meta">16 h prep + 120–180 min</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Family 4 -->
+  <div class="family reveal">
+    <div class="family-header">
+      <div class="family-code">F·04</div>
+      <div>
+        <h3 class="family-name" data-i18n="fam.04.name">Knowledge & Organizational Learning</h3>
+        <p class="family-desc" data-i18n="fam.04.desc">How organizations capture, share and apply what they know — and what they lose when people leave.</p>
+      </div>
+    </div>
+    <div class="family-mods">
+      <div class="module-card">
+        <div class="module-code">M-06</div>
+        <h4 class="module-name" data-i18n="fam.04.m1.name">Knowledge Management</h4>
+        <p class="module-text" data-i18n="fam.04.m1.text">Full KM cycle: creation, capture, distribution, application. Communities of practice, informal networks, barriers.</p>
+        <div class="module-meta" data-i18n="fam.04.m1.meta">12 h prep + 90–120 min</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Family 5 -->
+  <div class="family reveal">
+    <div class="family-header">
+      <div class="family-code">F·05</div>
+      <div>
+        <h3 class="family-name" data-i18n="fam.05.name">Innovation & New Business</h3>
+        <p class="family-desc" data-i18n="fam.05.desc">From hypothesis to first paying customer. Business models, innovation processes, organizational change.</p>
+      </div>
+    </div>
+    <div class="family-mods">
+      <div class="module-card">
+        <div class="module-code">M-07</div>
+        <h4 class="module-name" data-i18n="fam.05.m1.name">Business Model Design</h4>
+        <p class="module-text" data-i18n="fam.05.m1.text">Construction and validation. Canvas as instrument. Value proposition, problem-solution fit, traction.</p>
+        <div class="module-meta" data-i18n="fam.05.m1.meta">10 h prep + 90 min/iter</div>
+      </div>
+      <div class="module-card">
+        <div class="module-code">M-08</div>
+        <h4 class="module-name" data-i18n="fam.05.m2.name">Full Innovation Process</h4>
+        <p class="module-text" data-i18n="fam.05.m2.text">Opportunity scouting, design thinking, prototyping, user validation, scaling and measurement.</p>
+        <div class="module-meta" data-i18n="fam.05.m2.meta">16 h prep + 120–180 min</div>
+      </div>
+      <div class="module-card">
+        <div class="module-code">M-09</div>
+        <h4 class="module-name" data-i18n="fam.05.m3.name">New Business Generation</h4>
+        <p class="module-text" data-i18n="fam.05.m3.text">From idea to first customer or project closure. Problem validation, financing decisions, pivot moments.</p>
+        <div class="module-meta" data-i18n="fam.05.m3.meta">20 h prep + 150–240 min</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ § 06 · ORGANIZATIONAL TWIN (DARK) ═══════════ -->
+<div class="twin-wrap dark-section" id="twin">
+<section class="twin">
+  <div class="twin-header">
+    <span class="kicker reveal" data-i18n="twin.kicker">§ 06 · The differential</span>
+    <h2 class="title reveal reveal-d-1">
+      <span data-i18n="twin.t1">Your organization.</span><br>
+      <em data-i18n="twin.t2">Your parameters.</em> <span data-i18n="twin.t3">Your simulator</span><span class="dot">.</span>
+    </h2>
+    <p class="lede reveal reveal-d-2" data-i18n="twin.lede">Any rehearsal environment in the catalog can be calibrated with real data from the organization that will use it. Workforce, sector, market, constraints, the moment the organization is going through. SimuLab-AI absorbs that data and builds the scenario your teams will decide on. Not a Harvard case. Yours.</p>
+  </div>
+
+  <div class="twin-img-row reveal">
+    <img src="img/digital_twin.jpg" alt="">
+  </div>
+
+  <div class="twin-blocks">
+    <div class="reveal">
+      <div class="twin-block-label" data-i18n="twin.b1.label">What you upload</div>
+      <h3 class="twin-block-title" data-i18n="twin.b1.title">The organization, as it is.</h3>
+      <p class="twin-block-text" data-i18n="twin.b1.text">Workforce with ages, areas, seniority and roles. Relevant financial or operational indicators. Live tensions described by the program owner. Sector and market characteristics. Organizational constraints — structure, incentive systems, declared and observed culture. Upload via form, CSV or briefing session.</p>
+    </div>
+    <div class="reveal reveal-d-1">
+      <div class="twin-block-label" data-i18n="twin.b2.label">How it translates</div>
+      <h3 class="twin-block-title" data-i18n="twin.b2.title">A scenario that recognizes you.</h3>
+      <p class="twin-block-text" data-i18n="twin.b2.text">Simulator characters are rewritten to mirror your org chart. Initial metrics reflect the real state of the team, not an academic average. Dilemmas are built on the tensions your organization already has. Theoretical feedback adapts to the sector — banking is not healthcare is not public service.</p>
+    </div>
+    <div class="reveal reveal-d-2">
+      <div class="twin-block-label" data-i18n="twin.b3.label">What it's for</div>
+      <h3 class="twin-block-title" data-i18n="twin.b3.title">Decisions trained before they're made.</h3>
+      <p class="twin-block-text" data-i18n="twin.b3.text">For boards to rehearse a hard decision before making it for real. For consultancies to validate hypotheses before intervening. For executive development to stop talking about "teams in general" and start talking about the specific team in front of the director.</p>
+    </div>
+  </div>
+
+  <div class="twin-closer reveal">
+    <div class="twin-closer-text" data-i18n="twin.closer">Evidence-based design over operational reality.</div>
+  </div>
+</section>
+</div>
+
+<!-- ═══════════ § 07 · WHO USES IT ═══════════ -->
+<div class="apps-wrap">
+<section class="apps" id="apps">
+  <div class="apps-header">
+    <span class="kicker reveal" data-i18n="apps.kicker">§ 07 · Who uses it</span>
+    <h2 class="title reveal reveal-d-1">
+      <span data-i18n="apps.t1">Different contexts.</span><br>
+      <em data-i18n="apps.t2">One rehearsal logic</em><span class="dot">.</span>
+    </h2>
+  </div>
+
+  <div class="apps-grid">
+    <article class="app-card reveal">
+      <div class="app-img"><img src="img/app_bschool.jpg" alt=""></div>
+      <div class="app-body">
+        <div class="app-tag" data-i18n="apps.bs.tag">Business schools</div>
+        <h3 class="app-title" data-i18n="apps.bs.title">Tailored for your program.</h3>
+        <p class="app-text" data-i18n="apps.bs.text">We work directly with business schools to adapt preparation and rehearsal environments to existing programs, student profiles and proprietary methodology. From case adjustment to full module integration in MBA or master's tracks.</p>
+      </div>
+    </article>
+
+    <article class="app-card reveal reveal-d-1">
+      <div class="app-img"><img src="img/app_companies.jpg" alt=""></div>
+      <div class="app-body">
+        <div class="app-tag" data-i18n="apps.co.tag">Companies</div>
+        <h3 class="app-title" data-i18n="apps.co.title">Trained on your map.</h3>
+        <p class="app-text" data-i18n="apps.co.text">Executive and team development programs built on the real cartography of the organization. Individual sessions, half-day workshops with facilitated debriefing, or multi-month programs. Optional accompaniment in critical sessions.</p>
+      </div>
+    </article>
+
+    <article class="app-card reveal reveal-d-2">
+      <div class="app-img"><img src="img/app_universities.jpg" alt=""></div>
+      <div class="app-body">
+        <div class="app-tag" data-i18n="apps.un.tag">Universities</div>
+        <h3 class="app-title" data-i18n="apps.un.title">Plug into your LMS.</h3>
+        <p class="app-text" data-i18n="apps.un.text">Integration in undergraduate, official master's and continuing education programs. Standards-compliant for any major learning management system. Per-student traceability and reproducible evaluation.</p>
+      </div>
+    </article>
+
+    <article class="app-card reveal reveal-d-3">
+      <div class="app-img"><img src="img/app_agencies.jpg" alt=""></div>
+      <div class="app-body">
+        <div class="app-tag" data-i18n="apps.ag.tag">Agencies</div>
+        <h3 class="app-title" data-i18n="apps.ag.title">White-label, your brand.</h3>
+        <p class="app-text" data-i18n="apps.ag.text">White-label product for international or sector-specific programs. Adaptation of content and simulators to agency briefing. Optional academic certification. Currently active with cohorts in Spain, Costa Rica, Colombia and Mexico.</p>
+      </div>
+    </article>
+  </div>
+</section>
+</div>
+
+<!-- ═══════════ § 08 · ACADEMIC DEPTH ═══════════ -->
+<section class="academic" id="academic">
+  <div class="academic-inner">
+    <div class="academic-img reveal">
+      <img src="img/academic.jpg" alt="">
+    </div>
+    <div>
+      <span class="kicker reveal" data-i18n="acad.kicker">§ 08 · Academic depth</span>
+      <h2 class="title reveal reveal-d-1">
+        <span data-i18n="acad.t1">Evidence-based design.</span><br>
+        <em data-i18n="acad.t2">Optional certification by USAL</em><span class="dot">.</span>
+      </h2>
+      <p class="prose reveal reveal-d-2" data-i18n="acad.p1">Every rehearsal environment builds on a documented evidence base with visible, traceable references. Preparation is delivered by senior professionals and instructors with proven track records. AI acts as a facilitator — never as a substitute for the human in the loop.</p>
+      <p class="prose reveal reveal-d-2" data-i18n="acad.p2">When requested, programs can incorporate <em>official certification by the University of Salamanca</em> as continuing education courses or microcredentials, through the Centro de Formación Permanente.</p>
+      <div class="academic-quote reveal reveal-d-3" data-i18n="acad.quote">AI doesn't replace the instructor. It returns time for what only a human can do.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ § 09 · WHO'S BEHIND ═══════════ -->
+<section class="team" id="team">
+  <span class="kicker reveal" data-i18n="team.kicker">§ 09 · Who's behind</span>
+  <h2 class="title reveal reveal-d-1">
+    <span data-i18n="team.t1">University of Salamanca</span><br>
+    <em data-i18n="team.t2">faculty with senior</em><br>
+    <span data-i18n="team.t3">business experience</span><span class="dot">.</span>
+  </h2>
+
+  <p class="team-prose reveal reveal-d-2" data-i18n="team.p1">SimuLab-AI is an academic initiative developed by a group of faculty from the University of Salamanca with consolidated track records in teaching and research. The project brings together specialists in negotiation, conflict management, knowledge management, innovation, business models, international trade and team development.</p>
+
+  <p class="team-prose reveal reveal-d-2" data-i18n="team.p2">Alongside that academic core, the project incorporates <em>professionals in active practice with senior business backgrounds</em> — executives, consultants and operators with direct experience in banking, foreign trade, organizational transformation, corporate innovation and team leadership in large companies. Their role is central, not complementary.</p>
+
+  <p class="team-prose reveal reveal-d-3" data-i18n="team.p3">The combination is what distinguishes SimuLab-AI. Evidence-based frameworks from a university with eight centuries of history, translated into operational reality by people who have made those decisions for real.</p>
+
+  <div class="team-pillars reveal reveal-d-3">
+    <div>
+      <div class="pillar-label" data-i18n="team.pi1.label">Academic core</div>
+      <p class="pillar-text" data-i18n="team.pi1.text">Faculty of the Department of Business Administration of the University of Salamanca. Active teaching across undergraduate, master's and continuing education. Research published in indexed journals.</p>
+    </div>
+    <div>
+      <div class="pillar-label" data-i18n="team.pi2.label">Business core</div>
+      <p class="pillar-text" data-i18n="team.pi2.text">Executives and consultants in active practice. Decades of accumulated experience in banking, foreign trade, organizational transformation and team leadership across multinational and mid-cap firms.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ § 10 · TECHNICAL SPEC ═══════════ -->
+<div class="techspec-wrap">
+<section class="techspec">
+  <div class="techspec-header">
+    <div class="techspec-label" data-i18n="spec.label">§ 10 · Technical specification</div>
+    <h2 class="techspec-title" data-i18n="spec.title">For the procurement, IT and learning operations teams.</h2>
+  </div>
+  <div class="techspec-grid">
+    <div>
+      <div class="spec-label" data-i18n="spec.s1.label">LMS integration</div>
+      <p class="spec-text" data-i18n="spec.s1.text"><strong>SCORM 1.2</strong> packages for Moodle, Studium, Blackboard, Canvas, Sakai and any standards-compliant LMS. Standalone web deployment also available.</p>
+    </div>
+    <div>
+      <div class="spec-label" data-i18n="spec.s2.label">Traceability</div>
+      <p class="spec-text" data-i18n="spec.s2.text">Per-decision logging. Aggregate cohort analytics. Reproducible rubric. Personalized analytical report for every participant.</p>
+    </div>
+    <div>
+      <div class="spec-label" data-i18n="spec.s3.label">AI infrastructure</div>
+      <p class="spec-text" data-i18n="spec.s3.text">Proprietary scenario logic routed through a secure proxy. No direct API key exposure to the participant. Inference latency under three seconds.</p>
+    </div>
+    <div>
+      <div class="spec-label" data-i18n="spec.s4.label">Data residency</div>
+      <p class="spec-text" data-i18n="spec.s4.text">GDPR-compliant deployment. EU data residency available. Per-organization isolation. Data retention configurable.</p>
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- ═══════════ § 11 · CTA FINAL ═══════════ -->
+<section class="cta-final" id="cta">
+  <div class="cta-bg" id="ctaBg"><img src="img/cta_final.jpg" alt=""></div>
+  <div class="cta-overlay"></div>
+  <div class="cta-content">
+    <div class="cta-kicker" data-i18n="cta.kicker">§ 11 · Request a walkthrough</div>
+    <h1 class="cta-headline">
+      <span data-i18n="cta.h1">A thirty-minute walkthrough</span><br>
+      <em data-i18n="cta.h2">on the platform you'd actually use</em><span class="dot">.</span>
+    </h1>
+    <p class="cta-text" data-i18n="cta.text">We show you the rehearsal environment closest to your context, walk through how a calibration to your organization would work, and tell you what a pilot would look like. No commitment. No automatic proposal.</p>
+    <div class="cta-actions">
+      <button class="btn btn-primary" id="contactBtn" data-i18n="cta.btn1">Request a live walkthrough →</button>
+      <button class="btn btn-ghost" id="contactBtn2" data-i18n="cta.btn2">Explore a pilot program</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <h3>SimuLab-AI</h3>
+      <p data-i18n="footer.tagline">Organizational Simulation Platform</p>
+      <p data-i18n="footer.about">A simulation environment where leadership teams rehearse decisions on scenarios calibrated to their own organization.</p>
+    </div>
+    <div class="footer-col">
+      <h4 data-i18n="footer.explore">Explore</h4>
+      <ul>
+        <li><a href="#platform" data-i18n="nav.platform">Platform</a></li>
+        <li><a href="#what" data-i18n="footer.what">What it does</a></li>
+        <li><a href="#catalog" data-i18n="nav.catalog">Catalog</a></li>
+        <li><a href="#twin" data-i18n="nav.twin">Twin</a></li>
+        <li><a href="#apps" data-i18n="footer.who">Who uses it</a></li>
+        <li><a href="#team" data-i18n="footer.team">Who's behind</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4 data-i18n="footer.contact">Get in touch</h4>
+      <ul>
+        <li><button id="contactBtn3" data-i18n="footer.write">Request a walkthrough</button></li>
+        <li><button id="contactBtn4" data-i18n="footer.pilot">Explore a pilot</button></li>
+        <li data-i18n="footer.location">Salamanca, Spain</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span data-i18n="footer.bottom">© 2026 SimuLab-AI · Organizational Simulation Platform</span>
+    <span data-i18n="footer.built">Built in Salamanca</span>
+  </div>
+</footer>
+
+<script>
+const i18n = {
+  en: {
+    'nav.platform': 'Platform',
+    'nav.catalog': 'Catalog',
+    'nav.twin': 'Twin',
+    'nav.apps': 'Who uses it',
+    'nav.cta': 'Request walkthrough',
+
+    'hero.kicker': 'SimuLab-AI · Organizational Simulation Platform',
+    'hero.h1.em': 'Train decisions',
+    'hero.h1.rest': 'before reality demands them',
+    'hero.lede': 'A simulation platform where leadership teams rehearse decisions, conflicts, negotiations and strategic moves under pressure — on scenarios calibrated to their own organization. AI-driven characters. Live behavioral metrics. Expert-led preparation.',
+    'hero.cta1': 'Request a live walkthrough →',
+    'hero.cta2': 'See the platform',
+    'hero.scroll': 'Scroll',
+
+    'prob.kicker': '§ 01 · The problem',
+    'prob.t1': 'The most expensive decisions',
+    'prob.t2': 'are made without rehearsal',
+    'prob.p1': 'Critical organizational decisions — restructuring a team, closing a negotiation, entering a new market, defusing a conflict — get made once, in real time, with consequences that compound for years. Most leaders face them armed with theory they once memorized and never practiced.',
+    'prob.p2': "Pilots don't fly that way. Surgeons don't operate that way. <em>Organizational decision-makers shouldn't either.</em>",
+    'prob.p3': 'SimuLab-AI is a simulation environment where those decisions get rehearsed before they\'re made for real. AI-driven characters react. Behavioral metrics move. Consequences unfold. And the theoretical framework that explains each decision arrives in the moment, not before.',
+
+    'plat.kicker': '§ 02 · The platform',
+    'plat.t1': 'Four layers.',
+    'plat.t2': 'One rehearsal system',
+    'plat.lede': 'Every SimuLab-AI program combines four layers. Separately, they already exist in different industries. Together, they form a coherent rehearsal environment for organizational decisions.',
+    'plat.s1.tag': 'Foundation',
+    'plat.s1.title': 'Expert-led preparation',
+    'plat.s1.text': 'Each simulator is preceded by hours of preparation delivered by senior professionals from the relevant field — negotiators, mediators, foreign trade operators, innovation leads, executives in active practice. Duration adjusts to the program, from four to twenty hours.',
+    'plat.s2.tag': 'Practice',
+    'plat.s2.title': 'Live simulation',
+    'plat.s2.text': 'The participant enters a calibrated scenario with characters, dynamic metrics and a running clock. AI-driven characters react in real time. Behavioral consequences become visible. The scenario evolves with every decision.',
+    'plat.s3.tag': 'Feedback',
+    'plat.s3.title': 'Behavioral analysis',
+    'plat.s3.text': 'After each decision the system returns the underlying decision logic, the precedent literature, and the second-order consequences. Not content to study. A mirror of what just happened, in the moment.',
+    'plat.s4.tag': 'Intelligence',
+    'plat.s4.title': 'Decision intelligence',
+    'plat.s4.text': 'Every decision is logged. Participants receive a personalized analytical report; the program owner receives an aggregated rubric across cohorts. Patterns of behavior, recurring blind spots, organizational dynamics become measurable.',
+
+    'what.kicker': '§ 03 · The platform',
+    'what.t1': 'A platform for complex',
+    'what.t2': 'human decisions',
+    'what.intro': 'SimuLab-AI combines AI, behavioral simulation and evidence-based design to create living training environments. Not content. Not slides. Real dynamic systems that react to decisions, adapt to people and evolve over time.',
+    'what.sublabel.span': 'Example categories',
+    'what.sublabel.text': '— generic representations, not actual product screens',
+    'what.sublabel2.span': 'What the platform does',
+    'what.sublabel2.text': '— conceptual representations',
+
+    'ex.c1.tag': 'Leadership & teams',
+    'ex.c1.title': 'Team Alignment',
+    'ex.c1.text': 'Navigate tensions, build trust and lead teams through change.',
+    'ex.c1.cta': 'Explore scenarios →',
+    'ex.c1.metric': 'Scenario complexity',
+    'ex.c2.tag': 'Strategic decision-making',
+    'ex.c2.title': 'Market Entry',
+    'ex.c2.text': 'Assess opportunities, rivals and risks in uncertain environments.',
+    'ex.c2.cta': 'Explore scenarios →',
+    'ex.c2.metric': 'Uncertainty level',
+    'ex.c3.tag': 'Innovation & transformation',
+    'ex.c3.title': 'Business Model Evolution',
+    'ex.c3.text': 'Experiment, learn and adapt your business model.',
+    'ex.c3.cta': 'Explore scenarios →',
+    'ex.c3.metric': 'Adaptation potential',
+
+    'conc.01.title': 'Scenario in progress',
+    'conc.01.text': 'A living environment where team members interact, information flows and tensions emerge naturally. You observe, understand and act.',
+    'conc.02.title': 'Decision & consequences',
+    'conc.02.text': 'Every decision generates ripple effects across the system. The platform anticipates, simulates and reveals consequences — short and long term.',
+    'conc.02.dec': 'YOUR DECISION',
+    'conc.02.cons': 'CONSEQUENCES',
+    'conc.03.title': 'Evolution report',
+    'conc.03.text': "After each simulation, you receive a clear report showing what evolved, what didn't and why. Data converted into insight for real learning.",
+    'conc.03.perf': 'PERFORMANCE OVER TIME',
+    'conc.03.key': 'KEY INSIGHTS',
+    'conc.03.k1': 'Trust improved in last 2 cycles',
+    'conc.03.k2': 'Cross-functional alignment remains low',
+    'conc.04.title': 'Organizational calibration',
+    'conc.04.text': 'The platform adapts to your organization. We calibrate culture, structure and priorities to create scenarios that feel real and relevant.',
+    'conc.04.dna': 'ORGANIZATIONAL DNA',
+    'conc.04.a1': 'Decision speed',
+    'conc.04.a2': 'Risk tolerance',
+    'conc.04.a3': 'Collaboration',
+    'conc.04.a4': 'Innovation',
+    'conc.04.a5': 'Hierarchy level',
+
+    'proof.label': '§ 04 · Deployed today',
+    'proof.h1': 'Built and being tested',
+    'proof.h2': 'in real academic and corporate environments',
+    'proof.c1': 'Simulators across the eight core domains of organizational decision-making.',
+    'proof.c2': 'Countries with active or pipeline cohorts: Spain, Costa Rica, Colombia, Mexico.',
+    'proof.c3': 'Live behavioral metrics tracked across every decision, every cycle.',
+    'proof.c4': 'Institutional partner. Optional certification through the Centro de Formación Permanente.',
+
+    'cat.kicker': '§ 05 · Catalog',
+    'cat.t1': 'Five domains.',
+    'cat.t2': 'Eight rehearsal environments',
+    'cat.lede': 'The catalog is organized by the kind of organizational problem it trains for, not by academic subject. Each family contains one to three rehearsal environments, each one running standalone or as a module of a longer program.',
+
+    'fam.01.name': 'Leadership & Teams',
+    'fam.01.desc': 'Where teams fracture or come together. Conflict, trust, difficult conversations, alignment under pressure.',
+    'fam.01.m1.name': 'Conflict Management',
+    'fam.01.m1.text': 'Diagnosis, mediation and resolution of conflicts within teams and across departments.',
+    'fam.01.m1.meta': '8 h prep + 60–90 min',
+    'fam.01.m2.name': 'High-Performance Teams',
+    'fam.01.m2.text': 'Leading a five-person team through five project phases under shifting pressure.',
+    'fam.01.m2.meta': '10 h prep + 75–110 min',
+    'fam.02.name': 'Strategic Decision-Making',
+    'fam.02.desc': "Negotiation, uncertainty, stakeholder pressure. The decisions that don't allow rehearsal in reality.",
+    'fam.02.m1.name': 'Principled Negotiation',
+    'fam.02.m1.text': 'Interests vs positions, BATNA, ZOPA, calibrated concessions. Commercial, labor and institutional applications.',
+    'fam.02.m1.meta': '10 h prep + 75–110 min',
+    'fam.03.name': 'Cross-border & Multicultural',
+    'fam.03.desc': 'The operations and negotiations that happen across cultures, regulations and timezones — where context decides outcome.',
+    'fam.03.m1.name': 'Multicultural Negotiation',
+    'fam.03.m1.text': 'Hierarchical distance, high/low context, monochronic time, religious and gender frames. Calibrated for MENA, GCC, LATAM, Asia.',
+    'fam.03.m1.meta': '12 h prep + 90–120 min',
+    'fam.03.m2.name': 'International Trade',
+    'fam.03.m2.text': 'Market selection, Incoterms 2020, payment methods, customs, regulation, documentary management.',
+    'fam.03.m2.meta': '16 h prep + 120–180 min',
+    'fam.04.name': 'Knowledge & Organizational Learning',
+    'fam.04.desc': 'How organizations capture, share and apply what they know — and what they lose when people leave.',
+    'fam.04.m1.name': 'Knowledge Management',
+    'fam.04.m1.text': 'Full KM cycle: creation, capture, distribution, application. Communities of practice, informal networks, barriers.',
+    'fam.04.m1.meta': '12 h prep + 90–120 min',
+    'fam.05.name': 'Innovation & New Business',
+    'fam.05.desc': 'From hypothesis to first paying customer. Business models, innovation processes, organizational change.',
+    'fam.05.m1.name': 'Business Model Design',
+    'fam.05.m1.text': 'Construction and validation. Canvas as instrument. Value proposition, problem-solution fit, traction.',
+    'fam.05.m1.meta': '10 h prep + 90 min/iter',
+    'fam.05.m2.name': 'Full Innovation Process',
+    'fam.05.m2.text': 'Opportunity scouting, design thinking, prototyping, user validation, scaling and measurement.',
+    'fam.05.m2.meta': '16 h prep + 120–180 min',
+    'fam.05.m3.name': 'New Business Generation',
+    'fam.05.m3.text': 'From idea to first customer or project closure. Problem validation, financing decisions, pivot moments.',
+    'fam.05.m3.meta': '20 h prep + 150–240 min',
+
+    'twin.kicker': '§ 06 · The differential',
+    'twin.t1': 'Your organization.',
+    'twin.t2': 'Your parameters.',
+    'twin.t3': 'Your simulator',
+    'twin.lede': 'Any rehearsal environment in the catalog can be calibrated with real data from the organization that will use it. Workforce, sector, market, constraints, the moment the organization is going through. SimuLab-AI absorbs that data and builds the scenario your teams will decide on. Not a Harvard case. Yours.',
+    'twin.b1.label': 'What you upload',
+    'twin.b1.title': 'The organization, as it is.',
+    'twin.b1.text': 'Workforce with ages, areas, seniority and roles. Relevant financial or operational indicators. Live tensions described by the program owner. Sector and market characteristics. Organizational constraints — structure, incentive systems, declared and observed culture. Upload via form, CSV or briefing session.',
+    'twin.b2.label': 'How it translates',
+    'twin.b2.title': 'A scenario that recognizes you.',
+    'twin.b2.text': 'Simulator characters are rewritten to mirror your org chart. Initial metrics reflect the real state of the team, not an academic average. Dilemmas are built on the tensions your organization already has. Theoretical feedback adapts to the sector — banking is not healthcare is not public service.',
+    'twin.b3.label': "What it's for",
+    'twin.b3.title': "Decisions trained before they're made.",
+    'twin.b3.text': 'For boards to rehearse a hard decision before making it for real. For consultancies to validate hypotheses before intervening. For executive development to stop talking about "teams in general" and start talking about the specific team in front of the director.',
+    'twin.closer': 'Evidence-based design over operational reality.',
+
+    'apps.kicker': '§ 07 · Who uses it',
+    'apps.t1': 'Different contexts.',
+    'apps.t2': 'One rehearsal logic',
+    'apps.bs.tag': 'Business schools',
+    'apps.bs.title': 'Tailored for your program.',
+    'apps.bs.text': "We work directly with business schools to adapt preparation and rehearsal environments to existing programs, student profiles and proprietary methodology. From case adjustment to full module integration in MBA or master's tracks.",
+    'apps.co.tag': 'Companies',
+    'apps.co.title': 'Trained on your map.',
+    'apps.co.text': 'Executive and team development programs built on the real cartography of the organization. Individual sessions, half-day workshops with facilitated debriefing, or multi-month programs. Optional accompaniment in critical sessions.',
+    'apps.un.tag': 'Universities',
+    'apps.un.title': 'Plug into your LMS.',
+    'apps.un.text': "Integration in undergraduate, official master's and continuing education programs. Standards-compliant for any major learning management system. Per-student traceability and reproducible evaluation.",
+    'apps.ag.tag': 'Agencies',
+    'apps.ag.title': 'White-label, your brand.',
+    'apps.ag.text': 'White-label product for international or sector-specific programs. Adaptation of content and simulators to agency briefing. Optional academic certification. Currently active with cohorts in Spain, Costa Rica, Colombia and Mexico.',
+
+    'acad.kicker': '§ 08 · Academic depth',
+    'acad.t1': 'Evidence-based design.',
+    'acad.t2': 'Optional certification by USAL',
+    'acad.p1': 'Every rehearsal environment builds on a documented evidence base with visible, traceable references. Preparation is delivered by senior professionals and instructors with proven track records. AI acts as a facilitator — never as a substitute for the human in the loop.',
+    'acad.p2': 'When requested, programs can incorporate <em>official certification by the University of Salamanca</em> as continuing education courses or microcredentials, through the Centro de Formación Permanente.',
+    'acad.quote': "AI doesn't replace the instructor. It returns time for what only a human can do.",
+
+    'team.kicker': "§ 09 · Who's behind",
+    'team.t1': 'University of Salamanca',
+    'team.t2': 'faculty with senior',
+    'team.t3': 'business experience',
+    'team.p1': 'SimuLab-AI is an academic initiative developed by a group of faculty from the University of Salamanca with consolidated track records in teaching and research. The project brings together specialists in negotiation, conflict management, knowledge management, innovation, business models, international trade and team development.',
+    'team.p2': 'Alongside that academic core, the project incorporates <em>professionals in active practice with senior business backgrounds</em> — executives, consultants and operators with direct experience in banking, foreign trade, organizational transformation, corporate innovation and team leadership in large companies. Their role is central, not complementary.',
+    'team.p3': 'The combination is what distinguishes SimuLab-AI. Evidence-based frameworks from a university with eight centuries of history, translated into operational reality by people who have made those decisions for real.',
+    'team.pi1.label': 'Academic core',
+    'team.pi1.text': "Faculty of the Department of Business Administration of the University of Salamanca. Active teaching across undergraduate, master's and continuing education. Research published in indexed journals.",
+    'team.pi2.label': 'Business core',
+    'team.pi2.text': 'Executives and consultants in active practice. Decades of accumulated experience in banking, foreign trade, organizational transformation and team leadership across multinational and mid-cap firms.',
+
+    'spec.label': '§ 10 · Technical specification',
+    'spec.title': 'For the procurement, IT and learning operations teams.',
+    'spec.s1.label': 'LMS integration',
+    'spec.s1.text': '<strong>SCORM 1.2</strong> packages for Moodle, Studium, Blackboard, Canvas, Sakai and any standards-compliant LMS. Standalone web deployment also available.',
+    'spec.s2.label': 'Traceability',
+    'spec.s2.text': 'Per-decision logging. Aggregate cohort analytics. Reproducible rubric. Personalized analytical report for every participant.',
+    'spec.s3.label': 'AI infrastructure',
+    'spec.s3.text': 'Proprietary scenario logic routed through a secure proxy. No direct API key exposure to the participant. Inference latency under three seconds.',
+    'spec.s4.label': 'Data residency',
+    'spec.s4.text': 'GDPR-compliant deployment. EU data residency available. Per-organization isolation. Data retention configurable.',
+
+    'cta.kicker': '§ 11 · Request a walkthrough',
+    'cta.h1': 'A thirty-minute walkthrough',
+    'cta.h2': "on the platform you'd actually use",
+    'cta.text': "We show you the rehearsal environment closest to your context, walk through how a calibration to your organization would work, and tell you what a pilot would look like. No commitment. No automatic proposal.",
+    'cta.btn1': 'Request a live walkthrough →',
+    'cta.btn2': 'Explore a pilot program',
+
+    'footer.tagline': 'Organizational Simulation Platform',
+    'footer.about': 'A simulation environment where leadership teams rehearse decisions on scenarios calibrated to their own organization.',
+    'footer.explore': 'Explore',
+    'footer.what': 'What it does',
+    'footer.who': 'Who uses it',
+    'footer.team': "Who's behind",
+    'footer.contact': 'Get in touch',
+    'footer.write': 'Request a walkthrough',
+    'footer.pilot': 'Explore a pilot',
+    'footer.location': 'Salamanca, Spain',
+    'footer.bottom': '© 2026 SimuLab-AI · Organizational Simulation Platform',
+    'footer.built': 'Built in Salamanca'
+  },
+
+  es: {
+    'nav.platform': 'Plataforma',
+    'nav.catalog': 'Catálogo',
+    'nav.twin': 'Gemelo',
+    'nav.apps': 'Quién la usa',
+    'nav.cta': 'Solicitar demo',
+
+    'hero.kicker': 'SimuLab-AI · Plataforma de simulación organizativa',
+    'hero.h1.em': 'Entrena tus decisiones',
+    'hero.h1.rest': 'antes de que la realidad las exija',
+    'hero.lede': 'Una plataforma de simulación en la que los equipos directivos ensayan decisiones, conflictos, negociaciones y movimientos estratégicos bajo presión, sobre escenarios calibrados a su propia organización. Personajes guiados por IA. Métricas conductuales vivas. Preparación con especialistas.',
+    'hero.cta1': 'Solicitar demo en vivo →',
+    'hero.cta2': 'Ver la plataforma',
+    'hero.scroll': 'Scroll',
+
+    'prob.kicker': '§ 01 · El problema',
+    'prob.t1': 'Las decisiones más caras',
+    'prob.t2': 'se toman sin ensayo',
+    'prob.p1': 'Las decisiones organizativas críticas — reestructurar un equipo, cerrar una negociación, entrar en un mercado nuevo, desactivar un conflicto — se toman una vez, en tiempo real, con consecuencias que se acumulan durante años. La mayoría de los directivos las afrontan armados con teoría que memorizaron una vez y nunca practicaron.',
+    'prob.p2': 'Los pilotos no vuelan así. Los cirujanos no operan así. <em>Los que toman decisiones en una organización tampoco deberían.</em>',
+    'prob.p3': 'SimuLab-AI es un entorno de simulación donde esas decisiones se ensayan antes de tomarse en serio. Personajes guiados por IA reaccionan. Las métricas conductuales se mueven. Las consecuencias se despliegan. Y el marco teórico que explica cada decisión llega en el momento, no antes.',
+
+    'plat.kicker': '§ 02 · La plataforma',
+    'plat.t1': 'Cuatro capas.',
+    'plat.t2': 'Un sistema de ensayo',
+    'plat.lede': 'Cada programa de SimuLab-AI combina cuatro capas. Por separado, ya existen en distintas industrias. Juntas, conforman un entorno coherente de ensayo de decisiones organizativas.',
+    'plat.s1.tag': 'Fundamento',
+    'plat.s1.title': 'Preparación con especialistas',
+    'plat.s1.text': 'Cada simulador viene precedido de horas de preparación impartidas por profesionales senior del área correspondiente: negociadores, mediadores, operadores de comercio exterior, responsables de innovación, directivos en activo. La duración se ajusta al programa, de cuatro a veinte horas.',
+    'plat.s2.tag': 'Práctica',
+    'plat.s2.title': 'Simulación en vivo',
+    'plat.s2.text': 'El participante entra en un escenario calibrado con personajes, métricas dinámicas y reloj corriendo. Los personajes guiados por IA reaccionan en tiempo real. Las consecuencias conductuales se hacen visibles. El escenario evoluciona con cada decisión.',
+    'plat.s3.tag': 'Devolución',
+    'plat.s3.title': 'Análisis conductual',
+    'plat.s3.text': 'Tras cada decisión el sistema devuelve la lógica subyacente, la literatura de referencia y las consecuencias de segundo orden. No es contenido para estudiar. Es espejo de lo que acaba de ocurrir, en el momento.',
+    'plat.s4.tag': 'Inteligencia',
+    'plat.s4.title': 'Inteligencia de decisión',
+    'plat.s4.text': 'Cada decisión queda registrada. Los participantes reciben un informe analítico personalizado; el responsable del programa recibe una rúbrica agregada por cohortes. Patrones de comportamiento, puntos ciegos recurrentes, dinámicas organizativas se vuelven medibles.',
+
+    'what.kicker': '§ 03 · La plataforma',
+    'what.t1': 'Una plataforma para decisiones',
+    'what.t2': 'humanas complejas',
+    'what.intro': 'SimuLab-AI combina IA, simulación conductual y diseño basado en evidencia para crear entornos vivos de aprendizaje. No es contenido. No son diapositivas. Son sistemas dinámicos reales que reaccionan a las decisiones, se adaptan a las personas y evolucionan con el tiempo.',
+    'what.sublabel.span': 'Categorías de ejemplo',
+    'what.sublabel.text': '— representaciones genéricas, no pantallas reales del producto',
+    'what.sublabel2.span': 'Qué hace la plataforma',
+    'what.sublabel2.text': '— representaciones conceptuales',
+
+    'ex.c1.tag': 'Liderazgo y equipos',
+    'ex.c1.title': 'Alineamiento de Equipo',
+    'ex.c1.text': 'Navega tensiones, construye confianza y lidera equipos en cambio.',
+    'ex.c1.cta': 'Explorar escenarios →',
+    'ex.c1.metric': 'Complejidad del escenario',
+    'ex.c2.tag': 'Toma de decisiones estratégicas',
+    'ex.c2.title': 'Entrada en Mercado',
+    'ex.c2.text': 'Evalúa oportunidades, rivales y riesgos en entornos inciertos.',
+    'ex.c2.cta': 'Explorar escenarios →',
+    'ex.c2.metric': 'Nivel de incertidumbre',
+    'ex.c3.tag': 'Innovación y transformación',
+    'ex.c3.title': 'Evolución del Modelo de Negocio',
+    'ex.c3.text': 'Experimenta, aprende y adapta tu modelo de negocio.',
+    'ex.c3.cta': 'Explorar escenarios →',
+    'ex.c3.metric': 'Potencial de adaptación',
+
+    'conc.01.title': 'Escenario en marcha',
+    'conc.01.text': 'Un entorno vivo donde los miembros del equipo interactúan, la información fluye y las tensiones emergen de forma natural. Observas, comprendes y actúas.',
+    'conc.02.title': 'Decisión y consecuencias',
+    'conc.02.text': 'Cada decisión genera efectos en cadena en todo el sistema. La plataforma anticipa, simula y revela consecuencias, a corto y a largo plazo.',
+    'conc.02.dec': 'TU DECISIÓN',
+    'conc.02.cons': 'CONSECUENCIAS',
+    'conc.03.title': 'Informe de evolución',
+    'conc.03.text': 'Tras cada simulación recibes un informe claro de qué evolucionó, qué no y por qué. Datos convertidos en insight para un aprendizaje real.',
+    'conc.03.perf': 'RENDIMIENTO EN EL TIEMPO',
+    'conc.03.key': 'INSIGHTS CLAVE',
+    'conc.03.k1': 'La confianza mejoró en los 2 últimos ciclos',
+    'conc.03.k2': 'La alineación entre áreas sigue siendo baja',
+    'conc.04.title': 'Calibración organizativa',
+    'conc.04.text': 'La plataforma se adapta a tu organización. Calibramos cultura, estructura y prioridades para construir escenarios reales y relevantes.',
+    'conc.04.dna': 'ADN ORGANIZATIVO',
+    'conc.04.a1': 'Velocidad de decisión',
+    'conc.04.a2': 'Tolerancia al riesgo',
+    'conc.04.a3': 'Colaboración',
+    'conc.04.a4': 'Innovación',
+    'conc.04.a5': 'Nivel jerárquico',
+
+    'proof.label': '§ 04 · Desplegado hoy',
+    'proof.h1': 'Construida y en pruebas',
+    'proof.h2': 'en entornos académicos y corporativos reales',
+    'proof.c1': 'Simuladores en los ocho dominios centrales de la toma de decisiones organizativa.',
+    'proof.c2': 'Países con cohortes activas o en proceso: España, Costa Rica, Colombia, México.',
+    'proof.c3': 'Métricas conductuales vivas seguidas en cada decisión, cada ciclo.',
+    'proof.c4': 'Socio institucional. Certificación opcional a través del Centro de Formación Permanente.',
+
+    'cat.kicker': '§ 05 · Catálogo',
+    'cat.t1': 'Cinco dominios.',
+    'cat.t2': 'Ocho entornos de ensayo',
+    'cat.lede': 'El catálogo está organizado por el tipo de problema organizativo que entrena, no por asignatura académica. Cada familia contiene de uno a tres entornos de ensayo, cada uno funcionando por separado o como módulo de un programa más largo.',
+
+    'fam.01.name': 'Liderazgo y Equipos',
+    'fam.01.desc': 'Donde los equipos se rompen o se encuentran. Conflicto, confianza, conversaciones difíciles, alineamiento bajo presión.',
+    'fam.01.m1.name': 'Gestión de Conflictos',
+    'fam.01.m1.text': 'Diagnóstico, mediación y reconducción de conflictos en equipos y entre departamentos.',
+    'fam.01.m1.meta': '8 h prep + 60–90 min',
+    'fam.01.m2.name': 'Equipos de Alto Rendimiento',
+    'fam.01.m2.text': 'Lidera un equipo de cinco personas a lo largo de cinco fases del proyecto bajo presión cambiante.',
+    'fam.01.m2.meta': '10 h prep + 75–110 min',
+    'fam.02.name': 'Toma de Decisiones Estratégicas',
+    'fam.02.desc': 'Negociación, incertidumbre, presión de stakeholders. Las decisiones que no admiten ensayo en la realidad.',
+    'fam.02.m1.name': 'Negociación Principial',
+    'fam.02.m1.text': 'Intereses vs posiciones, BATNA, ZOPA, concesiones calibradas. Aplicaciones comerciales, laborales e institucionales.',
+    'fam.02.m1.meta': '10 h prep + 75–110 min',
+    'fam.03.name': 'Cross-border y Multicultural',
+    'fam.03.desc': 'Operaciones y negociaciones que ocurren entre culturas, regulaciones y husos horarios, donde el contexto decide el resultado.',
+    'fam.03.m1.name': 'Negociación Multicultural',
+    'fam.03.m1.text': 'Distancia jerárquica, alto/bajo contexto, tiempo monocrónico, marcos religiosos y de género. Calibrado para MENA, EAU, LATAM, Asia.',
+    'fam.03.m1.meta': '12 h prep + 90–120 min',
+    'fam.03.m2.name': 'Comercio Internacional',
+    'fam.03.m2.text': 'Selección de mercado, Incoterms 2020, medios de pago, aduanas, regulación, gestión documental.',
+    'fam.03.m2.meta': '16 h prep + 120–180 min',
+    'fam.04.name': 'Conocimiento y Aprendizaje Organizativo',
+    'fam.04.desc': 'Cómo las organizaciones capturan, comparten y aplican lo que saben, y lo que pierden cuando la gente se va.',
+    'fam.04.m1.name': 'Gestión del Conocimiento',
+    'fam.04.m1.text': 'Ciclo completo de KM: creación, captura, distribución, aplicación. Comunidades de práctica, redes informales, barreras.',
+    'fam.04.m1.meta': '12 h prep + 90–120 min',
+    'fam.05.name': 'Innovación y Nuevo Negocio',
+    'fam.05.desc': 'De la hipótesis al primer cliente que paga. Modelos de negocio, procesos de innovación, cambio organizativo.',
+    'fam.05.m1.name': 'Diseño de Modelo de Negocio',
+    'fam.05.m1.text': 'Construcción y validación. Canvas como instrumento. Propuesta de valor, encaje problema-solución, tracción.',
+    'fam.05.m1.meta': '10 h prep + 90 min/iter',
+    'fam.05.m2.name': 'Proceso Completo de Innovación',
+    'fam.05.m2.text': 'Detección de oportunidades, design thinking, prototipado, validación con usuarios, escalado y medición.',
+    'fam.05.m2.meta': '16 h prep + 120–180 min',
+    'fam.05.m3.name': 'Generación de Nuevos Negocios',
+    'fam.05.m3.text': 'De la idea al primer cliente o cierre del proyecto. Validación de problema, decisiones de financiación, momentos de pivote.',
+    'fam.05.m3.meta': '20 h prep + 150–240 min',
+
+    'twin.kicker': '§ 06 · El diferencial',
+    'twin.t1': 'Tu organización.',
+    'twin.t2': 'Tus parámetros.',
+    'twin.t3': 'Tu simulador',
+    'twin.lede': 'Cualquier entorno de ensayo del catálogo puede calibrarse con datos reales de la organización que lo va a usar. Plantilla, sector, mercado, restricciones, momento que atraviesa. SimuLab-AI absorbe esos datos y construye el escenario sobre el que tus equipos van a decidir. No un caso de Harvard. El tuyo.',
+    'twin.b1.label': 'Qué se carga',
+    'twin.b1.title': 'La organización, tal como es.',
+    'twin.b1.text': 'Plantilla con edades, áreas, antigüedades y roles. Indicadores financieros u operativos relevantes. Tensiones en curso descritas por el responsable del programa. Características del sector y del mercado. Restricciones organizativas: estructura, sistema de incentivos, cultura declarada y observada. Carga por formulario, CSV o sesión de briefing.',
+    'twin.b2.label': 'Cómo se traduce',
+    'twin.b2.title': 'Un escenario que te reconoce.',
+    'twin.b2.text': 'Los personajes del simulador se reescriben para reflejar el organigrama real. Las métricas iniciales reflejan el estado real del equipo, no un promedio académico. Los dilemas se construyen sobre las tensiones que la organización ya tiene. La devolución teórica se adapta al sector: la banca no es sanidad no es sector público.',
+    'twin.b3.label': 'Para qué sirve',
+    'twin.b3.title': 'Decisiones entrenadas antes de tomarse.',
+    'twin.b3.text': 'Para que un comité de dirección ensaye una decisión difícil antes de tomarla en serio. Para que una consultora valide hipótesis antes de intervenir. Para que un programa de desarrollo directivo deje de hablar de "equipos en general" y empiece a hablar del equipo concreto del directivo.',
+    'twin.closer': 'Diseño basado en evidencia sobre realidad operativa.',
+
+    'apps.kicker': '§ 07 · Quién la usa',
+    'apps.t1': 'Distintos contextos.',
+    'apps.t2': 'Una lógica de ensayo',
+    'apps.bs.tag': 'Escuelas de negocio',
+    'apps.bs.title': 'A medida de tu programa.',
+    'apps.bs.text': 'Trabajamos directamente con escuelas de negocio para adaptar tanto la preparación como los entornos de ensayo a sus programas, perfiles de alumnado y metodología propia. Desde el ajuste de casos hasta la integración completa en módulos de MBA o máster.',
+    'apps.co.tag': 'Empresas',
+    'apps.co.title': 'Entrenadas sobre tu mapa.',
+    'apps.co.text': 'Programas de desarrollo directivo y de equipos sobre cartografía real de la organización. Sesiones individuales, talleres de media jornada con debriefing facilitado, o programas completos de varios meses. Acompañamiento opcional en sesiones críticas.',
+    'apps.un.tag': 'Universidades',
+    'apps.un.title': 'Conecta con tu LMS.',
+    'apps.un.text': 'Integración en grado, máster oficial y formación permanente. Compatible con cualquier sistema de gestión del aprendizaje estándar. Trazabilidad por alumno y evaluación reproducible.',
+    'apps.ag.tag': 'Agencias',
+    'apps.ag.title': 'Marca blanca, tu marca.',
+    'apps.ag.text': 'Producto en marca blanca para programas internacionales o sectoriales. Adaptación de contenidos y simuladores al briefing de la agencia. Certificación académica opcional. Actualmente activos con cohortes en España, Costa Rica, Colombia y México.',
+
+    'acad.kicker': '§ 08 · Solidez académica',
+    'acad.t1': 'Diseño basado en evidencia.',
+    'acad.t2': 'Certificación opcional por la USAL',
+    'acad.p1': 'Cada entorno de ensayo se construye sobre una base de evidencia documentada, con referencias visibles y trazables. La preparación la imparten profesionales senior y docentes con trayectoria contrastada. La IA actúa como facilitadora, nunca como sustituta del humano en el bucle.',
+    'acad.p2': 'Cuando se solicita, los programas pueden incorporar <em>certificación oficial de la Universidad de Salamanca</em> en forma de curso de formación continua o microcredencial, a través del Centro de Formación Permanente.',
+    'acad.quote': 'La IA no reemplaza al docente. Le devuelve tiempo para lo que solo un humano puede hacer.',
+
+    'team.kicker': '§ 09 · Quién está detrás',
+    'team.t1': 'Profesorado de la Universidad',
+    'team.t2': 'de Salamanca con experiencia',
+    'team.t3': 'empresarial senior',
+    'team.p1': 'SimuLab-AI es una iniciativa académica desarrollada por un grupo de profesores de la Universidad de Salamanca con trayectoria consolidada en docencia e investigación. El proyecto reúne especialistas en negociación, gestión de conflictos, gestión del conocimiento, innovación, modelos de negocio, comercio internacional y desarrollo de equipos.',
+    'team.p2': 'A ese núcleo académico se incorporan <em>profesionales en activo con trayectoria empresarial senior</em>: directivos, consultores y operadores con experiencia directa en banca, comercio exterior, transformación organizativa, innovación corporativa y dirección de equipos en grandes compañías. Su papel es central, no complementario.',
+    'team.p3': 'La combinación es lo que distingue a SimuLab-AI. Marcos basados en evidencia desde una universidad con ocho siglos de historia, traducidos a realidad operativa por gente que ha tomado esas decisiones en serio.',
+    'team.pi1.label': 'Núcleo académico',
+    'team.pi1.text': 'Profesores del Departamento de Administración y Economía de la Empresa de la Universidad de Salamanca. Docencia activa en grado, máster oficial y formación permanente. Investigación en revistas indexadas.',
+    'team.pi2.label': 'Núcleo empresarial',
+    'team.pi2.text': 'Directivos y consultores en activo. Décadas acumuladas de experiencia en banca, comercio exterior, transformación organizativa y dirección de equipos en compañías multinacionales y medianas.',
+
+    'spec.label': '§ 10 · Especificación técnica',
+    'spec.title': 'Para los equipos de compras, IT y operaciones de aprendizaje.',
+    'spec.s1.label': 'Integración LMS',
+    'spec.s1.text': 'Paquetes <strong>SCORM 1.2</strong> para Moodle, Studium, Blackboard, Canvas, Sakai y cualquier LMS compatible. También despliegue web independiente.',
+    'spec.s2.label': 'Trazabilidad',
+    'spec.s2.text': 'Registro por decisión. Analítica agregada por cohorte. Rúbrica reproducible. Informe analítico personalizado para cada participante.',
+    'spec.s3.label': 'Infraestructura IA',
+    'spec.s3.text': 'Lógica de escenarios propia enrutada a través de un proxy seguro. Sin exposición directa de claves API al participante. Latencia de inferencia por debajo de tres segundos.',
+    'spec.s4.label': 'Residencia de datos',
+    'spec.s4.text': 'Despliegue conforme con GDPR. Residencia de datos en la UE disponible. Aislamiento por organización. Retención configurable.',
+
+    'cta.kicker': '§ 11 · Solicita una demo',
+    'cta.h1': 'Una demo de treinta minutos',
+    'cta.h2': 'sobre la plataforma que de verdad usarías',
+    'cta.text': 'Te enseñamos el entorno de ensayo más cercano a tu contexto, recorremos cómo sería la calibración a tu organización y te contamos cómo sería un piloto. Sin compromiso. Sin propuesta comercial automática.',
+    'cta.btn1': 'Solicitar demo en vivo →',
+    'cta.btn2': 'Explorar un piloto',
+
+    'footer.tagline': 'Plataforma de simulación organizativa',
+    'footer.about': 'Un entorno de simulación donde los equipos directivos ensayan decisiones sobre escenarios calibrados a su propia organización.',
+    'footer.explore': 'Explora',
+    'footer.what': 'Qué hace',
+    'footer.who': 'Quién la usa',
+    'footer.team': 'Quién está detrás',
+    'footer.contact': 'Contacto',
+    'footer.write': 'Solicitar demo',
+    'footer.pilot': 'Explorar piloto',
+    'footer.location': 'Salamanca, España',
+    'footer.bottom': '© 2026 SimuLab-AI · Plataforma de simulación organizativa',
+    'footer.built': 'Construido en Salamanca'
+  }
+};
+
+function setLang(lang) {
+  if (!i18n[lang]) lang = 'en';
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.getAttribute('data-i18n');
+    const v = i18n[lang][k];
+    if (v == null) return;
+    if (v.includes('<em>') || v.includes('<strong>')) el.innerHTML = v;
+    else el.textContent = v;
+  });
+  document.querySelectorAll('[data-i18n-svg]').forEach(el => {
+    const k = el.getAttribute('data-i18n-svg');
+    const v = i18n[lang][k];
+    if (v != null) el.textContent = v;
+  });
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  try { localStorage.setItem('simulab-lang', lang); } catch(e) {}
+}
+
+// English is the canonical base. Spanish only if the user explicitly picked it before.
+const saved = (() => { try { return localStorage.getItem('simulab-lang'); } catch(e) { return null; } })();
+setLang(saved === 'es' ? 'es' : 'en');
+document.querySelectorAll('.lang-btn').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
+
+const nav = document.getElementById('nav');
+const darkSections = [
+  document.querySelector('.hero'),
+  document.querySelector('.proof'),
+  document.querySelector('.twin-wrap'),
+  document.querySelector('.cta-final')
+].filter(Boolean);
+
+function isOnDark() {
+  const b = nav.getBoundingClientRect().bottom;
+  return darkSections.some(s => {
+    const r = s.getBoundingClientRect();
+    return r.top < b && r.bottom > 0;
+  });
+}
+function onScroll() {
+  nav.classList.toggle('scrolled', window.scrollY > 24);
+  nav.classList.toggle('on-dark', isOnDark());
+  const sc = window.scrollY;
+  const hb = document.getElementById('heroBg');
+  if (hb && sc < window.innerHeight * 1.2) hb.style.transform = `translate3d(0, ${sc * 0.28}px, 0)`;
+  const cb = document.getElementById('ctaBg');
+  if (cb) {
+    const r = cb.parentElement.getBoundingClientRect();
+    cb.style.transform = `translate3d(0, ${-(window.innerHeight - r.top) * 0.10}px, 0)`;
+  }
+}
+window.addEventListener('scroll', onScroll, { passive: true });
+onScroll();
+
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+  });
+}, { threshold: 0.14, rootMargin: '0px 0px -8% 0px' });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+function openContact() {
+  const email = atob('bXBlcmVkYUB1c2FsLmVz');
+  window.location.href = `mailto:${email}?subject=${encodeURIComponent('SimuLab-AI · Walkthrough request')}`;
+}
+['contactBtn','contactBtn2','contactBtn3','contactBtn4'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('click', openContact);
+});
+</script>
+
+</body>
+</html>
