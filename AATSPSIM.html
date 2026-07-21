@@ -75,6 +75,7 @@ const TUTOR_CONFIG = {
 };
 const MAX_CASES = 8;
 const HOME_URL = "https://mpereda-ops.github.io/masterfusiones/AATSP.html";
+const FEEDBACK_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSc2NSe_LgKTJ9q1UK7Z_SK1eurZen-O1RazP0LMM9UI_MPEPQ/viewform?usp=dialog";
 
 /* ── i18n ── */
 const I18N = {
@@ -113,6 +114,7 @@ const I18N = {
     fb_get:"Recibir feedback del coach", fb_update:"Actualizar feedback", fb_analyzing:"Analizando tu conversación…",
     pdf_btn:"Descargar informe (PDF)",
     whatis_t:"Qué es", whatis_b:"Un espacio seguro para practicar conversaciones difíciles de liderazgo de capítulo antes de tenerlas en la vida real. No sustituye el criterio profesional.",
+    fbk_title:"¿Te ha resultado útil?", fbk_body:"¿Qué te ha gustado? ¿Qué mejorarías? Tu opinión —anónima— nos ayuda a comprobar que la herramienta se ajusta a las necesidades reales de liderazgo de los capítulos. Puedes responder en español o en inglés.", fbk_btn:"Ayúdanos a mejorar",
     footer_strong:"Simulador de práctica para el taller.",
     footer_b:"Herramienta educativa del taller de liderazgo de la AATSP desde la Universidad de Salamanca. Ayuda a operacionalizar lo que los Bylaws y las Chapter Guidelines de AATSP ya exigen. No es una herramienta de gestión de personas ni sustituye el criterio profesional. Los personajes son simulaciones generadas por IA.",
     confirm_del_a:"¿Borrar el caso de ", confirm_del_b:"? Se perderá la conversación.",
@@ -164,6 +166,7 @@ const I18N = {
     fb_get:"Get coach feedback", fb_update:"Update feedback", fb_analyzing:"Analyzing your conversation…",
     pdf_btn:"Download report (PDF)",
     whatis_t:"What it is", whatis_b:"A safe space to rehearse difficult chapter-leadership conversations before having them in real life. It does not replace professional judgment.",
+    fbk_title:"Did you find it useful?", fbk_body:"What did you like? What would you improve? Your anonymous feedback helps us check that the tool fits chapters' real leadership needs. You can answer in Spanish or English.", fbk_btn:"Help us improve",
     footer_strong:"Practice simulator for the workshop.",
     footer_b:"Educational tool for the AATSP leadership workshop from the University of Salamanca. It helps operationalize what AATSP Bylaws and Chapter Guidelines already require. It is not a people-management tool and does not replace professional judgment. Characters are AI-generated simulations.",
     confirm_del_a:"Delete the case of ", confirm_del_b:"? The conversation will be lost.",
@@ -777,6 +780,7 @@ function viewBuild(){ const ch=chObjOf(state.draft.challenge); const hasCases=st
         ${ic("sparkles",18,"#fff")} ${t("generate_btn")}
       </button>
     </div>
+    <div style="margin-top:22px;">${feedbackCard()}</div>
     ${classFooter()}
   </div>`; }
 
@@ -792,6 +796,7 @@ function viewDashboard(){ if(!cur()) return viewBuild();
     <div class="dash" style="display:grid;grid-template-columns:300px minmax(0,1fr) 336px;gap:20px;align-items:start;">
       ${colCase()}${colChat()}${colCoach()}
     </div>
+    <div style="margin-top:22px;">${feedbackCard()}</div>
     ${classFooter()}
   </div>`; }
 
@@ -921,6 +926,18 @@ function colCoach(){ const c=cur(); const tal=c.tally;
       <div><div style="font-size:13px;font-weight:600;color:var(--ink2);">${t("whatis_t")}</div>
         <div style="font-size:12px;color:var(--muted);line-height:1.55;">${t("whatis_b")}</div></div>
     </div>
+  </div>`; }
+
+function feedbackCard(){ return `
+  <div style="background:linear-gradient(135deg,rgba(79,124,255,.08),rgba(139,92,246,.10));border:1px solid var(--line);border-radius:16px;padding:18px 22px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:space-between;" class="card-sh">
+    <div style="display:flex;align-items:flex-start;gap:13px;flex:1;min-width:260px;">
+      ${iconCircle("heart","var(--pinkSoft)","var(--pink)",38)}
+      <div>
+        <div style="font-size:15.5px;font-weight:700;color:var(--ink);margin-bottom:3px;">${t("fbk_title")}</div>
+        <div style="font-size:13px;color:var(--ink2);line-height:1.55;max-width:560px;">${t("fbk_body")}</div>
+      </div>
+    </div>
+    <a href="${FEEDBACK_FORM_URL}" target="_blank" rel="noopener" class="grad-btn" style="text-decoration:none;padding:12px 20px;border-radius:11px;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:8px;white-space:nowrap;">${ic("send",16,"#fff")} ${t("fbk_btn")}</a>
   </div>`; }
 
 function classFooter(){ return `
