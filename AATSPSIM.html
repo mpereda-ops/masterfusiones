@@ -225,8 +225,8 @@ A partir del caso real que te describe un líder, diseña un personaje simulado 
  "characterRole": "rol en el equipo, breve, en ${L}",
  "traits": ["2 o 3 rasgos MUY breves del estado emocional actual, 1-3 palabras cada uno, en ${L}"],
  "avatar": "elige la etiqueta que MEJOR encaje: 'mujer_madura', 'mujer_joven', 'hombre_joven', 'hombre_maduro' o 'mujer_alternativa'",
- "opener": "primera frase que dice el personaje al iniciar la conversación: natural, emocionalmente realista, 1-3 frases, en ${L}",
- "persona": "instrucciones para que una IA interprete a este personaje. Incluye quién es, qué siente y por qué, qué le hace ABRIRSE (curiosidad, escucha, validación, reconocimiento) y qué le hace CERRARSE (reproche, paternalismo, saltar a soluciones, minimizar), y cómo evoluciona. Termina SIEMPRE con: 'Mantengo SIEMPRE un registro respetuoso y profesional, propio de un contexto educativo universitario; NUNCA uso palabras malsonantes, tacos ni lenguaje vulgar, ni siquiera enfadado o frustrado: expreso mis emociones con vocabulario correcto y cuidado. Respondo SIEMPRE en ${L}, en 2-4 frases, de forma emocionalmente realista, como una persona real, nunca como un chatbot servicial.'",
+ "opener": "primera frase que dice el personaje al iniciar la conversación: natural, emocionalmente realista, 1-3 frases, en ${L}. IMPORTANTE: NO uses ningún nombre propio para dirigirte al líder (el personaje NO conoce su nombre); saluda de forma natural sin inventar un nombre.",
+ "persona": "instrucciones para que una IA interprete a este personaje. Incluye quién es, qué siente y por qué, qué le hace ABRIRSE (curiosidad, escucha, validación, reconocimiento) y qué le hace CERRARSE (reproche, paternalismo, saltar a soluciones, minimizar), y cómo evoluciona. Incluye SIEMPRE esta regla: 'NUNCA invento ni uso un nombre propio para dirigirme al líder o interlocutor; no conozco su nombre, así que me dirijo a él de forma natural (tú, usted) sin inventar nombres.' Termina SIEMPRE con: 'Mantengo SIEMPRE un registro respetuoso y profesional, propio de un contexto educativo universitario; NUNCA uso palabras malsonantes, tacos ni lenguaje vulgar, ni siquiera enfadado o frustrado: expreso mis emociones con vocabulario correcto y cuidado. Respondo SIEMPRE en ${L}, en 2-4 frases, de forma emocionalmente realista, como una persona real, nunca como un chatbot servicial.'",
  "lens": "1-2 frases en ${L} nombrando qué marcos son más relevantes para evaluar esta conversación"
 }
 Ancla el diseño en la psicología real del reto. Personaje humano, con matices, ni demasiado fácil ni demasiado hostil, pero SIEMPRE con lenguaje correcto y respetuoso (sin tacos ni vulgaridades), adecuado para un seminario universitario.`;
@@ -286,7 +286,7 @@ function save(){ try{ localStorage.setItem(STORE, JSON.stringify({
   lang:state.lang, cases:state.cases, currentId:state.currentId, draft:state.draft })); }catch(e){} }
 function set(patch){ Object.assign(state,patch); save(); render(); }
 function cur(){ return state.cases.find(c=>c.id===state.currentId)||null; }
-function setLang(l){ state.lang=l; document.documentElement.lang=l; set({}); }
+function setLang(l){ state.lang=l; document.documentElement.lang=l; try{localStorage.setItem("synetrix_lang",l);}catch(e){} set({}); }
 
 async function callAI(system, messages, maxTokens){
   if(!TUTOR_CONFIG.endpoint) throw new Error("sin endpoint");
@@ -379,7 +379,7 @@ async function getReply(){
   try{
     const history=c.messages.filter((m,i)=>!(i===0&&m.role==="them"))
       .map(m=>({role:m.role==="you"?"user":"assistant",content:m.content}));
-    const sys=c.char.persona+`\n\nTu primera frase fue: "${c.char.opener}". Continúa la conversación de forma natural en ${langName()}. IMPORTANTE: mantén SIEMPRE un registro respetuoso y profesional, propio de un seminario universitario; NUNCA uses palabras malsonantes, tacos ni lenguaje vulgar, aunque el personaje esté enfadado o dolido (expresa las emociones con vocabulario correcto).`;
+    const sys=c.char.persona+`\n\nTu primera frase fue: "${c.char.opener}". Continúa la conversación de forma natural en ${langName()}. IMPORTANTE: mantén SIEMPRE un registro respetuoso y profesional, propio de un seminario universitario; NUNCA uses palabras malsonantes, tacos ni lenguaje vulgar, aunque el personaje esté enfadado o dolido. NUNCA inventes ni uses un nombre propio para dirigirte al líder (no conoces su nombre): diríjete a él de forma natural, sin nombres.`;
     const reply=await callAI(sys,history);
     c.messages.push({role:"them",content:softenLang(reply)});
     set({ thinking:false });
@@ -412,17 +412,18 @@ function retry(){ const c=cur(); if(!c||state.thinking) return;
 async function suggest(){
   const c=cur(); if(!c||state.suggesting||state.thinking) return;
   set({ suggesting:true, error:"" });
+  const who=c.char.characterName||"la persona";
+  const transcript=c.messages.map(m=>(m.role==="you"?"LÍDER":who.toUpperCase())+": "+m.content).join("\n");
+  const sys=`Eres un coach de liderazgo (Schein, Edmondson). Sugiere en UNA sola frase, lista para decir, qué podría decir AHORA el líder para avanzar hacia su objetivo con ${who}, usando escucha y validación, sin saltar a soluciones. Devuelve solo la frase, sin comillas ni preámbulo, en ${langName()}.`;
+  const prompt=`Objetivo: ${c.form.goal}\n\nConversación:\n${transcript}\n\nSugiere la próxima intervención del líder.`;
   let tip="";
-  try{
-    const who=c.char.characterName||"la persona";
-    const transcript=c.messages.map(m=>(m.role==="you"?"LÍDER":who.toUpperCase())+": "+m.content).join("\n");
-    const sys=`Eres un coach de liderazgo (Schein, Edmondson). Sugiere en UNA sola frase, lista para decir, qué podría decir AHORA el líder para avanzar hacia su objetivo con ${who}, usando escucha y validación, sin saltar a soluciones. Devuelve solo la frase, sin comillas ni preámbulo, en ${langName()}.`;
-    const prompt=`Objetivo: ${c.form.goal}\n\nConversación:\n${transcript}\n\nSugiere la próxima intervención del líder.`;
-    tip=await callAI(sys,[{role:"user",content:prompt}]);
-  }catch(e){ set({ suggesting:false, error:t("err_suggest") }); return; }
+  for(let attempt=0; attempt<2 && !tip; attempt++){
+    try{ tip=await callAI(sys,[{role:"user",content:prompt}]); }catch(e){}
+  }
+  if(!tip){ set({ suggesting:false, error:t("err_suggest") }); return; }
   set({ suggesting:false });
   const ta=document.getElementById("input");
-  if(ta && tip){ ta.value=tip.replace(/^["'¿¡\s]+|["'\s]+$/g,"").trim(); ta.focus();
+  if(ta){ ta.value=tip.replace(/^["'\s]+|["'\s]+$/g,"").trim(); ta.focus();
     ta.style.height="auto"; ta.style.height=Math.min(ta.scrollHeight,160)+"px";
     try{ ta.setSelectionRange(ta.value.length, ta.value.length); }catch(e){} }
 }
@@ -430,28 +431,32 @@ async function suggest(){
 async function askHint(){
   const c=cur(); if(!c||state.hinting||state.thinking) return;
   set({ hinting:true, hint:null, error:"" });
-  try{
-    const who=c.char.characterName||"la persona";
-    const transcript=c.messages.map(m=>(m.role==="you"?"LÍDER":who.toUpperCase())+": "+m.content).join("\n");
-    const sys=`Eres un tutor de liderazgo (Lencioni, Edmondson, Schein, Jehn, Belbin, Goleman, Pink). Da una PISTA breve (2-3 frases) que oriente el PENSAMIENTO del líder conectando la situación con la TEORÍA: nombra el marco o autor relevante y qué principio aplicar aquí. NO des la frase exacta para decir. Responde en ${langName()}, tono de mentor, sin listas.`;
-    const prompt=`Reto: ${chLabel(chObjOf(c.form.challenge))}. Objetivo: ${c.form.goal}\n\nConversación:\n${transcript||"(aún no ha escrito nada)"}\n\nDa la pista teórica.`;
-    const tip=await callAI(sys,[{role:"user",content:prompt}]);
-    set({ hinting:false, hint:tip.trim() });
-  }catch(e){ set({ hinting:false, error:t("err_hint") }); }
+  const who=c.char.characterName||"la persona";
+  const transcript=c.messages.map(m=>(m.role==="you"?"LÍDER":who.toUpperCase())+": "+m.content).join("\n");
+  const sys=`Eres un tutor de liderazgo (Lencioni, Edmondson, Schein, Jehn, Belbin, Goleman, Pink). Da una PISTA breve (2-3 frases) que oriente el PENSAMIENTO del líder conectando la situación con la TEORÍA: nombra el marco o autor relevante y qué principio aplicar aquí. NO des la frase exacta para decir. Responde en ${langName()}, tono de mentor, sin listas.`;
+  const prompt=`Reto: ${chLabel(chObjOf(c.form.challenge))}. Objetivo: ${c.form.goal}\n\nConversación:\n${transcript||"(aún no ha escrito nada)"}\n\nDa la pista teórica.`;
+  let tip="";
+  for(let attempt=0; attempt<2 && !tip; attempt++){
+    try{ tip=await callAI(sys,[{role:"user",content:prompt}]); }catch(e){}
+  }
+  if(!tip){ set({ hinting:false, error:t("err_hint") }); return; }
+  set({ hinting:false, hint:tip.trim() });
 }
 function dismissHint(){ set({ hint:null }); }
 
 async function getFeedback(){
   const c=cur(); if(!c||youCount()===0) return;
   set({ loadingFb:true, error:"" });
-  try{
-    const who=(c.char.characterName||"PERSONA").toUpperCase();
-    const transcript=c.messages.map(m=>(m.role==="you"?"LÍDER":who)+": "+m.content).join("\n");
-    const prompt=`Reto: ${chLabel(chObjOf(c.form.challenge))}.\n\nTranscripción:\n\n${transcript}\n\nDa tu feedback.`;
-    const text=await callAI(coachSystem(c.char.lens, c.form.goal),[{role:"user",content:prompt}]);
-    c.feedback=parseFeedback(text);
-    set({ loadingFb:false });
-  }catch(e){ set({ loadingFb:false, error:t("err_fb") }); }
+  const who=(c.char.characterName||"PERSONA").toUpperCase();
+  const transcript=c.messages.map(m=>(m.role==="you"?"LÍDER":who)+": "+m.content).join("\n");
+  const prompt=`Reto: ${chLabel(chObjOf(c.form.challenge))}.\n\nTranscripción:\n\n${transcript}\n\nDa tu feedback.`;
+  let text="";
+  for(let attempt=0; attempt<2 && !text; attempt++){
+    try{ text=await callAI(coachSystem(c.char.lens, c.form.goal),[{role:"user",content:prompt}]); }catch(e){}
+  }
+  if(!text){ set({ loadingFb:false, error:t("err_fb") }); return; }
+  c.feedback=parseFeedback(text);
+  set({ loadingFb:false });
 }
 
 // Red de seguridad: suaviza lenguaje malsonante por si la IA lo produce pese al prompt.
@@ -870,6 +875,7 @@ function classFooter(){ return `
   </div>`; }
 
 document.documentElement.lang=state.lang;
+try{ const sl=localStorage.getItem("synetrix_lang"); if(sl==="en"||sl==="es"){ state.lang=sl; document.documentElement.lang=sl; } }catch(e){}
 try{ const ul=new URLSearchParams(location.search).get("lang"); if(ul==="en"||ul==="es"){ state.lang=ul; document.documentElement.lang=ul; save(); } }catch(e){}
 render();
 </script>
