@@ -264,10 +264,10 @@ function genSystem(){
 
 A partir del caso real que te describe un líder de capítulo, diseña un personaje simulado creíble para que ENSAYE la conversación. Devuelve SOLO un objeto JSON válido, sin ningún texto adicional, sin explicación y sin bloques de código markdown. TODO el contenido de texto del JSON debe estar en ${L}. Forma EXACTA:
 {
- "characterName": "nombre de pila realista y coherente",
+ "characterName": "SI el caso del líder ya menciona un nombre de pila para la persona, USA EXACTAMENTE ESE NOMBRE. Si no menciona ninguno, elige un nombre de pila realista y coherente con el género del personaje, nuevo y distinto para este caso.",
  "characterRole": "rol en el capítulo, breve, en ${L} (ej: tesorera del capítulo, presidente electo, miembro veterano)",
  "traits": ["2 o 3 rasgos MUY breves del estado emocional actual, 1-3 palabras cada uno, en ${L}"],
- "avatar": "elige la etiqueta que MEJOR encaje: 'mujer_madura', 'mujer_joven', 'hombre_joven', 'hombre_maduro' o 'mujer_alternativa'",
+ "avatar": "elige la etiqueta cuyo GÉNERO y EDAD encajen con characterName y characterRole: 'mujer_madura', 'mujer_joven', 'hombre_joven', 'hombre_maduro' o 'mujer_alternativa'. Debe ser coherente con el nombre (p. ej. un nombre masculino NUNCA lleva un avatar de mujer).",
  "opener": "primera frase que dice el personaje al iniciar la conversación: natural, emocionalmente realista, 1-3 frases, en ${L}. IMPORTANTE: NO uses ningún nombre propio para dirigirte al líder (el personaje NO conoce su nombre); saluda de forma natural sin inventar un nombre.",
  "persona": "instrucciones para que una IA interprete a este personaje dentro de la vida real de un capítulo AATSP. Incluye quién es, qué siente y por qué, qué le hace ABRIRSE (curiosidad, escucha, validación, reconocimiento) y qué le hace CERRARSE (reproche, paternalismo, saltar a soluciones, minimizar, apelar a 'lo que exige National' de forma fría), y cómo evoluciona. Incluye SIEMPRE esta regla: 'NUNCA invento ni uso un nombre propio para dirigirme al líder o interlocutor; no conozco su nombre, así que me dirijo a él de forma natural (tú, usted) sin inventar nombres.' Termina SIEMPRE con: 'Mantengo SIEMPRE un registro respetuoso y profesional, propio de un contexto educativo universitario; NUNCA uso palabras malsonantes, tacos ni lenguaje vulgar, ni siquiera enfadado o frustrado: expreso mis emociones con vocabulario correcto y cuidado. Respondo SIEMPRE en ${L}, en 2-4 frases, de forma emocionalmente realista, como una persona real, nunca como un chatbot servicial.'",
  "lens": "1-2 frases en ${L} nombrando qué marcos de liderazgo son más relevantes para evaluar esta conversación",
@@ -317,7 +317,7 @@ let state = {
   draft:{person:"",challenge:"burnout",situation:"",goal:""},
   thinking:false, loadingFb:false, suggesting:false, hinting:false, error:"", hint:null
 };
-const STORE="synetrix_aatsp_v1";
+const STORE="synetrix_aatsp_v2";
 
 try{ const s=JSON.parse(localStorage.getItem(STORE)||"null");
   if(s){ state.cases=Array.isArray(s.cases)?s.cases:[]; state.currentId=s.currentId||null;
@@ -353,6 +353,42 @@ async function callAI(system, messages, maxTokens){
 }
 
 const chObjOf=(v)=>CHALLENGES.find(c=>c.v===v)||CHALLENGES[0];
+
+/* Valida el avatar devuelto por la IA; si no es una de las 5 claves,
+   lo infiere del nombre y del rol (heurística de género + edad). */
+const AVATAR_KEYS = ["mujer_madura","mujer_joven","hombre_joven","hombre_maduro","mujer_alternativa"];
+const FEMALE_NAMES = /^(ana|carmen|maria|maría|lucia|lucía|laura|marta|elena|sofia|sofía|paula|clara|rosa|isabel|pilar|nuria|sara|julia|alba|irene|raquel|patricia|cristina|beatriz|silvia|teresa|angela|ángela|mercedes|dolores|concepcion|concepción|monica|mónica|susana|carla|noelia|lorena|diana|adriana|gloria|rocio|rocío)$/i;
+const MALE_NAMES = /^(david|robert|roberto|jose|josé|juan|carlos|miguel|antonio|pedro|pablo|luis|javier|manuel|francisco|alberto|sergio|daniel|jorge|alejandro|fernando|ramon|ramón|rafael|angel|ángel|oscar|óscar|ruben|rubén|victor|víctor|andres|andrés|ignacio|marcos|adrian|adrián|alex|nicolas|nicolás|gabriel|hugo|mario|diego|ivan|iván)$/i;
+const FEMALE_ROLE = /\b(she|her|señora|doña|profesora|presidenta|tesorera|coordinadora|secretaria|directora|vicepresidenta|compañera|miembra)\b/i;
+const MALE_ROLE = /\b(he|him|señor|don|presidente|tesorero|coordinador|secretario|director|vicepresidente|compañero)\b/i;
+const SENIOR_HINTS = /\b(veterano|veterana|senior|mayor|experimentad|jubilad|años de experiencia|décadas|retirándose|saliente|de toda la vida|2[0-9] años|3[0-9] años|emérit)\b/i;
+const JUNIOR_HINTS = /\b(joven|nuevo|nueva|novel|recién|primer año|segundo año|entrante|reciente|junior|becari)\b/i;
+
+function pickAvatar(rawAvatar, name, role){
+  if(AVATAR_KEYS.indexOf(rawAvatar)!==-1) return rawAvatar; // la IA acertó
+  const first=((name||"").trim().split(/\s+/)[0]||"").toLowerCase();
+  const roleTxt=(role||"").toLowerCase();
+  // Género: 1) nombre en lista, 2) rol con marca de género, 3) terminación del nombre
+  let female=null;
+  if(FEMALE_NAMES.test(first)) female=true;
+  else if(MALE_NAMES.test(first)) female=false;
+  else if(FEMALE_ROLE.test(" "+roleTxt+" ")) female=true;
+  else if(MALE_ROLE.test(" "+roleTxt+" ")) female=false;
+  else if(/[ae]$/i.test(first)) female=/a$/i.test(first); // -a→mujer, -e→hombre por defecto
+  else female=false; // por defecto hombre si no hay ninguna pista
+  // Edad
+  const hay=(first+" "+roleTxt);
+  const senior=SENIOR_HINTS.test(hay), junior=JUNIOR_HINTS.test(hay);
+  if(female){
+    if(senior) return Math.random()<0.5 ? "mujer_madura" : "mujer_alternativa";
+    if(junior) return "mujer_joven";
+    return Math.random()<0.5 ? "mujer_madura" : "mujer_joven";
+  } else {
+    if(junior) return "hombre_joven";
+    return "hombre_maduro";
+  }
+}
+
 
 function newCase(){
   if(state.cases.length>=MAX_CASES){ set({showCases:true}); alert(t("alert_max")); return; }
@@ -410,8 +446,19 @@ Diseña el personaje y devuelve solo el JSON en ${langName()}.`;
   }
   if(!obj){ set({ error:t("err_gen"), view:"build" }); return; }
   if(!Array.isArray(obj.traits)) obj.traits=[];
+  // Si el usuario escribió una persona, RESPETAMOS su nombre de pila en lugar del inventado por la IA.
+  const typedFirst = (f.person||"").trim().split(/[\s,]+/)[0] || "";
+  if(typedFirst){
+    obj.characterName = typedFirst.charAt(0).toUpperCase()+typedFirst.slice(1);
+    // el rol también, si el usuario lo indicó tras la coma
+    const afterComma = (f.person.indexOf(",")!==-1) ? f.person.slice(f.person.indexOf(",")+1).trim() : "";
+    if(afterComma) obj.characterRole = afterComma;
+  }
   if(!obj.characterName) obj.characterName = state.lang==="en"?"The person":"La persona";
   if(!obj.aatsp) obj.aatsp = chAatsp(ch);
+  // El avatar se decide SIEMPRE a partir del nombre/rol reales (los del usuario si los dio),
+  // no del que invente la IA, para que género y edad siempre cuadren.
+  obj.avatar = pickAvatar(typedFirst ? "" : obj.avatar, obj.characterName, obj.characterRole);
   const c=newCaseObj({person:f.person,challenge:f.challenge,situation:f.situation,goal:f.goal});
   obj.opener=softenLang(obj.opener); c.char=obj; c.messages=[{role:"them",content:obj.opener}];
   state.cases.push(c);
@@ -755,7 +802,7 @@ function viewBuild(){ const ch=chObjOf(state.draft.challenge); const hasCases=st
       </div>
       <div style="margin-bottom:16px;">
         <label style="font-size:13px;font-weight:600;margin-bottom:6px;display:block;">${t("f_person")}</label>
-        <input class="in" oninput="state.draft.person=this.value" value="${esc(state.draft.person)}" placeholder="${t("f_person_ph")}" style="width:100%;border:1px solid var(--line);border-radius:11px;padding:12px 14px;font-size:15px;background:#FCFCFE;">
+        <input class="in" autocomplete="off" oninput="state.draft.person=this.value" value="${esc(state.draft.person)}" placeholder="${t("f_person_ph")}" style="width:100%;border:1px solid var(--line);border-radius:11px;padding:12px 14px;font-size:15px;background:#FCFCFE;">
       </div>
       <div style="margin-bottom:16px;">
         <label style="font-size:13px;font-weight:600;margin-bottom:6px;display:block;">${t("f_challenge")}</label>
@@ -769,11 +816,11 @@ function viewBuild(){ const ch=chObjOf(state.draft.challenge); const hasCases=st
       </div>
       <div style="margin-bottom:16px;">
         <label style="font-size:13px;font-weight:600;margin-bottom:6px;display:block;">${t("f_situation")}</label>
-        <textarea class="in" oninput="state.draft.situation=this.value" placeholder="${t("f_situation_ph")}" style="width:100%;min-height:94px;resize:vertical;border:1px solid var(--line);border-radius:11px;padding:12px 14px;font-size:15px;background:#FCFCFE;line-height:1.5;">${esc(state.draft.situation)}</textarea>
+        <textarea class="in" autocomplete="off" oninput="state.draft.situation=this.value" placeholder="${t("f_situation_ph")}" style="width:100%;min-height:94px;resize:vertical;border:1px solid var(--line);border-radius:11px;padding:12px 14px;font-size:15px;background:#FCFCFE;line-height:1.5;">${esc(state.draft.situation)}</textarea>
       </div>
       <div style="margin-bottom:24px;">
         <label style="font-size:13px;font-weight:600;margin-bottom:6px;display:block;">${t("f_goal")}</label>
-        <input class="in" oninput="state.draft.goal=this.value" value="${esc(state.draft.goal)}" placeholder="${t("f_goal_ph")}" style="width:100%;border:1px solid var(--line);border-radius:11px;padding:12px 14px;font-size:15px;background:#FCFCFE;">
+        <input class="in" autocomplete="off" oninput="state.draft.goal=this.value" value="${esc(state.draft.goal)}" placeholder="${t("f_goal_ph")}" style="width:100%;border:1px solid var(--line);border-radius:11px;padding:12px 14px;font-size:15px;background:#FCFCFE;">
       </div>
       ${state.error?`<p style="color:#DC2626;font-size:13.5px;margin-bottom:14px;">${esc(state.error)}</p>`:""}
       <button onclick="generate()" class="grad-btn" style="padding:14px 28px;border-radius:12px;font-size:15.5px;font-weight:600;display:inline-flex;align-items:center;gap:8px;">
@@ -952,3 +999,4 @@ render();
 </script>
 </body>
 </html>
+
