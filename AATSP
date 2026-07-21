@@ -1,0 +1,387 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Synetrix · <span data-k="nav_title">Simulador de conversaciones de liderazgo docente</span> — Universidad de Salamanca para AATSP</title>
+<style>
+  :root{
+    --bg:#F6F5FC; --card:#FFFFFF; --ink:#1B1F33; --ink2:#3A3F55; --muted:#6B7280;
+    --line:#E8E7F2; --primary:#6D5AE6; --primary2:#8B5CF6; --blue:#4F7CFF; --deep:#4C33C9;
+    --green:#16A34A; --greenSoft:#DCFCE7; --amber:#D97706; --amberSoft:#FEF3C7;
+    --purpleSoft:#EDE9FE; --blueSoft:#E8EEFF; --pinkSoft:#FCE7F3; --pink:#DB2777;
+    --grad:linear-gradient(135deg,#5A4BE0 0%,#8B5CF6 100%);
+    --gradBtn:linear-gradient(135deg,#5B44E4 0%,#7C3AED 100%);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;color:var(--ink);
+    background:var(--bg); overflow-x:hidden; -webkit-font-smoothing:antialiased;}
+  a{text-decoration:none;color:inherit;}
+  button{font-family:inherit;cursor:pointer;border:none;}
+
+  /* Fondo animado (mesh) + canvas */
+  #bgmesh{position:fixed;inset:0;z-index:-2;
+    background:
+      radial-gradient(60vw 50vh at 12% 8%, rgba(124,58,237,.16), transparent 60%),
+      radial-gradient(55vw 45vh at 92% 4%, rgba(79,124,255,.16), transparent 60%),
+      radial-gradient(50vw 50vh at 85% 90%, rgba(139,92,246,.14), transparent 60%),
+      var(--bg);
+    animation:meshMove 18s ease-in-out infinite alternate;}
+  @keyframes meshMove{0%{background-position:0 0,0 0,0 0,0 0;} 100%{background-position:6% 4%, -5% 3%, 4% -4%, 0 0;}}
+  #particles{position:fixed;inset:0;z-index:-1;opacity:.55;pointer-events:none;}
+
+  .wrap{max-width:1240px;margin:0 auto;padding:0 26px;}
+
+  /* Topbar */
+  .topbar{position:sticky;top:0;z-index:40;backdrop-filter:blur(10px);
+    background:rgba(246,245,252,.82);border-bottom:1px solid rgba(232,231,242,.7);}
+  .topbar .row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;flex-wrap:wrap;}
+  .brand{display:flex;align-items:center;gap:13px;}
+  .brand .sep{width:1px;height:32px;background:var(--line);}
+  .btn{border-radius:12px;font-weight:600;transition:all .18s ease;display:inline-flex;align-items:center;gap:8px;}
+  .btn:hover{transform:translateY(-2px);}
+  .btn-primary{background:var(--gradBtn);color:#fff;padding:12px 22px;font-size:15px;
+    box-shadow:0 10px 24px rgba(108,58,230,.34);position:relative;overflow:hidden;}
+  .btn-primary::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);
+    transform:translateX(-120%);animation:sheen 3.2s ease-in-out infinite;}
+  @keyframes sheen{0%,100%{transform:translateX(-120%);}60%{transform:translateX(120%);}}
+  .btn-ghost{background:#fff;border:1px solid var(--line);color:var(--ink);padding:11px 20px;font-size:15px;}
+  .btn-ghost:hover{border-color:var(--primary);color:var(--primary);}
+
+  /* Hero */
+  .hero{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center;padding:56px 0 34px;}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;color:var(--primary);font-weight:700;font-size:14.5px;letter-spacing:.01em;margin-bottom:20px;}
+  h1{font-size:56px;line-height:1.05;font-weight:800;letter-spacing:-.02em;margin-bottom:22px;}
+  h1 .grad{background:linear-gradient(100deg,#6D5AE6,#8B5CF6 45%,#4F7CFF);-webkit-background-clip:text;background-clip:text;color:transparent;
+    background-size:200% auto;animation:shine 5s linear infinite;}
+  @keyframes shine{to{background-position:200% center;}}
+  .lead{font-size:18.5px;line-height:1.62;color:var(--ink2);max-width:520px;margin-bottom:30px;}
+  .cta-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:34px;}
+  .btn-lg{padding:15px 28px;font-size:16px;border-radius:14px;}
+  .feat-row{display:flex;gap:26px;flex-wrap:wrap;}
+  .feat{display:flex;align-items:center;gap:9px;font-size:14.5px;color:var(--ink2);font-weight:500;}
+
+  /* Mockup */
+  .stage{position:relative;perspective:1400px;}
+  .mock{background:rgba(255,255,255,.72);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.9);
+    border-radius:22px;padding:20px;box-shadow:0 30px 70px rgba(60,50,120,.20);
+    transform-style:preserve-3d;transition:transform .25s ease;animation:floaty 6s ease-in-out infinite;}
+  @keyframes floaty{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+  .mini-step{display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:16px;flex-wrap:wrap;}
+  .ms-dot{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;}
+  .mgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+  .mcard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px;box-shadow:0 4px 14px rgba(60,50,120,.06);}
+  .mtag{border-radius:16px;padding:3px 10px;font-size:10.5px;font-weight:700;display:inline-block;}
+  .bubble{border-radius:12px;padding:9px 11px;font-size:11.5px;line-height:1.45;color:var(--ink2);margin-bottom:8px;}
+  .prog{height:7px;border-radius:6px;background:#EBE9F6;overflow:hidden;}
+  .prog>i{display:block;height:100%;width:0;background:var(--grad);border-radius:6px;transition:width 1.4s cubic-bezier(.2,.8,.2,1);}
+  .chk{width:20px;height:20px;border-radius:50%;background:var(--green);display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;}
+  .chk svg path{stroke-dasharray:20;stroke-dashoffset:20;}
+  .mock.seen .chk svg path{animation:draw .5s ease forwards;}
+  .mock.seen .chk:nth-of-type(2) svg path{animation-delay:.15s;}
+  @keyframes draw{to{stroke-dashoffset:0;}}
+  .cathedral{position:absolute;right:-30px;bottom:-40px;z-index:-1;opacity:.16;color:var(--primary);pointer-events:none;}
+
+  /* Reveal */
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1;transform:none;}
+  .d1{transition-delay:.05s;} .d2{transition-delay:.15s;} .d3{transition-delay:.25s;} .d4{transition-delay:.35s;}
+
+  /* Feature cards */
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;padding:20px 0 30px;}
+  .bigcard{background:rgba(255,255,255,.8);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:20px;padding:26px;
+    transition:transform .2s ease, box-shadow .2s ease;}
+  .bigcard:hover{transform:translateY(-6px);box-shadow:0 22px 44px rgba(60,50,120,.14);}
+  .ico{width:52px;height:52px;border-radius:15px;background:var(--purpleSoft);display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;}
+
+  /* Footer */
+  footer{border-top:1px solid var(--line);margin-top:16px;}
+  .foot{display:flex;align-items:center;justify-content:center;gap:26px;flex-wrap:wrap;padding:30px 0;text-align:center;}
+  .brandlogo{display:inline-flex;align-items:center;gap:10px;font-weight:700;}
+  .disclaimer{font-size:12px;color:var(--muted);text-align:center;padding:0 0 34px;line-height:1.6;max-width:820px;margin:0 auto;}
+
+  @media(max-width:960px){
+    .hero{grid-template-columns:1fr;gap:30px;padding:34px 0 20px;}
+    h1{font-size:42px;}
+    .cards{grid-template-columns:1fr;}
+    .stage{order:2;}
+  }
+  @media(max-width:520px){ h1{font-size:34px;} .mgrid{grid-template-columns:1fr;} }
+
+  .langsw{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;}
+  .langsw button{padding:8px 13px;font-size:13px;font-weight:700;background:#fff;color:var(--muted);border:none;cursor:pointer;transition:all .15s;}
+  .langsw button.on{background:var(--gradBtn);color:#fff;}
+</style>
+</head>
+<body>
+<div id="bgmesh"></div>
+<canvas id="particles"></canvas>
+
+<!-- Topbar -->
+<div class="topbar"><div class="wrap"><div class="row">
+  <div class="brand">
+    <svg width="36" height="36" viewBox="0 0 40 40" fill="none">
+      <path d="M25 8c-6-2-13 1-13 7 0 7 14 4 14 11 0 5-7 7-12 5" stroke="#4F7CFF" stroke-width="4.2" stroke-linecap="round"/>
+      <path d="M15 32c6 2 13-1 13-7 0-7-14-4-14-11 0-5 7-7 12-5" stroke="#8B5CF6" stroke-width="4.2" stroke-linecap="round" opacity=".9"/>
+    </svg>
+    <span style="font-size:23px;font-weight:800;letter-spacing:-.01em;">Synetrix</span>
+    <span class="sep"></span>
+    <div>
+      <div style="font-size:15px;font-weight:700;line-height:1.2;">Simulador de conversaciones de liderazgo docente</div>
+      <div style="font-size:12.5px;color:var(--muted);"><span data-k="nav_sub">Desarrollado en la Universidad de Salamanca para AATSP</span></div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div class="langsw" style="margin-right:4px;">
+      <button id="lg-es" class="on" onclick="setLang('es')">ES</button>
+      <button id="lg-en" onclick="setLang('en')">EN</button>
+    </div>
+    <a href="https://mpereda-ops.github.io/masterfusiones/AATSPSIM" class="btn btn-ghost">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="3.6"/><path d="M5 20c0-3.5 3-5.5 7-5.5s7 2 7 5.5"/></svg>
+      <span data-k="login">Iniciar sesión</span>
+    </a>
+    <a href="https://mpereda-ops.github.io/masterfusiones/AATSPSIM" class="btn btn-primary"><span data-k="cta">Comenzar simulación</span>
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+  </div>
+</div></div></div>
+
+<!-- Hero -->
+<div class="wrap">
+  <div class="hero">
+    <div>
+      <div class="eyebrow reveal in">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l1.6 4.4L18 10l-4.4 1.6L12 16l-1.6-4.4L6 10l4.4-1.6L12 4z"/></svg>
+        <span data-k="eyebrow">Practica. Reflexiona. Lidera con impacto.</span>
+      </div>
+      <h1 class="reveal in d1"><span data-k="h1a">Ensaya conversaciones difíciles.</span><br><span class="grad" data-k="h1b">Lidera mejor de verdad.</span></h1>
+      <p class="lead reveal in d2"><span data-k="lead">Synetrix te permite practicar conversaciones de liderazgo docente con apoyo de IA, recibir feedback útil y mejorar tu forma de comunicar, acompañar y decidir.</span></p>
+      <div class="cta-row reveal in d3">
+        <a href="https://mpereda-ops.github.io/masterfusiones/AATSPSIM" class="btn btn-primary btn-lg"><span data-k="cta">Comenzar simulación</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a href="#como" class="btn btn-ghost btn-lg">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 9l5 3-5 3V9z" fill="currentColor" stroke="none"/></svg>
+          <span data-k="demo">Ver demo</span>
+        </a>
+      </div>
+      <div class="feat-row reveal in d4">
+        <span class="feat"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.2l7.5 2.8v5.5c0 4.7-3.6 7.5-7.5 8.5-3.9-1-7.5-3.8-7.5-8.5V6L12 3.2z"/><path d="M9 12l2 2 4-4"/></svg> <span data-k="f1">Basado en evidencia</span></span>
+        <span class="feat"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="9" rx="2.2"/><path d="M8 10.5V8a4 4 0 018 0v2.5"/></svg> <span data-k="f2">Privado y seguro</span></span>
+        <span class="feat"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M2 20c0-3 3-5 7-5m4 5c0-3 3-5 7-5"/><circle cx="17" cy="9" r="2.4"/></svg> <span data-k="f3">Diseñado para docentes</span></span>
+      </div>
+    </div>
+
+    <!-- Mockup -->
+    <div class="stage reveal in d2" id="como">
+      <svg class="cathedral" width="360" height="260" viewBox="0 0 360 260" fill="currentColor">
+        <path d="M40 260V150l14-16 14 16v110zM90 260V120c0-18 16-30 16-30s16 12 16 30v140zM150 260V90l30-40 30 40v170zM230 260V120c0-18 16-30 16-30s16 12 16 30v140zM300 260V150l14-16 14 16v110z"/>
+        <circle cx="180" cy="44" r="9"/><circle cx="106" cy="80" r="6"/><circle cx="246" cy="80" r="6"/>
+      </svg>
+      <div class="mock" id="mock">
+        <div class="mini-step">
+          <span class="ms-dot" style="background:var(--grad);">1</span><span style="font-weight:700;color:var(--ink2);" data-k="m_step1">Describe tu caso</span>
+          <span style="flex:0 0 24px;height:1px;border-top:1.5px dashed var(--line);"></span>
+          <span class="ms-dot" style="background:var(--grad);">2</span><span style="font-weight:700;color:var(--primary);" data-k="m_step2">Ensaya la conversación</span>
+          <span style="flex:0 0 24px;height:1px;border-top:1.5px dashed var(--line);"></span>
+          <span class="ms-dot" style="background:#fff;border:1.5px solid var(--line);color:#B4B2C4;">3</span><span style="color:#9C9AAE;" data-k="m_step3">Recibe feedback</span>
+        </div>
+        <div class="mgrid">
+          <!-- Personaje -->
+          <div class="mcard">
+            <div style="display:flex;align-items:center;gap:9px;margin-bottom:9px;">
+              <img src="data:image/jpeg;base64,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" alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+              <div><div style="font-size:13px;font-weight:700;">Priya</div><div style="font-size:10.5px;color:var(--muted);line-height:1.2;">Coordinadora de<br>Comunicaciones</div></div>
+            </div>
+            <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:9px;">
+              <span class="mtag" style="background:var(--purpleSoft);color:var(--primary);">Agobiada</span>
+              <span class="mtag" style="background:var(--amberSoft);color:var(--amber);">Poca confianza</span>
+              <span class="mtag" style="background:var(--greenSoft);color:var(--green);">Resistencia al cambio</span>
+            </div>
+            <div style="font-size:11px;font-style:italic;color:var(--ink2);line-height:1.5;">"Siento que no me valoran y me están pidiendo demasiado. Ya no tengo motivación."</div>
+            <div style="font-size:11px;color:var(--primary);font-weight:600;margin-top:9px;"><span data-k="m_ctx">Ver contexto completo →</span></div>
+          </div>
+          <!-- Mensajes -->
+          <div class="mcard" style="display:flex;flex-direction:column;justify-content:center;background:#FAFAFE;">
+            <div class="bubble" style="background:#EEF1FF;">La carga de trabajo es enorme y no tengo claro qué prioridades tengo. Siento que nada de lo que hago es suficiente.</div>
+            <div class="bubble" style="background:#EDE9FE;color:var(--ink);align-self:flex-end;">Gracias por compartirlo, Priya. Quiero entender mejor cómo estás viviendo esta situación.</div>
+          </div>
+          <!-- Coach -->
+          <div class="mcard">
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:11px;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l1.6 4.4L18 10l-4.4 1.6L12 16l-1.6-4.4L6 10l4.4-1.6L12 4z"/></svg>
+              <span style="font-size:12.5px;font-weight:700;" data-k="m_coach">Coach de IA</span>
+            </div>
+            
+            <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:9px;">
+              <div style="flex:1;"><div style="font-size:11.5px;font-weight:700;" data-k="m_l1">Escucha activa</div><div style="font-size:10px;color:var(--muted);line-height:1.4;"><span data-k="m_l1b">Estás mostrando interés y comprensión.</span></div></div>
+              <span class="chk"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4.5 4.5L19 7"/></svg></span>
+            </div>
+            <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:9px;">
+              <div style="flex:1;"><div style="font-size:11.5px;font-weight:700;" data-k="m_l2">Haz preguntas abiertas</div><div style="font-size:10px;color:var(--muted);line-height:1.4;"><span data-k="m_l2b">Vas por buen camino. Profundiza un poco más.</span></div></div>
+              <span class="chk"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4.5 4.5L19 7"/></svg></span>
+            </div>
+            <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:13px;">
+              <div style="flex:1;"><div style="font-size:11.5px;font-weight:700;" data-k="m_l3">Valida emociones</div><div style="font-size:10px;color:var(--muted);line-height:1.4;"><span data-k="m_l3b">Tu respuesta aporta empatía y contención.</span></div></div>
+              <span class="chk"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4.5 4.5L19 7"/></svg></span>
+            </div>
+            <div style="font-size:10.5px;color:var(--muted);margin-bottom:5px;"><span data-k="m_prog">Progreso de la conversación</span></div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="prog" style="flex:1;"><i id="progbar"></i></div>
+              <span style="font-size:11px;font-weight:700;">2 / 5</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:12px;display:flex;align-items:center;gap:8px;background:#F5F5FC;border:1px solid var(--line);border-radius:12px;padding:9px 12px;">
+          <span style="flex:1;color:#9CA3AF;font-size:12.5px;"><span data-k="m_ph">Escribe tu respuesta…</span></span>
+          <span style="width:30px;height:30px;border-radius:9px;background:var(--gradBtn);display:inline-flex;align-items:center;justify-content:center;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 11.5L20 5l-6.5 15.5-2.2-6.3-6.8-2.7z"/></svg>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Feature cards -->
+<div class="wrap">
+  <div class="cards">
+    <div class="bigcard reveal d1">
+      <span class="ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M2 20c0-3 3-5 7-5m4 5c0-3 3-5 7-5"/><circle cx="17" cy="9" r="2.4"/></svg></span>
+      <h3 style="font-size:19px;font-weight:700;margin-bottom:8px; data-k="c1t">Casos reales</h3>
+      <p style="font-size:14.5px;color:var(--ink2);line-height:1.6;"><span data-k="c1b">Situaciones auténticas del ámbito educativo para practicar con seguridad.</span></p>
+    </div>
+    <div class="bigcard reveal d2">
+      <span class="ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l1.6 4.4L18 10l-4.4 1.6L12 16l-1.6-4.4L6 10l4.4-1.6L12 4z"/><path d="M18.5 4.5l.6 1.6 1.6.6-1.6.6-.6 1.6-.6-1.6-1.6-.6 1.6-.6.6-1.6z"/></svg></span>
+      <h3 style="font-size:19px;font-weight:700;margin-bottom:8px; data-k="c2t">Coach de IA</h3>
+      <p style="font-size:14.5px;color:var(--ink2);line-height:1.6;"><span data-k="c2b">Acompañamiento en tiempo real para ayudarte a escuchar, preguntar y avanzar mejor.</span></p>
+    </div>
+    <div class="bigcard reveal d3">
+      <span class="ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg></span>
+      <h3 style="font-size:19px;font-weight:700;margin-bottom:8px; data-k="c3t">Feedback accionable</h3>
+      <p style="font-size:14.5px;color:var(--ink2);line-height:1.6;"><span data-k="c3b">Sugerencias concretas para convertir cada conversación en aprendizaje.</span></p>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer><div class="wrap">
+  <div class="foot">
+    <div style="color:var(--ink2);">
+      <div style="font-weight:600;">Desarrollado por <strong>Synetrix</strong> · Jorge Matías-Pereda</div>
+      <div style="font-size:13px;color:var(--muted);"><span data-k="foot_sub">En la Universidad de Salamanca para AATSP</span></div>
+    </div>
+    <span style="width:1px;height:38px;background:var(--line);"></span>
+    <div style="display:flex;align-items:center;gap:20px;">
+      <div class="brandlogo" style="color:#8A1414;">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#8A1414" stroke-width="1.4"><circle cx="12" cy="12" r="9"/><path d="M12 4v16M4 12h16" opacity=".5"/></svg>
+        <span style="font-size:13.5px;line-height:1.15;">V<span style="font-variant:small-caps;">niversidad</span><br>D SALAMANCA</span>
+      </div>
+      <div class="brandlogo" style="color:#1B3A8A;">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="#1B3A8A"><path d="M12 2l2.9 6.3 6.9.7-5.1 4.6 1.4 6.8L12 17.8 5.9 20.4l1.4-6.8L2.2 9l6.9-.7L12 2z"/></svg>
+        <span style="font-size:15px;font-weight:800;">AATSP</span>
+      </div>
+    </div>
+  </div>
+  <p class="disclaimer"><strong>Simulador de prueba para clase.</strong> Herramienta educativa del taller de liderazgo de la AATSP desde la Universidad de Salamanca. No es una herramienta de gestión de personas ni sustituye el criterio profesional. Los personajes son simulaciones generadas por IA. · mpereda@usal.es</p>
+</div></footer>
+
+<script>
+/* ── Partículas / constelación ── */
+(function(){
+  const cv=document.getElementById("particles"), ctx=cv.getContext("2d");
+  let w,h,pts;
+  function resize(){ w=cv.width=innerWidth; h=cv.height=innerHeight;
+    const n=Math.min(70, Math.floor(w*h/22000));
+    pts=Array.from({length:n},()=>({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:Math.random()*2+.6}));
+  }
+  resize(); addEventListener("resize",resize);
+  function tick(){
+    ctx.clearRect(0,0,w,h);
+    for(const p of pts){ p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0||p.x>w)p.vx*=-1; if(p.y<0||p.y>h)p.vy*=-1;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,7); ctx.fillStyle="rgba(124,92,230,.55)"; ctx.fill();
+    }
+    for(let i=0;i<pts.length;i++) for(let j=i+1;j<pts.length;j++){
+      const a=pts[i],b=pts[j],dx=a.x-b.x,dy=a.y-b.y,d=Math.hypot(dx,dy);
+      if(d<120){ ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y);
+        ctx.strokeStyle="rgba(124,92,230,"+(0.13*(1-d/120))+")"; ctx.lineWidth=1; ctx.stroke(); }
+    }
+    requestAnimationFrame(tick);
+  }
+  tick();
+})();
+
+/* ── Reveal on scroll ── */
+(function(){
+  const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target);}});},{threshold:.15});
+  document.querySelectorAll(".reveal:not(.in)").forEach(el=>io.observe(el));
+})();
+
+/* ── Mockup: tilt 3D con el ratón + animaciones al ver ── */
+(function(){
+  const stage=document.getElementById("como"), mock=document.getElementById("mock");
+  if(stage&&mock){
+    stage.addEventListener("mousemove",(e)=>{
+      const r=stage.getBoundingClientRect();
+      const rx=((e.clientY-r.top)/r.height-.5)*-6, ry=((e.clientX-r.left)/r.width-.5)*8;
+      mock.style.animation="none";
+      mock.style.transform=`rotateX(${rx}deg) rotateY(${ry}deg)`;
+    });
+    stage.addEventListener("mouseleave",()=>{ mock.style.transform="none"; mock.style.animation="floaty 6s ease-in-out infinite"; });
+    const io=new IntersectionObserver((es)=>{es.forEach(e=>{ if(e.isIntersecting){
+      mock.classList.add("seen");
+      const bar=document.getElementById("progbar"); if(bar) setTimeout(()=>bar.style.width="40%",250);
+      io.unobserve(e.target);
+    }});},{threshold:.3});
+    io.observe(mock);
+  }
+})();
+
+/* ── i18n ES/EN ── */
+const T_EN = {
+  nav_title:"Leadership Conversation Simulator for Teachers",
+  nav_sub:"Developed at the University of Salamanca for AATSP",
+  login:"Sign in", cta:"Start simulation",
+  eyebrow:"Practice. Reflect. Lead with impact.",
+  h1a:"Rehearse difficult conversations.", h1b:"Lead better, for real.",
+  lead:"Synetrix lets you practice teaching-leadership conversations with AI support, get useful feedback and improve how you communicate, support and decide.",
+  demo:"Watch demo",
+  f1:"Evidence-based", f2:"Private & secure", f3:"Designed for teachers",
+  c1t:"Real cases", c1b:"Authentic situations from education to practice safely.",
+  c2t:"AI Coach", c2b:"Real-time support to help you listen, ask and move forward better.",
+  c3t:"Actionable feedback", c3b:"Concrete suggestions to turn every conversation into learning.",
+  foot_sub:"At the University of Salamanca for AATSP",
+  m_step1:"Describe your case", m_step2:"Practice the conversation", m_step3:"Get feedback",
+  m_ctx:"View full context →", m_coach:"AI Coach",
+  m_l1:"Active listening", m_l1b:"You're showing interest and understanding.",
+  m_l2:"Ask open questions", m_l2b:"You're on the right track. Go a bit deeper.",
+  m_l3:"Validate emotions", m_l3b:"Your reply brings empathy and support.",
+  m_prog:"Conversation progress", m_ph:"Type your reply…"
+};
+const T_ES = {};
+document.querySelectorAll("[data-k]").forEach(el=>{ T_ES[el.getAttribute("data-k")] = el.innerHTML; });
+
+function applyLang(l){
+  const dict = l==="en"?T_EN:T_ES;
+  document.querySelectorAll("[data-k]").forEach(el=>{
+    const k=el.getAttribute("data-k"); if(dict[k]!=null) el.innerHTML=dict[k];
+  });
+  document.documentElement.lang=l;
+  document.getElementById("lg-es").classList.toggle("on", l==="es");
+  document.getElementById("lg-en").classList.toggle("on", l==="en");
+  // pasar el idioma al simulador por la URL
+  document.querySelectorAll('a[href*="AATSPSIM"]').forEach(a=>{
+    a.href = "https://mpereda-ops.github.io/masterfusiones/AATSPSIM?lang="+l;
+  });
+  try{ localStorage.setItem("synetrix_lang", l); }catch(e){}
+}
+function setLang(l){ applyLang(l); }
+(function(){ let l="es"; try{ l=localStorage.getItem("synetrix_lang")||"es"; }catch(e){}
+  if(l==="en") applyLang("en"); else applyLang("es"); })();
+
+</script>
+</body>
+</html>
