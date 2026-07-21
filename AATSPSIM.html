@@ -73,7 +73,7 @@ const TUTOR_CONFIG = {
   timeoutMs: 25000
 };
 const MAX_CASES = 8;
-const HOME_URL = "https://mpereda-ops.github.io/masterfusiones/AATSP";
+const HOME_URL = "https://mpereda-ops.github.io/masterfusiones/AATSP.html";
 
 /* ── i18n ── */
 const I18N = {
@@ -115,7 +115,7 @@ const I18N = {
     footer_b:"Herramienta educativa del taller de liderazgo de la AATSP desde la Universidad de Salamanca. No es una herramienta de gestión de personas ni sustituye el criterio profesional. Los personajes son simulaciones generadas por IA.",
     confirm_del_a:"¿Borrar el caso de ", confirm_del_b:"? Se perderá la conversación.",
     alert_max:"Has alcanzado el máximo de "+MAX_CASES+" casos abiertos. Borra alguno desde «Mis casos» para crear otro.",
-    err_conn:"No se pudo conectar con el servidor. Inténtalo de nuevo.",
+    err_conn:"No se pudo conectar con el servidor.", retry:"Reintentar",
     err_gen:"No se pudo generar el caso (¿conexión con el servidor?). Inténtalo de nuevo.",
     err_suggest:"No se pudo generar la sugerencia. Inténtalo de nuevo.",
     err_hint:"No se pudo generar la pista. Inténtalo de nuevo.",
@@ -166,7 +166,7 @@ const I18N = {
     footer_b:"Educational tool for the AATSP leadership workshop from the University of Salamanca. It is not a people-management tool and does not replace professional judgment. Characters are AI-generated simulations.",
     confirm_del_a:"Delete the case of ", confirm_del_b:"? The conversation will be lost.",
     alert_max:"You've reached the maximum of "+MAX_CASES+" open cases. Delete one from “My cases” to create another.",
-    err_conn:"Couldn't connect to the server. Please try again.",
+    err_conn:"Couldn't connect to the server.", retry:"Retry",
     err_gen:"Couldn't generate the case (server connection?). Please try again.",
     err_suggest:"Couldn't generate the suggestion. Please try again.",
     err_hint:"Couldn't generate the hint. Please try again.",
@@ -226,10 +226,10 @@ A partir del caso real que te describe un líder, diseña un personaje simulado 
  "traits": ["2 o 3 rasgos MUY breves del estado emocional actual, 1-3 palabras cada uno, en ${L}"],
  "avatar": "elige la etiqueta que MEJOR encaje: 'mujer_madura', 'mujer_joven', 'hombre_joven', 'hombre_maduro' o 'mujer_alternativa'",
  "opener": "primera frase que dice el personaje al iniciar la conversación: natural, emocionalmente realista, 1-3 frases, en ${L}",
- "persona": "instrucciones para que una IA interprete a este personaje. Incluye quién es, qué siente y por qué, qué le hace ABRIRSE (curiosidad, escucha, validación, reconocimiento) y qué le hace CERRARSE (reproche, paternalismo, saltar a soluciones, minimizar), y cómo evoluciona. Termina SIEMPRE con: 'Responde SIEMPRE en ${L}, en 2-4 frases, de forma emocionalmente realista, como una persona real, nunca como un chatbot servicial.'",
+ "persona": "instrucciones para que una IA interprete a este personaje. Incluye quién es, qué siente y por qué, qué le hace ABRIRSE (curiosidad, escucha, validación, reconocimiento) y qué le hace CERRARSE (reproche, paternalismo, saltar a soluciones, minimizar), y cómo evoluciona. Termina SIEMPRE con: 'Mantengo SIEMPRE un registro respetuoso y profesional, propio de un contexto educativo universitario; NUNCA uso palabras malsonantes, tacos ni lenguaje vulgar, ni siquiera enfadado o frustrado: expreso mis emociones con vocabulario correcto y cuidado. Respondo SIEMPRE en ${L}, en 2-4 frases, de forma emocionalmente realista, como una persona real, nunca como un chatbot servicial.'",
  "lens": "1-2 frases en ${L} nombrando qué marcos son más relevantes para evaluar esta conversación"
 }
-Ancla el diseño en la psicología real del reto. Personaje humano, con matices, ni demasiado fácil ni demasiado hostil.`;
+Ancla el diseño en la psicología real del reto. Personaje humano, con matices, ni demasiado fácil ni demasiado hostil, pero SIEMPRE con lenguaje correcto y respetuoso (sin tacos ni vulgaridades), adecuado para un seminario universitario.`;
 }
 function coachSystem(lens, goal){
   const L=langName();
@@ -288,13 +288,13 @@ function set(patch){ Object.assign(state,patch); save(); render(); }
 function cur(){ return state.cases.find(c=>c.id===state.currentId)||null; }
 function setLang(l){ state.lang=l; document.documentElement.lang=l; set({}); }
 
-async function callAI(system, messages){
+async function callAI(system, messages, maxTokens){
   if(!TUTOR_CONFIG.endpoint) throw new Error("sin endpoint");
   const ctrl=new AbortController(); const timer=setTimeout(()=>ctrl.abort(), TUTOR_CONFIG.timeoutMs);
   try{
     const resp=await fetch(TUTOR_CONFIG.endpoint,{ method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({model:TUTOR_CONFIG.model,system,messages,max_tokens:TUTOR_CONFIG.maxTokens}),
+      body:JSON.stringify({model:TUTOR_CONFIG.model,system,messages,max_tokens:maxTokens||TUTOR_CONFIG.maxTokens}),
       signal:ctrl.signal });
     clearTimeout(timer);
     if(!resp.ok) throw new Error("HTTP "+resp.status);
@@ -328,6 +328,21 @@ function toggleCases(){ set({ showCases:!state.showCases }); }
 function loadExample(i){ const ex=EXAMPLES[i], d=ex[state.lang];
   set({ draft:{person:d.person,challenge:ex.key,situation:d.situation,goal:d.goal} }); }
 
+// Parseo tolerante: aísla el objeto y repara errores típicos de JSON de LLM.
+function tryParseJSON(raw){
+  if(!raw) return null;
+  let s=raw.replace(/```json/gi,"").replace(/```/g,"").trim();
+  const i=s.indexOf("{"), j=s.lastIndexOf("}");
+  if(i!==-1 && j!==-1 && j>i) s=s.slice(i,j+1);
+  const attempts=[
+    s,
+    s.replace(/,(\s*[}\]])/g,"$1"),                          // quita comas finales
+    s.replace(/,(\s*[}\]])/g,"$1").replace(/[\u201C\u201D]/g,'\\"').replace(/[\u2018\u2019]/g,"'") // comillas tipográficas
+  ];
+  for(const a of attempts){ try{ return JSON.parse(a); }catch(e){} }
+  return null;
+}
+
 async function generate(){
   const f=state.draft;
   if(!f.situation.trim()||!f.goal.trim()){ set({error:t("err_fill")}); return; }
@@ -338,25 +353,46 @@ Persona: ${f.person||"(sin especificar)"}
 Reto: ${chLabel(ch)} — foco: ${chLens(ch)}
 Situación: ${f.situation}
 Objetivo del líder: ${f.goal}
-
+${f.challenge==="otro" ? "\nEl tipo de reto es abierto o no está definido: INFIERE el más probable a partir de la situación descrita y diseña el personaje igualmente. NO pidas aclaraciones ni devuelvas preguntas; devuelve directamente el JSON del personaje.\n" : ""}
 Diseña el personaje y devuelve solo el JSON en ${langName()}.`;
+  let obj=null;
+  for(let attempt=0; attempt<3 && !obj; attempt++){
+    try{
+      const p = attempt===0 ? prompt : prompt+"\n\nRECUERDA: devuelve ÚNICAMENTE el objeto JSON completo, empezando por { y terminando por }, sin ningún texto adicional. Mantén los campos breves para que quepa entero.";
+      const raw=await callAI(genSystem(),[{role:"user",content:p}], 1500);   // más tokens: evita que el JSON se corte
+      obj=tryParseJSON(raw);
+      if(obj && (!obj.persona||!obj.opener)) obj=null;
+    }catch(e){ /* reintenta */ }
+  }
+  if(!obj){ set({ error:t("err_gen"), view:"build" }); return; }
+  if(!Array.isArray(obj.traits)) obj.traits=[];
+  if(!obj.characterName) obj.characterName = state.lang==="en"?"The person":"La persona";
+  const c=newCaseObj({person:f.person,challenge:f.challenge,situation:f.situation,goal:f.goal});
+  obj.opener=softenLang(obj.opener); c.char=obj; c.messages=[{role:"them",content:obj.opener}];
+  state.cases.push(c);
+  set({ currentId:c.id, view:"dashboard", hint:null });
+}
+
+async function getReply(){
+  const c=cur(); if(!c) return;
+  set({ thinking:true, error:"", hint:null });
   try{
-    const raw=await callAI(genSystem(),[{role:"user",content:prompt}]);
-    const clean=raw.replace(/```json/gi,"").replace(/```/g,"").trim();
-    const obj=JSON.parse(clean);
-    if(!obj.persona||!obj.opener) throw new Error("shape");
-    if(!Array.isArray(obj.traits)) obj.traits=[];
-    const c=newCaseObj({person:f.person,challenge:f.challenge,situation:f.situation,goal:f.goal});
-    c.char=obj; c.messages=[{role:"them",content:obj.opener}];
-    state.cases.push(c);
-    set({ currentId:c.id, view:"dashboard", hint:null });
-  }catch(e){ set({ error:t("err_gen"), view:"build" }); }
+    const history=c.messages.filter((m,i)=>!(i===0&&m.role==="them"))
+      .map(m=>({role:m.role==="you"?"user":"assistant",content:m.content}));
+    const sys=c.char.persona+`\n\nTu primera frase fue: "${c.char.opener}". Continúa la conversación de forma natural en ${langName()}. IMPORTANTE: mantén SIEMPRE un registro respetuoso y profesional, propio de un seminario universitario; NUNCA uses palabras malsonantes, tacos ni lenguaje vulgar, aunque el personaje esté enfadado o dolido (expresa las emociones con vocabulario correcto).`;
+    const reply=await callAI(sys,history);
+    c.messages.push({role:"them",content:softenLang(reply)});
+    set({ thinking:false });
+  }catch(e){ set({ thinking:false, error:t("err_conn") }); }
 }
 
 async function send(){
-  const c=cur(); if(!c) return;
+  const c=cur(); if(!c||state.thinking) return;
+  const last=c.messages[c.messages.length-1];
+  // Si hay un mensaje tuyo pendiente sin respuesta (por un fallo anterior), reintentar en vez de duplicar.
+  if(last && last.role==="you"){ await getReply(); return; }
   const ta=document.getElementById("input"); const text=(ta?ta.value:"").trim();
-  if(!text||state.thinking) return;
+  if(!text) return;
   const kind=classify(text);
   if(kind==="empath") c.tally.empath++;
   if(kind==="accuse") c.tally.accuse++;
@@ -366,16 +402,12 @@ async function send(){
   if(kind==="empath") c.openness=Math.min(5,c.openness+1);
   else if(kind==="accuse"||kind==="solve") c.openness=Math.max(0,c.openness-1);
   c.messages.push({role:"you",content:text});
-  set({ thinking:true, error:"", hint:null });
-  try{
-    const history=c.messages.filter((m,i)=>!(i===0&&m.role==="them"))
-      .map(m=>({role:m.role==="you"?"user":"assistant",content:m.content}));
-    const sys=c.char.persona+`\n\nTu primera frase fue: "${c.char.opener}". Continúa la conversación de forma natural en ${langName()}.`;
-    const reply=await callAI(sys,history);
-    c.messages.push({role:"them",content:reply});
-    set({ thinking:false });
-  }catch(e){ set({ thinking:false, error:t("err_conn") }); }
+  await getReply();
 }
+
+function retry(){ const c=cur(); if(!c||state.thinking) return;
+  const last=c.messages[c.messages.length-1];
+  if(last && last.role==="you") getReply(); }
 
 async function suggest(){
   const c=cur(); if(!c||state.suggesting||state.thinking) return;
@@ -420,6 +452,25 @@ async function getFeedback(){
     c.feedback=parseFeedback(text);
     set({ loadingFb:false });
   }catch(e){ set({ loadingFb:false, error:t("err_fb") }); }
+}
+
+// Red de seguridad: suaviza lenguaje malsonante por si la IA lo produce pese al prompt.
+function softenLang(s){
+  if(!s) return s;
+  const rules=[
+    [/\b(joder|jolines|jope|jolín)\b/gi,"vaya"],
+    [/\b(hostias?)\b/gi,"madre mía"],
+    [/\b(co[ñn]o)\b/gi,"vaya"],
+    [/\b(mierda)\b/gi,"desastre"],
+    [/\bme cago en [a-záéíóúñ ]+/gi,""],
+    [/\b(cabr[oó]n|cabrona|gilipollas|gilipolle[cz]e?s?|capullo|put[ao]s?|joputa|hijo de puta)\b/gi,""],
+    [/\b(fuck(ing)?|shit|damn|crap|bastard|asshole|bullshit)\b/gi,""]
+  ];
+  let out=s;
+  for(const r of rules) out=out.replace(r[0],r[1]);
+  out=out.replace(/\s{2,}/g," ").replace(/\s+([,.;:!?…])/g,"$1").replace(/^[\s,;:¡!]+/,"").trim();
+  if(out) out=out.charAt(0).toUpperCase()+out.slice(1);
+  return out;
 }
 
 function parseFeedback(text){
@@ -668,7 +719,7 @@ function viewBuild(){ const ch=chObjOf(state.draft.challenge); const hasCases=st
         <input class="in" oninput="state.draft.goal=this.value" value="${esc(state.draft.goal)}" placeholder="${t("f_goal_ph")}" style="width:100%;border:1px solid var(--line);border-radius:11px;padding:12px 14px;font-size:15px;background:#FCFCFE;">
       </div>
       ${state.error?`<p style="color:#DC2626;font-size:13.5px;margin-bottom:14px;">${esc(state.error)}</p>`:""}
-      <button onclick="generate()" ${(!state.draft.situation.trim()||!state.draft.goal.trim())?"disabled":""} class="grad-btn" style="padding:14px 28px;border-radius:12px;font-size:15.5px;font-weight:600;display:inline-flex;align-items:center;gap:8px;">
+      <button onclick="generate()" class="grad-btn" style="padding:14px 28px;border-radius:12px;font-size:15.5px;font-weight:600;display:inline-flex;align-items:center;gap:8px;">
         ${ic("sparkles",18,"#fff")} ${t("generate_btn")}
       </button>
     </div>
@@ -751,7 +802,7 @@ function colChat(){ const c=cur(); const ch=c.char, disabled=youCount()===0;
       </div>
     </div>
     <div class="thread" id="thread" style="flex:1;overflow-y:auto;max-height:44vh;padding:16px 2px 8px;display:flex;flex-direction:column;gap:14px;">${msgs}${typing}</div>
-    ${state.error?`<p style="color:#DC2626;font-size:13px;margin:8px 0 0;">${esc(state.error)}</p>`:""}
+    ${state.error?`<div style="margin:8px 0 0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;"><span style="color:#DC2626;font-size:13px;">${esc(state.error)}</span>${(c.messages.length&&c.messages[c.messages.length-1].role==="you"&&!state.thinking)?`<button onclick="retry()" style="background:#DC2626;color:#fff;border-radius:8px;font-size:13px;font-weight:600;padding:7px 14px;display:inline-flex;align-items:center;gap:6px;">${ic("send",14,"#fff")} ${t("retry")}</button>`:""}</div>`:""}
     <div style="margin-top:14px;">
       ${hintBox}
       <div style="display:flex;gap:8px;margin-bottom:9px;flex-wrap:wrap;">
